@@ -4,104 +4,142 @@
 <meta charset="UTF-8">
 <title>SSIDMail - Temporary Email</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
+:root {
+    --bg: linear-gradient(135deg, #667eea, #764ba2);
+    --card: rgba(255,255,255,0.15);
+    --text: white;
+    --box: rgba(255,255,255,0.2);
+}
+
+body.light {
+    --bg: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    --card: white;
+    --text: #222;
+    --box: #f1f1f1;
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-family:'Poppins', sans-serif;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: var(--bg);
+    transition:0.4s;
+}
+
+.container {
+    width:480px;
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--card);
     backdrop-filter: blur(15px);
-    padding: 40px;
-    border-radius: 20px;
-    width: 420px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    padding:30px;
+    border-radius:20px;
+    color: var(--text);
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);
 }
 
-h1 {
-    font-size: 28px;
-    margin-bottom: 10px;
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
 }
 
-.subtitle {
-    font-size: 14px;
-    opacity: 0.8;
-    margin-bottom: 25px;
+.toggle {
+    cursor:pointer;
+    font-size:14px;
+    opacity:0.8;
 }
 
 .email-box {
-    background: rgba(255,255,255,0.2);
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 16px;
+    background: var(--box);
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
     word-break: break-all;
-    margin-bottom: 25px;
 }
 
 .buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
 }
 
 button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s;
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
 }
 
 .generate {
-    background: #ffffff;
-    color: #333;
-}
-
-.generate:hover {
-    background: #f1f1f1;
+    background:#fff;
+    color:#333;
 }
 
 .copy {
-    background: #00e0a4;
-    color: #003d2e;
+    background:#00e0a4;
+    color:#003d2e;
 }
 
-.copy:hover {
-    background: #00c892;
+.inbox {
+    background: var(--box);
+    padding:15px;
+    border-radius:10px;
+    max-height:200px;
+    overflow:auto;
+}
+
+.email-item {
+    padding:10px;
+    border-bottom:1px solid rgba(255,255,255,0.2);
+    font-size:13px;
+}
+
+.email-item:last-child {
+    border-bottom:none;
+}
+
+.empty {
+    opacity:0.6;
+    font-size:13px;
+    text-align:center;
 }
 
 .success {
-    margin-top: 15px;
-    font-size: 13px;
-    opacity: 0;
-    transition: 0.3s;
+    font-size:12px;
+    margin-top:10px;
+    opacity:0;
+    transition:0.3s;
 }
 
 .success.show {
-    opacity: 1;
+    opacity:1;
 }
 </style>
 </head>
 <body>
 
+<div class="container">
 <div class="card">
-    <h1>SSIDMail</h1>
-    <div class="subtitle">Generate Temporary Email</div>
+
+    <div class="header">
+        <h2>SSIDMail</h2>
+        <div class="toggle" onclick="toggleMode()">🌗 Toggle</div>
+    </div>
 
     <div class="email-box" id="email"></div>
 
@@ -110,32 +148,59 @@ button {
         <button class="copy" onclick="copyEmail()">Copy</button>
     </div>
 
-    <div class="success" id="successMsg">Copied to clipboard ✔</div>
+    <div class="success" id="successMsg">Copied ✔</div>
+
+    <h4 style="margin:15px 0 10px;">📬 Inbox</h4>
+
+    <div class="inbox" id="inbox">
+        <div class="empty">No emails yet...</div>
+    </div>
+
+</div>
 </div>
 
 <script>
-function randomString(length) {
-    let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+
+function randomString(length){
+    let chars="abcdefghijklmnopqrstuvwxyz0123456789";
+    let result="";
+    for(let i=0;i<length;i++){
+        result+=chars.charAt(Math.floor(Math.random()*chars.length));
     }
     return result;
 }
 
-function generateEmail() {
-    let email = randomString(10) + "@ssidmail.my.id";
-    document.getElementById("email").innerText = email;
+function generateEmail(){
+    let email=randomString(10)+"@ssidmail.my.id";
+    document.getElementById("email").innerText=email;
     document.getElementById("successMsg").classList.remove("show");
+    clearInbox();
 }
 
-function copyEmail() {
-    let email = document.getElementById("email").innerText;
+function copyEmail(){
+    let email=document.getElementById("email").innerText;
     navigator.clipboard.writeText(email);
     document.getElementById("successMsg").classList.add("show");
 }
 
+function toggleMode(){
+    document.body.classList.toggle("light");
+}
+
+function clearInbox(){
+    document.getElementById("inbox").innerHTML=
+        '<div class="empty">No emails yet...</div>';
+}
+
+// Dummy email simulation
+setTimeout(()=>{
+    let inbox=document.getElementById("inbox");
+    inbox.innerHTML=
+        '<div class="email-item"><strong>Welcome!</strong><br>This is a test email for your temporary inbox.</div>';
+},5000);
+
 generateEmail();
+
 </script>
 
 </body>
