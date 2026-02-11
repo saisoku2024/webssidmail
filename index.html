@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSIDMail - Temporary Email Generator</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 100px;
+            background: #f4f6f8;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            width: 400px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        #email {
+            font-size: 20px;
+            margin: 20px 0;
+            color: #0077ff;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: #0077ff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005ad1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h1>SSIDMail</h1>
+    <p>Generate Temporary Email</p>
+    <div id="email"></div>
+    <button onclick="generateEmail()">Generate</button>
+    <button onclick="copyEmail()">Copy</button>
+</div>
+
+<script>
+function randomString(length) {
+    let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+function generateEmail() {
+    let email = randomString(10) + "@ssidmail.my.id";
+    document.getElementById("email").innerText = email;
+}
+
+function copyEmail() {
+    let email = document.getElementById("email").innerText;
+    navigator.clipboard.writeText(email);
+    alert("Email copied!");
+}
+
+generateEmail();
+</script>
+
+</body>
+</html>
