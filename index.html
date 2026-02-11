@@ -8,39 +8,47 @@
 
 <style>
 
-:root{
-  --bg:#f4f6fb;
-  --card:#ffffff;
-  --text:#111827;
-  --accent:#6366f1;
-}
-
-body.dark{
-  --bg:#0f172a;
-  --card:#1e293b;
-  --text:#f1f5f9;
-  --accent:#818cf8;
-}
-
+/* ===== Animated Gradient ===== */
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  transition:0.3s;
+  background: linear-gradient(-45deg,#667eea,#764ba2,#4f46e5,#3b82f6);
+  background-size:400% 400%;
+  animation: gradientMove 12s ease infinite;
+  min-height:100vh;
+  padding:30px;
+}
+
+@keyframes gradientMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Theme */
+:root{
+  --card:#ffffff;
+  --text:#111827;
+}
+
+body.dark{
+  --card:#1e293b;
+  --text:#f1f5f9;
+}
+
+.wrapper{
+  max-width:900px;
+  margin:auto;
 }
 
 .card{
   background:var(--card);
-  padding:40px;
+  color:var(--text);
+  padding:30px;
   border-radius:20px;
-  width:420px;
-  text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  margin-bottom:25px;
+  transition:0.3s;
 }
 
 input{
@@ -52,19 +60,13 @@ input{
   font-size:14px;
 }
 
-.domain{
-  font-size:13px;
-  opacity:0.7;
-  margin-bottom:15px;
-}
-
 .email-box{
   background:rgba(0,0,0,0.05);
-  padding:15px;
+  padding:12px;
   border-radius:10px;
-  font-size:15px;
+  margin-bottom:15px;
+  font-size:14px;
   word-break:break-all;
-  margin-bottom:20px;
 }
 
 .buttons{
@@ -75,22 +77,56 @@ input{
 
 button{
   flex:1;
-  padding:12px;
+  padding:10px;
   border:none;
   border-radius:8px;
   font-weight:600;
   cursor:pointer;
+  color:white;
+}
+
+.generate{background:#6366f1;}
+.copy{background:#10b981;}
+.refresh{background:#f59e0b;}
+.toggle{background:#111; margin-top:15px;}
+
+/* Inbox */
+.mail{
+  background:rgba(0,0,0,0.05);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+.meta{
+  font-size:12px;
+  opacity:0.7;
+}
+
+pre{
+  white-space:pre-wrap;
+  font-family:inherit;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#10b981;
+  color:white;
+  padding:10px 18px;
+  border-radius:8px;
+  opacity:0;
   transition:0.3s;
 }
 
-.generate{ background:var(--accent); color:white; }
-.copy{ background:#10b981; color:white; }
-.inbox{ background:#3b82f6; color:white; }
-.refresh{ background:#f59e0b; color:white; }
-.toggle{ margin-top:15px; background:#111; color:white; }
+.toast.show{
+  opacity:1;
+}
 
-@media(max-width:500px){
-  .card{ width:90%; padding:25px; }
+@media(max-width:600px){
+  body{padding:15px;}
 }
 
 </style>
@@ -98,96 +134,112 @@ button{
 
 <body>
 
+<div class="wrapper">
+
+<!-- Generator Card -->
 <div class="card">
   <h2>📬 SSIDMail</h2>
   <div style="font-size:13px;opacity:0.7;margin-bottom:20px;">
     Create Temporary Email
   </div>
 
-  <!-- Username Input -->
   <input id="username" placeholder="Enter username">
-  <div class="domain">@ssidmail.my.id</div>
+  <div style="font-size:12px;opacity:0.6;margin-bottom:10px;">
+    @ssidmail.my.id
+  </div>
 
-  <!-- Result -->
   <div class="email-box" id="email">Not generated</div>
 
   <div class="buttons">
     <button class="generate" onclick="createEmail()">Create</button>
     <button class="copy" onclick="copyEmail()">Copy</button>
-  </div>
-
-  <div class="buttons" style="margin-top:10px;">
-    <button class="inbox" onclick="openInbox()">Open Inbox</button>
-    <button class="refresh" onclick="refreshInbox()">Refresh Inbox</button>
+    <button class="refresh" onclick="loadInbox()">Refresh Inbox</button>
   </div>
 
   <button class="toggle" onclick="toggleMode()">🌙 Toggle Mode</button>
 </div>
 
+<!-- Inbox Section -->
+<div class="card">
+  <h3>📥 Inbox</h3>
+  <div id="inboxContent">No emails loaded...</div>
+</div>
+
+</div>
+
+<div class="toast" id="toast">Copied ✔</div>
+
 <script>
+
+const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
 function createEmail(){
   const user = document.getElementById("username").value.trim();
-
-  if(!user){
-    alert("Enter username first!");
-    return;
-  }
+  if(!user){ showToast("Enter username first"); return; }
 
   const email = user + "@ssidmail.my.id";
   document.getElementById("email").innerText = email;
-
   localStorage.setItem("tempEmail", email);
+  loadInbox();
 }
 
 function copyEmail(){
   const email = document.getElementById("email").innerText;
-  if(email === "Not generated") return;
+  if(email==="Not generated") return;
   navigator.clipboard.writeText(email);
-  alert("Copied!");
+  showToast("Copied ✔");
 }
 
-function openInbox(){
+function loadInbox(){
   const email = localStorage.getItem("tempEmail");
-  if(!email){
-    alert("Create email first!");
-    return;
-  }
+  if(!email){ showToast("Create email first"); return; }
 
-  window.open(
-    "https://email-handler.saisoku-id2020.workers.dev/inbox?email=" + email,
-    "_blank"
-  );
-}
+  fetch(workerURL + email)
+  .then(res=>res.json())
+  .then(data=>{
+    if(data.length===0){
+      document.getElementById("inboxContent").innerHTML="No emails yet...";
+      return;
+    }
 
-function refreshInbox(){
-  const email = localStorage.getItem("tempEmail");
-  if(!email){
-    alert("Create email first!");
-    return;
-  }
+    let html="";
+    data.reverse().forEach(mail=>{
+      html+=`
+      <div class="mail">
+        <strong>${mail.subject}</strong>
+        <div class="meta">${mail.from}</div>
+        <div class="meta">${mail.date}</div>
+        <hr>
+        <pre>${mail.content}</pre>
+      </div>
+      `;
+    });
 
-  window.open(
-    "https://email-handler.saisoku-id2020.workers.dev/inbox?email=" + email,
-    "_blank"
-  );
+    document.getElementById("inboxContent").innerHTML=html;
+  });
 }
 
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
+    document.body.classList.contains("dark")?"dark":"light");
 }
 
-/* Restore saved email */
-const saved = localStorage.getItem("tempEmail");
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+/* Restore saved */
+const saved=localStorage.getItem("tempEmail");
 if(saved){
-  document.getElementById("email").innerText = saved;
-  document.getElementById("username").value = saved.split("@")[0];
+  document.getElementById("email").innerText=saved;
+  document.getElementById("username").value=saved.split("@")[0];
+  loadInbox();
 }
 
-/* Restore theme */
 if(localStorage.getItem("theme")==="dark"){
   document.body.classList.add("dark");
 }
