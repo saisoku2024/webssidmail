@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SSIDMail - Temporary Email</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -39,19 +38,24 @@ body{
   background:var(--card);
   padding:40px;
   border-radius:20px;
-  width:400px;
+  width:420px;
   text-align:center;
   box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
-h1{
+input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
   margin-bottom:10px;
+  font-size:14px;
 }
 
-.subtitle{
-  font-size:14px;
+.domain{
+  font-size:13px;
   opacity:0.7;
-  margin-bottom:25px;
+  margin-bottom:15px;
 }
 
 .email-box{
@@ -79,32 +83,14 @@ button{
   transition:0.3s;
 }
 
-.generate{
-  background:var(--accent);
-  color:white;
-}
-
-.copy{
-  background:#10b981;
-  color:white;
-}
-
-.inbox{
-  background:#3b82f6;
-  color:white;
-}
-
-.toggle{
-  margin-top:15px;
-  background:#111;
-  color:white;
-}
+.generate{ background:var(--accent); color:white; }
+.copy{ background:#10b981; color:white; }
+.inbox{ background:#3b82f6; color:white; }
+.refresh{ background:#f59e0b; color:white; }
+.toggle{ margin-top:15px; background:#111; color:white; }
 
 @media(max-width:500px){
-  .card{
-    width:90%;
-    padding:25px;
-  }
+  .card{ width:90%; padding:25px; }
 }
 
 </style>
@@ -113,15 +99,26 @@ button{
 <body>
 
 <div class="card">
-  <h1>📬 SSIDMail</h1>
-  <div class="subtitle">Free Temporary Email</div>
+  <h2>📬 SSIDMail</h2>
+  <div style="font-size:13px;opacity:0.7;margin-bottom:20px;">
+    Create Temporary Email
+  </div>
 
-  <div class="email-box" id="email"></div>
+  <!-- Username Input -->
+  <input id="username" placeholder="Enter username">
+  <div class="domain">@ssidmail.my.id</div>
+
+  <!-- Result -->
+  <div class="email-box" id="email">Not generated</div>
 
   <div class="buttons">
-    <button class="generate" onclick="generateEmail()">Generate</button>
+    <button class="generate" onclick="createEmail()">Create</button>
     <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="inbox" onclick="openInbox()">Inbox</button>
+  </div>
+
+  <div class="buttons" style="margin-top:10px;">
+    <button class="inbox" onclick="openInbox()">Open Inbox</button>
+    <button class="refresh" onclick="refreshInbox()">Refresh Inbox</button>
   </div>
 
   <button class="toggle" onclick="toggleMode()">🌙 Toggle Mode</button>
@@ -129,35 +126,49 @@ button{
 
 <script>
 
-function randomString(length){
-  const chars="abcdefghijklmnopqrstuvwxyz0123456789";
-  let result="";
-  for(let i=0;i<length;i++){
-    result+=chars.charAt(Math.floor(Math.random()*chars.length));
-  }
-  return result;
-}
+function createEmail(){
+  const user = document.getElementById("username").value.trim();
 
-function generateEmail(){
-  const email=randomString(10)+"@ssidmail.my.id";
-  document.getElementById("email").innerText=email;
-  localStorage.setItem("tempEmail",email);
+  if(!user){
+    alert("Enter username first!");
+    return;
+  }
+
+  const email = user + "@ssidmail.my.id";
+  document.getElementById("email").innerText = email;
+
+  localStorage.setItem("tempEmail", email);
 }
 
 function copyEmail(){
-  const email=document.getElementById("email").innerText;
+  const email = document.getElementById("email").innerText;
+  if(email === "Not generated") return;
   navigator.clipboard.writeText(email);
   alert("Copied!");
 }
 
 function openInbox(){
-  const email=document.getElementById("email").innerText;
+  const email = localStorage.getItem("tempEmail");
   if(!email){
-    alert("Generate email first!");
+    alert("Create email first!");
     return;
   }
+
   window.open(
-    "https://email-handler.saisoku-id2020.workers.dev/inbox?email="+email,
+    "https://email-handler.saisoku-id2020.workers.dev/inbox?email=" + email,
+    "_blank"
+  );
+}
+
+function refreshInbox(){
+  const email = localStorage.getItem("tempEmail");
+  if(!email){
+    alert("Create email first!");
+    return;
+  }
+
+  window.open(
+    "https://email-handler.saisoku-id2020.workers.dev/inbox?email=" + email,
     "_blank"
   );
 }
@@ -165,20 +176,20 @@ function openInbox(){
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
-    document.body.classList.contains("dark")?"dark":"light"
+    document.body.classList.contains("dark") ? "dark" : "light"
   );
 }
 
-// Restore
-if(localStorage.getItem("theme")==="dark"){
-  document.body.classList.add("dark");
+/* Restore saved email */
+const saved = localStorage.getItem("tempEmail");
+if(saved){
+  document.getElementById("email").innerText = saved;
+  document.getElementById("username").value = saved.split("@")[0];
 }
 
-const saved=localStorage.getItem("tempEmail");
-if(saved){
-  document.getElementById("email").innerText=saved;
-}else{
-  generateEmail();
+/* Restore theme */
+if(localStorage.getItem("theme")==="dark"){
+  document.body.classList.add("dark");
 }
 
 </script>
