@@ -1,52 +1,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SSIDMail - Temporary Email Generator</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 100px;
-            background: #f4f6f8;
-        }
-        .box {
-            background: white;
-            padding: 30px;
-            width: 400px;
-            margin: auto;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        #email {
-            font-size: 20px;
-            margin: 20px 0;
-            color: #0077ff;
-        }
-        button {
-            padding: 10px 20px;
-            border: none;
-            background: #0077ff;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        button:hover {
-            background: #005ad1;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>SSIDMail - Temporary Email</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 420px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 25px;
+}
+
+.email-box {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    word-break: break-all;
+    margin-bottom: 25px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.generate {
+    background: #ffffff;
+    color: #333;
+}
+
+.generate:hover {
+    background: #f1f1f1;
+}
+
+.copy {
+    background: #00e0a4;
+    color: #003d2e;
+}
+
+.copy:hover {
+    background: #00c892;
+}
+
+.success {
+    margin-top: 15px;
+    font-size: 13px;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.success.show {
+    opacity: 1;
+}
+</style>
 </head>
 <body>
 
-<div class="box">
+<div class="card">
     <h1>SSIDMail</h1>
-    <p>Generate Temporary Email</p>
-    <div id="email"></div>
-    <button onclick="generateEmail()">Generate</button>
-    <button onclick="copyEmail()">Copy</button>
+    <div class="subtitle">Generate Temporary Email</div>
+
+    <div class="email-box" id="email"></div>
+
+    <div class="buttons">
+        <button class="generate" onclick="generateEmail()">Generate</button>
+        <button class="copy" onclick="copyEmail()">Copy</button>
+    </div>
+
+    <div class="success" id="successMsg">Copied to clipboard ✔</div>
 </div>
 
 <script>
@@ -62,12 +126,13 @@ function randomString(length) {
 function generateEmail() {
     let email = randomString(10) + "@ssidmail.my.id";
     document.getElementById("email").innerText = email;
+    document.getElementById("successMsg").classList.remove("show");
 }
 
 function copyEmail() {
     let email = document.getElementById("email").innerText;
     navigator.clipboard.writeText(email);
-    alert("Email copied!");
+    document.getElementById("successMsg").classList.add("show");
 }
 
 generateEmail();
