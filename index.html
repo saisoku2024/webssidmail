@@ -1,13 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSIDMail - Temporary Email</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background: linear-gradient(-45deg,#667eea,#764ba2,#4f46e5,#3b82f6);
+  background-size:400% 400%;
+  animation: gradientMove 12s ease infinite;
+  min-height:100vh;
+  padding:30px;
+}
+
+@keyframes gradientMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+:root{
+  --card:#ffffff;
+  --text:#111827;
+}
+
+body.dark{
+  --card:#1e293b;
+  --text:#f1f5f9;
+}
+
+.wrapper{
+  max-width:900px;
+  margin:auto;
+}
+
+.card{
+  background:var(--card);
+  color:var(--text);
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  margin-bottom:25px;
+  transition:0.3s;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  margin-bottom:10px;
+  font-size:14px;
+}
+
+.email-box{
+  background:rgba(0,0,0,0.05);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:15px;
+  font-size:14px;
+  word-break:break-all;
+}
+
+.buttons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  color:white;
+}
+
+.generate{background:#6366f1;}
+.copy{background:#10b981;}
+.refresh{background:#f59e0b;}
+.toggle{background:#111; margin-top:15px;}
+
+.mail{
+  background:rgba(0,0,0,0.05);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+.meta{
+  font-size:12px;
+  opacity:0.7;
+}
+
+pre{
+  white-space:pre-wrap;
+  font-family:inherit;
+}
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#10b981;
+  color:white;
+  padding:10px 18px;
+  border-radius:8px;
+  opacity:0;
+  transition:0.3s;
+}
+
+.toast.show{
+  opacity:1;
+}
+
+@media(max-width:600px){
+  body{padding:15px;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="card">
+  <h2>📬 SSIDMail</h2>
+  <div style="font-size:13px;opacity:0.7;margin-bottom:20px;">
+    Create Temporary Email
+  </div>
+
+  <input id="username" placeholder="Enter username">
+  <div style="font-size:12px;opacity:0.6;margin-bottom:10px;">
+    @ssidmail.my.id
+  </div>
+
+  <div class="email-box" id="email">Not generated</div>
+
+  <div class="buttons">
+    <button class="generate" onclick="createEmail()">Create</button>
+    <button class="copy" onclick="copyEmail()">Copy</button>
+    <button class="refresh" onclick="loadInbox()">Refresh Inbox</button>
+  </div>
+
+  <button class="toggle" onclick="toggleMode()">🌙 Toggle Mode</button>
+</div>
+
+<div class="card">
+  <h3>📥 Inbox</h3>
+  <div id="inboxContent">No emails loaded...</div>
+</div>
+
+</div>
+
+<div class="toast" id="toast">Copied ✔</div>
+
 <script>
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
-let autoReload = true;
-let countdown = 15;
-let interval;
 
-// =============================
-// CREATE EMAIL
-// =============================
 function createEmail(){
   const user = document.getElementById("username").value.trim();
   if(!user){ showToast("Enter username first"); return; }
@@ -15,24 +172,16 @@ function createEmail(){
   const email = user + "@ssidmail.my.id";
   document.getElementById("email").innerText = email;
   localStorage.setItem("tempEmail", email);
-
   loadInbox();
 }
 
-// =============================
-// COPY
-// =============================
 function copyEmail(){
   const email = document.getElementById("email").innerText;
   if(email==="Not generated") return;
-
   navigator.clipboard.writeText(email);
   showToast("Copied ✔");
 }
 
-// =============================
-// LOAD INBOX
-// =============================
 async function loadInbox(){
 
   const email = localStorage.getItem("tempEmail");
@@ -51,15 +200,11 @@ async function loadInbox(){
       { cache: "no-store" }
     );
 
-    const text = await response.text();
-
-    // Try parse JSON
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error("Worker not returning JSON");
+    if(!response.ok){
+      throw new Error("Server error");
     }
+
+    const data = await response.json();
 
     if(!Array.isArray(data) || data.length === 0){
       inbox.innerHTML = "No emails yet...";
@@ -83,48 +228,17 @@ async function loadInbox(){
     inbox.innerHTML = html;
 
   } catch(error){
-    inbox.innerHTML = "⚠ Failed to load inbox.<br>Check Worker JSON mode.";
+    inbox.innerHTML = "Failed to load inbox.";
     console.error(error);
   }
 }
 
-// =============================
-// AUTO RELOAD WITH COUNTDOWN
-// =============================
-function startAutoReload(){
-  const counter = document.getElementById("timer");
-  interval = setInterval(()=>{
-    if(!autoReload) return;
-
-    countdown--;
-    counter.innerText = countdown;
-
-    if(countdown <= 0){
-      countdown = 15;
-      loadInbox();
-    }
-
-  },1000);
-}
-
-function toggleAutoReload(){
-  autoReload = !autoReload;
-  document.getElementById("autoBtn").innerText =
-    autoReload ? "⏸ Auto Reload ON" : "▶ Auto Reload OFF";
-}
-
-// =============================
-// THEME
-// =============================
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
     document.body.classList.contains("dark")?"dark":"light");
 }
 
-// =============================
-// TOAST
-// =============================
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
@@ -132,9 +246,7 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-// =============================
-// RESTORE
-// =============================
+/* Restore saved */
 const saved=localStorage.getItem("tempEmail");
 if(saved){
   document.getElementById("email").innerText=saved;
@@ -142,11 +254,19 @@ if(saved){
   loadInbox();
 }
 
+/* Restore theme */
 if(localStorage.getItem("theme")==="dark"){
   document.body.classList.add("dark");
 }
 
-// start timer
-startAutoReload();
+/* Auto refresh setiap 15 detik */
+setInterval(()=>{
+  if(localStorage.getItem("tempEmail")){
+    loadInbox();
+  }
+},15000);
 
 </script>
+
+</body>
+</html>
