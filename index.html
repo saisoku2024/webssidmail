@@ -86,6 +86,7 @@ button{
 .copy{background:#10b981;}
 .refresh{background:#f59e0b;}
 .toggle{background:#111; margin-top:15px;}
+.auto{background:#ef4444;}
 
 .mail{
   background:rgba(0,0,0,0.05);
@@ -120,6 +121,12 @@ pre{
   opacity:1;
 }
 
+.countdown{
+  font-size:12px;
+  margin-top:8px;
+  opacity:0.7;
+}
+
 @media(max-width:600px){
   body{padding:15px;}
 }
@@ -149,6 +156,12 @@ pre{
     <button class="refresh" onclick="loadInbox()">Refresh Inbox</button>
   </div>
 
+  <div class="buttons" style="margin-top:10px;">
+    <button class="auto" onclick="toggleAutoRefresh()">Toggle Auto Refresh</button>
+  </div>
+
+  <div class="countdown" id="countdown"></div>
+
   <button class="toggle" onclick="toggleMode()">🌙 Toggle Mode</button>
 </div>
 
@@ -159,12 +172,17 @@ pre{
 
 </div>
 
-<div class="toast" id="toast">Copied ✔</div>
+<div class="toast" id="toast"></div>
 
 <script>
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
+let autoRefresh = true;
+let counter = 15;
+let timerInterval;
+
+/* ===== CREATE EMAIL ===== */
 function createEmail(){
   const user = document.getElementById("username").value.trim();
   if(!user){ showToast("Enter username first"); return; }
@@ -175,6 +193,7 @@ function createEmail(){
   loadInbox();
 }
 
+/* ===== COPY ===== */
 function copyEmail(){
   const email = document.getElementById("email").innerText;
   if(email==="Not generated") return;
@@ -182,6 +201,7 @@ function copyEmail(){
   showToast("Copied ✔");
 }
 
+/* ===== LOAD INBOX ===== */
 async function loadInbox(){
 
   const email = localStorage.getItem("tempEmail");
@@ -200,11 +220,15 @@ async function loadInbox(){
       { cache: "no-store" }
     );
 
-    if(!response.ok){
-      throw new Error("Server error");
-    }
+    const text = await response.text();
 
-    const data = await response.json();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e){
+      inbox.innerHTML = "Worker not returning JSON.";
+      return;
+    }
 
     if(!Array.isArray(data) || data.length === 0){
       inbox.innerHTML = "No emails yet...";
@@ -233,12 +257,40 @@ async function loadInbox(){
   }
 }
 
+/* ===== AUTO REFRESH ===== */
+function startTimer(){
+  clearInterval(timerInterval);
+  counter = 15;
+
+  timerInterval = setInterval(()=>{
+    if(!autoRefresh) return;
+
+    document.getElementById("countdown").innerText =
+      "Auto refresh in " + counter + "s";
+
+    counter--;
+
+    if(counter < 0){
+      loadInbox();
+      counter = 15;
+    }
+
+  },1000);
+}
+
+function toggleAutoRefresh(){
+  autoRefresh = !autoRefresh;
+  showToast(autoRefresh ? "Auto Refresh ON" : "Auto Refresh OFF");
+}
+
+/* ===== TOGGLE MODE ===== */
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
     document.body.classList.contains("dark")?"dark":"light");
 }
 
+/* ===== TOAST ===== */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
@@ -246,7 +298,7 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-/* Restore saved */
+/* ===== RESTORE ===== */
 const saved=localStorage.getItem("tempEmail");
 if(saved){
   document.getElementById("email").innerText=saved;
@@ -254,17 +306,11 @@ if(saved){
   loadInbox();
 }
 
-/* Restore theme */
 if(localStorage.getItem("theme")==="dark"){
   document.body.classList.add("dark");
 }
 
-/* Auto refresh setiap 15 detik */
-setInterval(()=>{
-  if(localStorage.getItem("tempEmail")){
-    loadInbox();
-  }
-},15000);
+startTimer();
 
 </script>
 
