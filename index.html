@@ -191,34 +191,56 @@ function copyEmail(){
 }
 
 function loadInbox(){
-  const email = localStorage.getItem("tempEmail");
-  if(!email){ showToast("Create email first"); return; }
+  async function loadInbox(){
 
-  fetch(workerURL + email)
-  .then(res=>res.json())
-  .then(data=>{
-    if(data.length===0){
-      document.getElementById("inboxContent").innerHTML="No emails yet...";
+  const email = localStorage.getItem("tempEmail");
+  if(!email){
+    showToast("Create email first");
+    return;
+  }
+
+  const inbox = document.getElementById("inboxContent");
+  inbox.innerHTML = "Loading...";
+
+  try {
+
+    const response = await fetch(
+      workerURL + email + "&t=" + Date.now(),
+      { cache: "no-store" }
+    );
+
+    if(!response.ok){
+      throw new Error("Server error");
+    }
+
+    const data = await response.json();
+
+    if(!Array.isArray(data) || data.length === 0){
+      inbox.innerHTML = "No emails yet...";
       return;
     }
 
-    let html="";
+    let html = "";
+
     data.reverse().forEach(mail=>{
-      html+=`
+      html += `
       <div class="mail">
-        <strong>${mail.subject}</strong>
-        <div class="meta">${mail.from}</div>
-        <div class="meta">${mail.date}</div>
+        <strong>${mail.subject || "(No Subject)"}</strong>
+        <div class="meta">${mail.from || "Unknown"}</div>
+        <div class="meta">${mail.date || ""}</div>
         <hr>
-        <pre>${mail.content}</pre>
+        <pre>${mail.content || ""}</pre>
       </div>
       `;
     });
 
-    document.getElementById("inboxContent").innerHTML=html;
-  });
-}
+    inbox.innerHTML = html;
 
+  } catch(error){
+    inbox.innerHTML = "Failed to load inbox.";
+    console.error(error);
+  }
+}
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
