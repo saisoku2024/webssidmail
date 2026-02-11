@@ -7,8 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-
-/* ===== Animated Gradient ===== */
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
@@ -25,7 +23,6 @@ body{
   100%{background-position:0% 50%}
 }
 
-/* Theme */
 :root{
   --card:#ffffff;
   --text:#111827;
@@ -90,7 +87,6 @@ button{
 .refresh{background:#f59e0b;}
 .toggle{background:#111; margin-top:15px;}
 
-/* Inbox */
 .mail{
   background:rgba(0,0,0,0.05);
   padding:15px;
@@ -108,7 +104,6 @@ pre{
   font-family:inherit;
 }
 
-/* Toast */
 .toast{
   position:fixed;
   bottom:20px;
@@ -128,7 +123,6 @@ pre{
 @media(max-width:600px){
   body{padding:15px;}
 }
-
 </style>
 </head>
 
@@ -136,7 +130,6 @@ pre{
 
 <div class="wrapper">
 
-<!-- Generator Card -->
 <div class="card">
   <h2>📬 SSIDMail</h2>
   <div style="font-size:13px;opacity:0.7;margin-bottom:20px;">
@@ -159,7 +152,6 @@ pre{
   <button class="toggle" onclick="toggleMode()">🌙 Toggle Mode</button>
 </div>
 
-<!-- Inbox Section -->
 <div class="card">
   <h3>📥 Inbox</h3>
   <div id="inboxContent">No emails loaded...</div>
@@ -190,8 +182,7 @@ function copyEmail(){
   showToast("Copied ✔");
 }
 
-function loadInbox(){
-  async function loadInbox(){
+async function loadInbox(){
 
   const email = localStorage.getItem("tempEmail");
   if(!email){
@@ -241,6 +232,7 @@ function loadInbox(){
     console.error(error);
   }
 }
+
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
@@ -262,9 +254,17 @@ if(saved){
   loadInbox();
 }
 
+/* Restore theme */
 if(localStorage.getItem("theme")==="dark"){
   document.body.classList.add("dark");
 }
+
+/* Auto refresh setiap 15 detik */
+setInterval(()=>{
+  if(localStorage.getItem("tempEmail")){
+    loadInbox();
+  }
+},15000);
 
 </script>
 
