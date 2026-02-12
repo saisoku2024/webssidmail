@@ -25,7 +25,7 @@ body{
 }
 
 .wrapper{
-  max-width:900px;
+  max-width:720px;   /* lebih proporsional */
   margin:auto;
 }
 
@@ -38,12 +38,26 @@ body{
   transition:0.3s;
 }
 
-input{
-  width:100%;
+.username-group{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.username-group input{
+  flex:1;
   padding:12px;
   border-radius:8px;
   border:1px solid #ddd;
-  margin-bottom:10px;
+}
+
+.domain-label{
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  background:#f3f4f6;
+  border-radius:8px;
+  font-size:14px;
 }
 
 .email-box{
@@ -51,22 +65,24 @@ input{
   padding:12px;
   border-radius:10px;
   margin-bottom:15px;
+  font-size:14px;
+  word-break:break-all;
 }
 
 .buttons{
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
   gap:10px;
-  flex-wrap:wrap;
 }
 
 button{
-  flex:1;
-  padding:10px;
+  padding:11px;
   border:none;
   border-radius:8px;
   font-weight:600;
   cursor:pointer;
   color:white;
+  font-size:14px;
 }
 
 .generate{background:#6366f1;}
@@ -76,7 +92,7 @@ button{
 
 .countdown{
   font-size:12px;
-  margin-top:8px;
+  margin-top:10px;
   opacity:0.7;
 }
 
@@ -149,7 +165,7 @@ button{
   opacity:1;
 }
 
-/* ===== DARK MODE ===== */
+/* DARK MODE */
 
 body.dark{
   background:#0f172a;
@@ -160,10 +176,14 @@ body.dark .card{
   color:#f1f5f9;
 }
 
-body.dark input{
+body.dark .username-group input{
   background:#0f172a;
   border:1px solid #334155;
   color:#f1f5f9;
+}
+
+body.dark .domain-label{
+  background:#0f172a;
 }
 
 body.dark .email-box{
@@ -179,6 +199,13 @@ body.dark .meta{
   opacity:0.6;
 }
 
+/* RESPONSIVE */
+
+@media(max-width:640px){
+  .buttons{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
 </style>
 </head>
 
@@ -189,9 +216,9 @@ body.dark .meta{
 <div class="card">
   <h2>📬 SSIDMail</h2>
 
-  <input id="username" placeholder="Enter username">
-  <div style="font-size:12px;opacity:0.6;margin-bottom:10px;">
-    @ssidmail.my.id
+  <div class="username-group">
+    <input id="username" placeholder="Enter username">
+    <div class="domain-label">@ssidmail.my.id</div>
   </div>
 
   <div class="email-box" id="email">Not generated</div>
@@ -199,7 +226,7 @@ body.dark .meta{
   <div class="buttons">
     <button class="generate" onclick="createEmail()">Create</button>
     <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="refresh" onclick="manualRefresh()">Refresh Inbox</button>
+    <button class="refresh" onclick="manualRefresh()">Refresh</button>
     <button class="dark-toggle" onclick="toggleDark()">🌙 Dark</button>
   </div>
 
@@ -223,7 +250,6 @@ const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=
 let counter = 30;
 let timer;
 
-/* CREATE EMAIL */
 function createEmail(){
   const user = document.getElementById("username").value.trim();
   if(!user){ showToast("Enter username first"); return; }
@@ -233,7 +259,6 @@ function createEmail(){
   loadInbox();
 }
 
-/* COPY */
 function copyEmail(){
   const email = document.getElementById("email").innerText;
   if(email==="Not generated") return;
@@ -241,13 +266,11 @@ function copyEmail(){
   showToast("Copied ✔");
 }
 
-/* MANUAL REFRESH */
 function manualRefresh(){
   loadInbox();
   counter = 30;
 }
 
-/* LOAD INBOX */
 async function loadInbox(){
 
   const email = document.getElementById("email").innerText;
@@ -308,7 +331,6 @@ async function loadInbox(){
   }
 }
 
-/* AUTO REFRESH 30s */
 function startTimer(){
   timer = setInterval(()=>{
     counter--;
@@ -322,19 +344,16 @@ function startTimer(){
   },1000);
 }
 
-/* DARK MODE */
 function toggleDark(){
   document.body.classList.toggle("dark");
   localStorage.setItem("darkMode",
     document.body.classList.contains("dark"));
 }
 
-/* RESTORE DARK */
 if(localStorage.getItem("darkMode")==="true"){
   document.body.classList.add("dark");
 }
 
-/* TOAST */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
