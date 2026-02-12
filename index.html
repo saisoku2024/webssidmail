@@ -1,180 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SSIDMail - Temporary Email</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-<style>
-body{
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  background: linear-gradient(-45deg,#667eea,#764ba2,#4f46e5,#3b82f6);
-  background-size:400% 400%;
-  animation: gradientMove 12s ease infinite;
-  min-height:100vh;
-  padding:30px;
-}
-
-@keyframes gradientMove{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
-
-.wrapper{
-  max-width:900px;
-  margin:auto;
-}
-
-.card{
-  background:#ffffff;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-  margin-bottom:25px;
-}
-
-input{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  margin-bottom:10px;
-}
-
-.email-box{
-  background:#f3f4f6;
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-
-.buttons{
-  display:flex;
-  gap:10px;
-}
-
-button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-  color:white;
-}
-
-.generate{background:#6366f1;}
-.copy{background:#10b981;}
-.refresh{background:#f59e0b;}
-.reset{background:#ef4444;}
-
-.mail{
-  background:#f9fafb;
-  border-radius:12px;
-  margin-bottom:12px;
-  overflow:hidden;
-  border:1px solid #e5e7eb;
-}
-
-.mail-header{
-  padding:15px;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.mail-header:hover{
-  background:#eef2ff;
-}
-
-.subject{font-weight:600;}
-.meta{font-size:12px;color:#666;}
-
-.mail-body{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.4s ease;
-  padding:0 15px;
-}
-
-.mail.open .mail-body{
-  max-height:1000px;
-  padding:15px;
-}
-
-.mail-content{
-  white-space:pre-wrap;
-  font-size:14px;
-}
-
-.otp{
-  background:#fff3cd;
-  padding:8px;
-  border-radius:6px;
-  margin-top:8px;
-  font-weight:bold;
-}
-
-.btn-link{
-  display:inline-block;
-  padding:6px 12px;
-  background:#4f46e5;
-  color:white;
-  border-radius:6px;
-  text-decoration:none;
-  margin-top:8px;
-  margin-right:6px;
-  font-size:12px;
-}
-
-.countdown{
-  font-size:12px;
-  margin-top:10px;
-  color:#555;
-}
-</style>
-</head>
-
-<body>
-
-<div class="wrapper">
-
-<div class="card">
-  <h2>📬 SSIDMail</h2>
-
-  <input id="username" placeholder="Enter username">
-  <div style="font-size:12px;opacity:0.6;margin-bottom:10px;">
-    @ssidmail.my.id
-  </div>
-
-  <div class="email-box" id="email">Not generated</div>
-
-  <div class="buttons">
-    <button class="generate" onclick="createEmail()">Create</button>
-    <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="refresh" onclick="manualRefresh()">Refresh</button>
-    <button class="reset" onclick="collapseAll()">Reset View</button>
-  </div>
-
-  <div class="countdown" id="countdown"></div>
-
-</div>
-
-<div class="card">
-  <h3>📥 Inbox</h3>
-  <div id="inboxContent">No emails loaded...</div>
-</div>
-
-</div>
-
 <script>
 
-const workerURL = "/inbox?email="; // IMPORTANT: pakai domain sendiri
+const workerURL = "/inbox?email=";
 let refreshInterval = 30;
 let secondsLeft = refreshInterval;
 let timer;
+let loading = false;
 
 /* CREATE */
 function createEmail(){
@@ -196,25 +26,45 @@ function copyEmail(){
 
 /* MANUAL REFRESH */
 function manualRefresh(){
+  secondsLeft = refreshInterval;
   loadInbox(true);
 }
 
 /* LOAD INBOX */
 async function loadInbox(resetTimer=false){
 
+  if(loading) return; // prevent double load
+  loading = true;
+
   const email = localStorage.getItem("tempEmail");
-  if(!email) return;
+  if(!email){
+    loading = false;
+    return;
+  }
 
   const inbox = document.getElementById("inboxContent");
   inbox.innerHTML = "Loading...";
 
   try{
 
-    const res = await fetch(workerURL + email + "&t=" + Date.now());
-    const data = await res.json();
+    const res = await fetch(workerURL + email + "&t=" + Date.now(), {
+      cache: "no-store"
+    });
 
-    if(!data.length){
+    const text = await res.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      inbox.innerHTML = "Worker not returning JSON.";
+      loading = false;
+      return;
+    }
+
+    if(!Array.isArray(data) || data.length === 0){
       inbox.innerHTML = "No emails yet...";
+      loading = false;
       return;
     }
 
@@ -265,15 +115,19 @@ async function loadInbox(resetTimer=false){
       secondsLeft = refreshInterval;
     }
 
-  }catch(e){
+  } catch(e){
     inbox.innerHTML = "Failed to load inbox.";
   }
+
+  loading = false;
 }
 
-/* EXPAND / COLLAPSE */
+/* EXPAND */
 function toggleMail(index){
   const mail = document.getElementById("mail-"+index);
-  mail.classList.toggle("open");
+  if(mail){
+    mail.classList.toggle("open");
+  }
 }
 
 /* RESET VIEW */
@@ -288,6 +142,7 @@ function startTimer(){
   clearInterval(timer);
 
   timer = setInterval(()=>{
+
     const email = localStorage.getItem("tempEmail");
     if(!email) return;
 
@@ -296,7 +151,7 @@ function startTimer(){
 
     secondsLeft--;
 
-    if(secondsLeft < 0){
+    if(secondsLeft <= 0){
       loadInbox(true);
       secondsLeft = refreshInterval;
     }
@@ -315,6 +170,3 @@ if(saved){
 startTimer();
 
 </script>
-
-</body>
-</html>
