@@ -58,10 +58,19 @@ button{
 .subject{font-weight:600;margin-bottom:5px;}
 .meta{font-size:12px;color:#666;margin-bottom:15px;}
 
-iframe{
-  width:100%;
-  border:none;
-  min-height:500px;
+.mail-body{
+  font-size:14px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.mail-body a{
+  color:#1a73e8;
+  text-decoration:none;
+}
+.mail-body a:hover{
+  text-decoration:underline;
 }
 </style>
 </head>
@@ -96,39 +105,35 @@ iframe{
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-/* ================= CLEANER ================= */
+/* ================= TEXT CLEANER ================= */
 
-function decodeQuotedPrintable(str){
-  return str
-    .replace(/=\r?\n/g,"")
-    .replace(/=([A-Fa-f0-9]{2})/g,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
-}
-
-function extractHTML(content){
+function cleanText(content){
 
   if(!content) return "";
 
-  content = decodeQuotedPrintable(content);
+  // Fix quoted printable
+  content = content
+    .replace(/=\r?\n/g,"")
+    .replace(/=3D/g,"=")
+    .replace(/=([A-F0-9]{2})/gi,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
 
-  // remove MIME headers completely
-  content = content.replace(/MIME-Version:[\s\S]*?\n\n/gi,"");
-  content = content.replace(/Content-Type:[\s\S]*?\n\n/gi,"");
+  // Fix broken ?g"xxxx to ?g=xxxx
+  content = content.replace(/\?g"/g,"?g=");
 
-  // find real HTML start
-  const htmlIndex = content.toLowerCase().indexOf("<html");
-  if(htmlIndex !== -1){
-    return content.substring(htmlIndex);
-  }
+  // Convert [https://link] to clickable
+  content = content.replace(
+    /\[(https?:\/\/[^\]]+)\]/g,
+    '<a href="$1" target="_blank">$1</a>'
+  );
 
-  return null;
+  return content.trim();
 }
 
-/* =========================================== */
+/* =============================================== */
 
 function createEmail(){
   const user = document.getElementById("username").value.trim();
   if(!user) return;
-  document.getElementById("username").value = user;
   loadInbox();
 }
 
@@ -159,30 +164,13 @@ async function loadInbox(){
 
     data.reverse().forEach(mail=>{
 
-      let extractedHTML = extractHTML(mail.content);
-
-      let rendered = "";
-
-      if(extractedHTML){
-
-        // Use Blob URL (lebih stabil dari srcdoc)
-        const blob = new Blob([extractedHTML], {type:"text/html"});
-        const url = URL.createObjectURL(blob);
-
-        rendered = `<iframe src="${url}"></iframe>`;
-
-      } else {
-
-        const cleanText = decodeQuotedPrintable(mail.content || "");
-
-        rendered = `<div style="white-space:pre-wrap;font-family:Arial;font-size:14px;">${cleanText}</div>`;
-      }
+      const clean = cleanText(mail.content);
 
       html += `
         <div class="mail">
           <div class="subject">${mail.subject || "(No Subject)"}</div>
           <div class="meta">${mail.from || ""} • ${mail.date || ""}</div>
-          ${rendered}
+          <div class="mail-body">${clean}</div>
         </div>
       `;
     });
