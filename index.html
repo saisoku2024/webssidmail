@@ -17,17 +17,13 @@ body{
   padding:30px;
   transition:0.3s;
 }
-
 @keyframes gradientMove{
   0%{background-position:0% 50%}
   50%{background-position:100% 50%}
   100%{background-position:0% 50%}
 }
 
-.wrapper{
-  max-width:720px;   /* lebih proporsional */
-  margin:auto;
-}
+.wrapper{max-width:720px;margin:auto;}
 
 .card{
   background:#ffffff;
@@ -35,22 +31,15 @@ body{
   border-radius:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.2);
   margin-bottom:25px;
-  transition:0.3s;
 }
 
-.username-group{
-  display:flex;
-  gap:10px;
-  margin-bottom:15px;
-}
-
+.username-group{display:flex;gap:10px;margin-bottom:15px;}
 .username-group input{
   flex:1;
   padding:12px;
   border-radius:8px;
   border:1px solid #ddd;
 }
-
 .domain-label{
   display:flex;
   align-items:center;
@@ -74,7 +63,6 @@ body{
   grid-template-columns:repeat(4,1fr);
   gap:10px;
 }
-
 button{
   padding:11px;
   border:none;
@@ -84,17 +72,12 @@ button{
   color:white;
   font-size:14px;
 }
-
 .generate{background:#6366f1;}
 .copy{background:#10b981;}
 .refresh{background:#f59e0b;}
 .dark-toggle{background:#111;}
 
-.countdown{
-  font-size:12px;
-  margin-top:10px;
-  opacity:0.7;
-}
+.countdown{font-size:12px;margin-top:10px;opacity:0.7;}
 
 .mail{
   background:#fff;
@@ -102,52 +85,28 @@ button{
   padding:20px;
   margin-bottom:15px;
   box-shadow:0 5px 15px rgba(0,0,0,0.1);
-  transition:0.3s;
+}
+.subject{font-weight:600;font-size:16px;}
+.meta{font-size:12px;opacity:0.7;margin-bottom:10px;}
+
+.mail-frame{
+  width:100%;
+  border:none;
+  min-height:400px;
 }
 
-.subject{
-  font-weight:600;
-  font-size:16px;
+/* DARK MODE */
+body.dark{background:#0f172a;}
+body.dark .card{background:#1e293b;color:#f1f5f9;}
+body.dark .username-group input{
+  background:#0f172a;
+  border:1px solid #334155;
+  color:#f1f5f9;
 }
-
-.meta{
-  font-size:12px;
-  opacity:0.7;
-}
-
-.small{
-  font-size:11px;
-}
-
-.otp-box{
-  background:#111827;
-  color:#fff;
-  padding:10px;
-  border-radius:8px;
-  font-weight:bold;
-  margin:10px 0;
-  display:inline-block;
-}
-
-.mail-body pre{
-  white-space:pre-wrap;
-  font-family:inherit;
-}
-
-.mail-links{
-  margin-top:10px;
-}
-
-.btn-link{
-  display:inline-block;
-  background:#6366f1;
-  color:white;
-  padding:8px 14px;
-  border-radius:8px;
-  text-decoration:none;
-  margin-right:8px;
-  font-size:13px;
-}
+body.dark .domain-label,
+body.dark .email-box{background:#0f172a;}
+body.dark .mail{background:#0f172a;color:#f1f5f9;}
+body.dark .meta{opacity:0.6;}
 
 .toast{
   position:fixed;
@@ -160,51 +119,10 @@ button{
   opacity:0;
   transition:0.3s;
 }
-
-.toast.show{
-  opacity:1;
-}
-
-/* DARK MODE */
-
-body.dark{
-  background:#0f172a;
-}
-
-body.dark .card{
-  background:#1e293b;
-  color:#f1f5f9;
-}
-
-body.dark .username-group input{
-  background:#0f172a;
-  border:1px solid #334155;
-  color:#f1f5f9;
-}
-
-body.dark .domain-label{
-  background:#0f172a;
-}
-
-body.dark .email-box{
-  background:#0f172a;
-}
-
-body.dark .mail{
-  background:#0f172a;
-  color:#f1f5f9;
-}
-
-body.dark .meta{
-  opacity:0.6;
-}
-
-/* RESPONSIVE */
+.toast.show{opacity:1;}
 
 @media(max-width:640px){
-  .buttons{
-    grid-template-columns:repeat(2,1fr);
-  }
+  .buttons{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
@@ -231,7 +149,6 @@ body.dark .meta{
   </div>
 
   <div class="countdown" id="countdown"></div>
-
 </div>
 
 <div class="card">
@@ -246,9 +163,34 @@ body.dark .meta{
 <script>
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
-
 let counter = 30;
 let timer;
+
+/* ========================= */
+/* EMAIL DECODING FUNCTION */
+/* ========================= */
+
+function cleanEmailContent(content){
+
+  if(!content) return "";
+
+  // remove MIME headers
+  content = content.replace(/MIME-Version:[^\n]*\n?/gi,"");
+  content = content.replace(/Content-Type:[^\n]*\n?/gi,"");
+  content = content.replace(/Content-Transfer-Encoding:[^\n]*\n?/gi,"");
+  content = content.replace(/boundary="[^"]*"/gi,"");
+
+  // quoted-printable decode
+  content = content
+    .replace(/=\r?\n/g,"")      // soft wrap
+    .replace(/=3D/g,"=")
+    .replace(/=C2=A0/g," ")
+    .replace(/=([A-F0-9]{2})/g,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
+
+  return content.trim();
+}
+
+/* ========================= */
 
 function createEmail(){
   const user = document.getElementById("username").value.trim();
@@ -274,7 +216,6 @@ function manualRefresh(){
 async function loadInbox(){
 
   const email = document.getElementById("email").innerText;
-
   if(!email || email==="Not generated"){
     showToast("Create email first");
     return;
@@ -296,30 +237,52 @@ async function loadInbox(){
 
     data.reverse().forEach(mail => {
 
-      let linkButtons = "";
-      if(mail.links && mail.links.length){
-        mail.links.forEach(link=>{
-          linkButtons += `<a href="${link}" target="_blank" class="btn-link">Open Link</a>`;
-        });
-      }
+      let content = cleanEmailContent(mail.content || "");
 
-      let otpBox = "";
-      if(mail.otp){
-        otpBox = `<div class="otp-box">OTP: ${mail.otp}</div>`;
+      let renderedContent = "";
+
+      // detect HTML
+      if(content.includes("<html") || content.includes("<div") || content.includes("<table")){
+        
+        const wrappedHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  max-width:800px;
+  margin:20px auto;
+  font-size:14px;
+  line-height:1.5;
+  word-wrap:break-word;
+}
+img{max-width:100%;}
+a{color:#1a73e8;}
+</style>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+
+        renderedContent = `<iframe class="mail-frame" srcdoc="${wrappedHTML.replace(/"/g,'&quot;')}"></iframe>`;
+
+      } else {
+
+        renderedContent = `
+          <div style="white-space:pre-wrap;font-size:14px;line-height:1.5;">
+            ${content}
+          </div>
+        `;
       }
 
       html += `
       <div class="mail">
         <div class="subject">${mail.subject || "(No Subject)"}</div>
-        <div class="meta">${mail.from || ""}</div>
-        <div class="meta small">${mail.date || ""}</div>
-        ${otpBox}
-        <div class="mail-body">
-          <pre>${mail.content || ""}</pre>
-        </div>
-        <div class="mail-links">
-          ${linkButtons}
-        </div>
+        <div class="meta">${mail.from || ""} • ${mail.date || ""}</div>
+        ${renderedContent}
       </div>
       `;
     });
@@ -331,6 +294,7 @@ async function loadInbox(){
   }
 }
 
+/* AUTO REFRESH */
 function startTimer(){
   timer = setInterval(()=>{
     counter--;
