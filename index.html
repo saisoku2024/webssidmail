@@ -85,14 +85,33 @@ button{
 .generate{background:#6366f1;}
 .copy{background:#10b981;}
 .refresh{background:#f59e0b;}
-.toggle{background:#111; margin-top:15px;}
-.auto{background:#ef4444;}
+.toggle{background:#111;margin-top:10px;}
+
+.countdown{
+  font-size:12px;
+  margin-top:8px;
+  opacity:0.7;
+}
 
 .mail{
-  background:rgba(0,0,0,0.05);
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:12px;
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+body.dark .mail{
+  background:#1e293b;
+}
+
+.mail-header{
+  margin-bottom:10px;
+}
+
+.subject{
+  font-weight:600;
+  font-size:16px;
 }
 
 .meta{
@@ -100,9 +119,38 @@ button{
   opacity:0.7;
 }
 
-pre{
+.small{
+  font-size:11px;
+}
+
+.otp-box{
+  background:#111827;
+  color:#fff;
+  padding:10px;
+  border-radius:8px;
+  font-weight:bold;
+  margin:10px 0;
+  display:inline-block;
+}
+
+.mail-body pre{
   white-space:pre-wrap;
   font-family:inherit;
+}
+
+.mail-links{
+  margin-top:10px;
+}
+
+.btn-link{
+  display:inline-block;
+  background:#6366f1;
+  color:white;
+  padding:8px 14px;
+  border-radius:8px;
+  text-decoration:none;
+  margin-right:8px;
+  font-size:13px;
 }
 
 .toast{
@@ -121,12 +169,6 @@ pre{
   opacity:1;
 }
 
-.countdown{
-  font-size:12px;
-  margin-top:8px;
-  opacity:0.7;
-}
-
 @media(max-width:600px){
   body{padding:15px;}
 }
@@ -139,9 +181,6 @@ pre{
 
 <div class="card">
   <h2>📬 SSIDMail</h2>
-  <div style="font-size:13px;opacity:0.7;margin-bottom:20px;">
-    Create Temporary Email
-  </div>
 
   <input id="username" placeholder="Enter username">
   <div style="font-size:12px;opacity:0.6;margin-bottom:10px;">
@@ -153,11 +192,7 @@ pre{
   <div class="buttons">
     <button class="generate" onclick="createEmail()">Create</button>
     <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="refresh" onclick="loadInbox()">Refresh Inbox</button>
-  </div>
-
-  <div class="buttons" style="margin-top:10px;">
-    <button class="auto" onclick="toggleAutoRefresh()">Toggle Auto Refresh</button>
+    <button class="refresh" onclick="manualRefresh()">Refresh Inbox</button>
   </div>
 
   <div class="countdown" id="countdown"></div>
@@ -178,11 +213,10 @@ pre{
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-let autoRefresh = true;
-let counter = 15;
-let timerInterval;
+let counter = 30;
+let timer;
 
-/* ===== CREATE EMAIL ===== */
+/* CREATE EMAIL */
 function createEmail(){
   const user = document.getElementById("username").value.trim();
   if(!user){ showToast("Enter username first"); return; }
@@ -193,7 +227,7 @@ function createEmail(){
   loadInbox();
 }
 
-/* ===== COPY ===== */
+/* COPY */
 function copyEmail(){
   const email = document.getElementById("email").innerText;
   if(email==="Not generated") return;
@@ -201,7 +235,13 @@ function copyEmail(){
   showToast("Copied ✔");
 }
 
-/* ===== LOAD INBOX ===== */
+/* MANUAL REFRESH */
+function manualRefresh(){
+  loadInbox();
+  counter = 30;
+}
+
+/* LOAD INBOX */
 async function loadInbox(){
 
   const email = localStorage.getItem("tempEmail");
@@ -214,21 +254,8 @@ async function loadInbox(){
   inbox.innerHTML = "Loading...";
 
   try {
-
-    const response = await fetch(
-      workerURL + email + "&t=" + Date.now(),
-      { cache: "no-store" }
-    );
-
-    const text = await response.text();
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch(e){
-      inbox.innerHTML = "Worker not returning JSON.";
-      return;
-    }
+    const response = await fetch(workerURL + email + "&t=" + Date.now());
+    const data = await response.json();
 
     if(!Array.isArray(data) || data.length === 0){
       inbox.innerHTML = "No emails yet...";
@@ -237,60 +264,70 @@ async function loadInbox(){
 
     let html = "";
 
-    data.reverse().forEach(mail=>{
+    data.reverse().forEach(mail => {
+
+      let linkButtons = "";
+      if(mail.links && mail.links.length){
+        mail.links.forEach(link=>{
+          linkButtons += `<a href="${link}" target="_blank" class="btn-link">Open Link</a>`;
+        });
+      }
+
+      let otpBox = "";
+      if(mail.otp){
+        otpBox = `<div class="otp-box">OTP: ${mail.otp}</div>`;
+      }
+
       html += `
       <div class="mail">
-        <strong>${mail.subject || "(No Subject)"}</strong>
-        <div class="meta">${mail.from || "Unknown"}</div>
-        <div class="meta">${mail.date || ""}</div>
-        <hr>
-        <pre>${mail.content || ""}</pre>
+        <div class="mail-header">
+          <div class="subject">${mail.subject || "(No Subject)"}</div>
+          <div class="meta">${mail.from}</div>
+          <div class="meta small">${mail.date}</div>
+        </div>
+
+        ${otpBox}
+
+        <div class="mail-body">
+          <pre>${mail.content}</pre>
+        </div>
+
+        <div class="mail-links">
+          ${linkButtons}
+        </div>
       </div>
       `;
     });
 
     inbox.innerHTML = html;
 
-  } catch(error){
+  } catch(e){
     inbox.innerHTML = "Failed to load inbox.";
-    console.error(error);
   }
 }
 
-/* ===== AUTO REFRESH ===== */
+/* AUTO REFRESH 30s */
 function startTimer(){
-  clearInterval(timerInterval);
-  counter = 15;
-
-  timerInterval = setInterval(()=>{
-    if(!autoRefresh) return;
-
+  timer = setInterval(()=>{
+    counter--;
     document.getElementById("countdown").innerText =
       "Auto refresh in " + counter + "s";
 
-    counter--;
-
-    if(counter < 0){
+    if(counter <= 0){
       loadInbox();
-      counter = 15;
+      counter = 30;
     }
-
   },1000);
 }
 
-function toggleAutoRefresh(){
-  autoRefresh = !autoRefresh;
-  showToast(autoRefresh ? "Auto Refresh ON" : "Auto Refresh OFF");
-}
-
-/* ===== TOGGLE MODE ===== */
+/* DARK MODE */
 function toggleMode(){
   document.body.classList.toggle("dark");
   localStorage.setItem("theme",
     document.body.classList.contains("dark")?"dark":"light");
 }
 
-/* ===== TOAST ===== */
+/* TOAST */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
@@ -298,7 +335,7 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-/* ===== RESTORE ===== */
+/* RESTORE */
 const saved=localStorage.getItem("tempEmail");
 if(saved){
   document.getElementById("email").innerText=saved;
