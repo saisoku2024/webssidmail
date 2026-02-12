@@ -23,29 +23,17 @@ body{
   100%{background-position:0% 50%}
 }
 
-:root{
-  --card:#ffffff;
-  --text:#111827;
-}
-
-body.dark{
-  --card:#1e293b;
-  --text:#f1f5f9;
-}
-
 .wrapper{
   max-width:900px;
   margin:auto;
 }
 
 .card{
-  background:var(--card);
-  color:var(--text);
+  background:#ffffff;
   padding:30px;
   border-radius:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.2);
   margin-bottom:25px;
-  transition:0.3s;
 }
 
 input{
@@ -54,16 +42,13 @@ input{
   border-radius:8px;
   border:1px solid #ddd;
   margin-bottom:10px;
-  font-size:14px;
 }
 
 .email-box{
-  background:rgba(0,0,0,0.05);
+  background:#f3f4f6;
   padding:12px;
   border-radius:10px;
   margin-bottom:15px;
-  font-size:14px;
-  word-break:break-all;
 }
 
 .buttons{
@@ -85,7 +70,6 @@ button{
 .generate{background:#6366f1;}
 .copy{background:#10b981;}
 .refresh{background:#f59e0b;}
-.toggle{background:#111;margin-top:10px;}
 
 .countdown{
   font-size:12px;
@@ -99,14 +83,6 @@ button{
   padding:20px;
   margin-bottom:15px;
   box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-body.dark .mail{
-  background:#1e293b;
-}
-
-.mail-header{
-  margin-bottom:10px;
 }
 
 .subject{
@@ -168,10 +144,6 @@ body.dark .mail{
 .toast.show{
   opacity:1;
 }
-
-@media(max-width:600px){
-  body{padding:15px;}
-}
 </style>
 </head>
 
@@ -197,7 +169,6 @@ body.dark .mail{
 
   <div class="countdown" id="countdown"></div>
 
-  <button class="toggle" onclick="toggleMode()">🌙 Toggle Mode</button>
 </div>
 
 <div class="card">
@@ -223,7 +194,7 @@ function createEmail(){
 
   const email = user + "@ssidmail.my.id";
   document.getElementById("email").innerText = email;
-  localStorage.setItem("tempEmail", email);
+
   loadInbox();
 }
 
@@ -244,8 +215,9 @@ function manualRefresh(){
 /* LOAD INBOX */
 async function loadInbox(){
 
-  const email = localStorage.getItem("tempEmail");
-  if(!email){
+  const email = document.getElementById("email").innerText;
+
+  if(!email || email==="Not generated"){
     showToast("Create email first");
     return;
   }
@@ -280,18 +252,13 @@ async function loadInbox(){
 
       html += `
       <div class="mail">
-        <div class="mail-header">
-          <div class="subject">${mail.subject || "(No Subject)"}</div>
-          <div class="meta">${mail.from}</div>
-          <div class="meta small">${mail.date}</div>
-        </div>
-
+        <div class="subject">${mail.subject || "(No Subject)"}</div>
+        <div class="meta">${mail.from || ""}</div>
+        <div class="meta small">${mail.date || ""}</div>
         ${otpBox}
-
         <div class="mail-body">
-          <pre>${mail.content}</pre>
+          <pre>${mail.content || ""}</pre>
         </div>
-
         <div class="mail-links">
           ${linkButtons}
         </div>
@@ -320,31 +287,12 @@ function startTimer(){
   },1000);
 }
 
-/* DARK MODE */
-function toggleMode(){
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme",
-    document.body.classList.contains("dark")?"dark":"light");
-}
-
 /* TOAST */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2000);
-}
-
-/* RESTORE */
-const saved=localStorage.getItem("tempEmail");
-if(saved){
-  document.getElementById("email").innerText=saved;
-  document.getElementById("username").value=saved.split("@")[0];
-  loadInbox();
-}
-
-if(localStorage.getItem("theme")==="dark"){
-  document.body.classList.add("dark");
 }
 
 startTimer();
