@@ -29,7 +29,7 @@ body{
 }
 
 .card{
-  background:#fff;
+  background:#ffffff;
   padding:30px;
   border-radius:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.2);
@@ -49,13 +49,11 @@ input{
   padding:12px;
   border-radius:10px;
   margin-bottom:15px;
-  font-size:14px;
 }
 
 .buttons{
   display:flex;
   gap:10px;
-  flex-wrap:wrap;
 }
 
 button{
@@ -74,78 +72,45 @@ button{
 
 .mail{
   background:#f9fafb;
-  padding:18px;
+  padding:15px;
   border-radius:12px;
   margin-bottom:15px;
-  border:1px solid #e5e7eb;
 }
 
-.mail-header{
-  cursor:pointer;
-}
-
-.subject{
-  font-weight:600;
-  font-size:15px;
-}
-
-.meta{
-  font-size:12px;
-  opacity:0.7;
-}
+.subject{font-weight:600;margin-bottom:5px;}
+.meta{font-size:12px;color:#666;}
 
 .mail-body{
-  margin-top:15px;
-  display:none;
-}
-
-.mail-body iframe{
-  width:100%;
-  height:500px;
-  border:none;
-  border-radius:10px;
-  background:white;
-}
-
-.view-toggle{
-  margin-top:10px;
-  font-size:12px;
-  color:#3b82f6;
-  cursor:pointer;
-}
-
-.plain-view{
-  display:none;
-  background:#111;
-  color:#fff;
-  padding:10px;
-  border-radius:10px;
   margin-top:10px;
   white-space:pre-wrap;
+  font-size:14px;
+}
+
+.otp{
+  background:#fff3cd;
+  padding:8px;
+  border-radius:6px;
+  margin-top:8px;
+  font-weight:bold;
+}
+
+.btn-link{
+  display:inline-block;
+  padding:6px 12px;
+  background:#4f46e5;
+  color:white;
+  border-radius:6px;
+  text-decoration:none;
+  margin-top:8px;
+  margin-right:6px;
   font-size:12px;
-  max-height:400px;
-  overflow:auto;
 }
 
 .countdown{
   font-size:12px;
-  margin-top:8px;
-  opacity:0.7;
+  margin-top:10px;
+  color:#555;
 }
-
-.toast{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#10b981;
-  color:white;
-  padding:10px 18px;
-  border-radius:8px;
-  opacity:0;
-  transition:0.3s;
-}
-
-.toast.show{opacity:1;}
 </style>
 </head>
 
@@ -166,10 +131,11 @@ button{
   <div class="buttons">
     <button class="generate" onclick="createEmail()">Create</button>
     <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="refresh" onclick="loadInbox(true)">Refresh Inbox</button>
+    <button class="refresh" onclick="manualRefresh()">Refresh Inbox</button>
   </div>
 
   <div class="countdown" id="countdown"></div>
+
 </div>
 
 <div class="card">
@@ -179,16 +145,18 @@ button{
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
 
-const workerURL = "/inbox?email="; // penting: pakai domain sendiri
-let counter = 30;
+const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
+let refreshInterval = 30;
+let countdownTimer;
+let secondsLeft = refreshInterval;
+
+/* CREATE EMAIL */
 function createEmail(){
   const user = document.getElementById("username").value.trim();
-  if(!user){ showToast("Enter username first"); return; }
+  if(!user){ alert("Enter username first"); return; }
 
   const email = user + "@ssidmail.my.id";
   document.getElementById("email").innerText = email;
@@ -196,105 +164,118 @@ function createEmail(){
   loadInbox(true);
 }
 
+/* COPY */
 function copyEmail(){
   const email = document.getElementById("email").innerText;
+  if(email==="Not generated") return;
   navigator.clipboard.writeText(email);
-  showToast("Copied ✔");
+  alert("Copied!");
 }
 
-async function loadInbox(manual=false){
+/* MANUAL REFRESH */
+function manualRefresh(){
+  loadInbox(true);
+}
+
+/* LOAD INBOX */
+async function loadInbox(resetTimer=false){
 
   const email = localStorage.getItem("tempEmail");
   if(!email) return;
 
   const inbox = document.getElementById("inboxContent");
+  inbox.innerHTML = "Loading...";
 
   try{
-    const response = await fetch(workerURL + email + "&t=" + Date.now());
-    const data = await response.json();
 
-    if(!Array.isArray(data) || data.length===0){
-      inbox.innerHTML="No emails yet...";
+    const res = await fetch(workerURL + email + "&t=" + Date.now());
+    const data = await res.json();
+
+    if(!data.length){
+      inbox.innerHTML = "No emails yet...";
       return;
     }
 
-    let html="";
+    let html = "";
 
-    data.reverse().forEach((mail,index)=>{
+    data.reverse().forEach(mail=>{
 
-      let raw = mail.content || "";
+      let content = mail.content || "";
 
-      let htmlMatch = raw.match(/Content-Type:\s*text\/html[\s\S]*?\r\n\r\n([\s\S]*)/i);
-      let htmlContent = htmlMatch ? htmlMatch[1] : "";
-      let plainContent = raw;
+      /* CLEAN ENCODING */
+      content = content
+        .replace(/=3D/g,"=")
+        .replace(/=C2=A0/g," ")
+        .replace(/=\r?\n/g,"")
+        .replace(/MIME-Version:.*/g,"")
+        .replace(/Content-Type:.*/g,"");
 
-      html+=`
-      <div class="mail">
-        <div class="mail-header" onclick="toggleMail(${index})">
+      /* OTP DETECT */
+      let otp = content.match(/\b\d{4,8}\b/);
+      let otpBox = otp ? `<div class="otp">🔐 OTP: ${otp[0]}</div>` : "";
+
+      /* LINK DETECT */
+      let links = content.match(/https?:\/\/[^\s)]+/g);
+      let linkButtons = "";
+      if(links){
+        [...new Set(links)].slice(0,3).forEach(link=>{
+          linkButtons += `<a href="${link}" target="_blank" class="btn-link">Open Link</a>`;
+        });
+      }
+
+      html += `
+        <div class="mail">
           <div class="subject">${mail.subject || "(No Subject)"}</div>
           <div class="meta">${mail.from || ""}</div>
           <div class="meta">${mail.date || ""}</div>
+          ${otpBox}
+          <div class="mail-body">${content}</div>
+          ${linkButtons}
         </div>
-
-        <div class="mail-body" id="body-${index}">
-          <iframe sandbox="allow-popups allow-same-origin"></iframe>
-          <div class="view-toggle" onclick="togglePlain(${index})">Toggle Plain View</div>
-          <div class="plain-view" id="plain-${index}">${plainContent}</div>
-        </div>
-      </div>
       `;
     });
 
-    inbox.innerHTML=html;
+    inbox.innerHTML = html;
 
-    setTimeout(()=>{
-      document.querySelectorAll("iframe").forEach((frame,i)=>{
-        frame.srcdoc = data.reverse()[i].content;
-      });
-    },100);
-
-    if(manual) showToast("Inbox refreshed ✔");
+    if(resetTimer){
+      secondsLeft = refreshInterval;
+    }
 
   }catch(e){
-    inbox.innerHTML="Failed to load inbox.";
+    inbox.innerHTML = "Failed to load inbox.";
   }
 }
 
-function toggleMail(i){
-  const body=document.getElementById("body-"+i);
-  body.style.display= body.style.display==="block" ? "none":"block";
+/* AUTO REFRESH 30s */
+function startAutoRefresh(){
+  clearInterval(countdownTimer);
+
+  countdownTimer = setInterval(()=>{
+    const email = localStorage.getItem("tempEmail");
+    if(!email) return;
+
+    document.getElementById("countdown").innerText =
+      "Auto refresh in " + secondsLeft + "s";
+
+    secondsLeft--;
+
+    if(secondsLeft < 0){
+      loadInbox(true);
+      secondsLeft = refreshInterval;
+    }
+
+  },1000);
 }
 
-function togglePlain(i){
-  const el=document.getElementById("plain-"+i);
-  el.style.display= el.style.display==="block" ? "none":"block";
-}
-
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),2000);
-}
-
-/* Restore */
-const saved=localStorage.getItem("tempEmail");
+/* RESTORE */
+const saved = localStorage.getItem("tempEmail");
 if(saved){
-  document.getElementById("email").innerText=saved;
-  document.getElementById("username").value=saved.split("@")[0];
+  document.getElementById("email").innerText = saved;
+  document.getElementById("username").value = saved.split("@")[0];
   loadInbox();
 }
 
-/* Auto refresh 30 detik */
-setInterval(()=>{
-  loadInbox();
-},30000);
-
-setInterval(()=>{
-  counter--;
-  document.getElementById("countdown").innerText="Auto refresh in "+counter+"s";
-  if(counter<=0) counter=30;
-},1000);
+startAutoRefresh();
 
 </script>
 
