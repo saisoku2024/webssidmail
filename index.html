@@ -48,6 +48,16 @@ body{
   padding:20px;
 }
 
+.sidebar h3{
+  margin-top:0;
+  font-size:16px;
+}
+
+.sidebar div{
+  padding:8px 0;
+  cursor:pointer;
+}
+
 /* MAIL LIST */
 .mail-list{
   width:350px;
@@ -83,28 +93,24 @@ body{
 /* MAIL VIEW */
 .mail-view{
   flex:1;
-  overflow:auto;
-  background:#f1f3f4;
-  padding:40px 0;
+  padding:30px;
+  overflow-y:auto;
+  background:#fff;
 }
 
-.mail-container{
-  background:#fff;
-  max-width:700px;
-  margin:0 auto;
-  padding:40px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
-  border-radius:8px;
+.mail-view h2{
+  margin-top:0;
 }
 
 .mail-meta{
   font-size:13px;
   color:#555;
-  margin-bottom:20px;
+  margin-bottom:15px;
 }
 
-.mail-html{
+iframe{
   width:100%;
+  border:none;
 }
 
 /* DARK MODE */
@@ -114,18 +120,18 @@ body.dark{
 
 body.dark .topbar,
 body.dark .sidebar,
-body.dark .mail-list{
-  background:#1e293b;
-  color:#f1f5f9;
-}
-
+body.dark .mail-list,
 body.dark .mail-view{
-  background:#0f172a;
-}
-
-body.dark .mail-container{
   background:#1e293b;
   color:#f1f5f9;
+}
+
+body.dark .mail-item{
+  border-bottom:1px solid #334155;
+}
+
+body.dark .mail-item:hover{
+  background:#334155;
 }
 </style>
 </head>
@@ -133,7 +139,9 @@ body.dark .mail-container{
 <body>
 
 <div class="topbar">
-  <strong>📬 SSIDMail</strong>
+  <div>
+    <strong>📬 SSIDMail</strong>
+  </div>
   <div>
     <input id="username" placeholder="username">
     <button onclick="createEmail()">Open</button>
@@ -144,7 +152,9 @@ body.dark .mail-container{
 <div class="main">
 
   <div class="sidebar">
-    <h3>Inbox</h3>
+    <h3>Mailbox</h3>
+    <div>Inbox</div>
+    <div>Spam</div>
   </div>
 
   <div class="mail-list" id="mailList">
@@ -152,9 +162,7 @@ body.dark .mail-container{
   </div>
 
   <div class="mail-view" id="mailView">
-    <div style="text-align:center;color:#888;margin-top:100px;">
-      Select an email
-    </div>
+    <h2>Select an email</h2>
   </div>
 
 </div>
@@ -162,6 +170,7 @@ body.dark .mail-container{
 <script>
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
+
 let currentEmails = [];
 
 function createEmail(){
@@ -178,7 +187,9 @@ async function loadInbox(email){
     const res = await fetch(workerURL + email + "&t=" + Date.now());
     const data = await res.json();
     currentEmails = data || [];
+
     renderList();
+
   }catch(e){
     document.getElementById("mailList").innerHTML = "Failed loading";
   }
@@ -195,11 +206,11 @@ function renderList(){
 
   let html = "";
 
-  currentEmails.slice().reverse().forEach((mail,i)=>{
+  currentEmails.reverse().forEach((mail,i)=>{
     html += `
       <div class="mail-item" onclick="openMail(${i})">
         <div class="mail-subject">${mail.subject || "(No Subject)"}</div>
-        <div class="mail-preview">${(mail.content||"").replace(/<[^>]+>/g,'').substring(0,80)}...</div>
+        <div class="mail-preview">${(mail.content||"").substring(0,80)}...</div>
       </div>
     `;
   });
@@ -209,22 +220,18 @@ function renderList(){
 
 function openMail(index){
 
-  const mail = currentEmails.slice().reverse()[index];
+  const mail = currentEmails[currentEmails.length - 1 - index];
 
   document.querySelectorAll(".mail-item").forEach(el=>el.classList.remove("active"));
   document.querySelectorAll(".mail-item")[index].classList.add("active");
 
   document.getElementById("mailView").innerHTML = `
-    <div class="mail-container">
-      <h2>${mail.subject || "(No Subject)"}</h2>
-      <div class="mail-meta">
-        From: ${mail.from}<br>
-        Date: ${mail.date}
-      </div>
-      <div class="mail-html">
-        ${mail.content}
-      </div>
+    <h2>${mail.subject || "(No Subject)"}</h2>
+    <div class="mail-meta">
+      From: ${mail.from}<br>
+      Date: ${mail.date}
     </div>
+    <iframe srcdoc="${mail.content.replace(/"/g,'&quot;')}"></iframe>
   `;
 }
 
