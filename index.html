@@ -77,6 +77,12 @@ button{
 .subject{font-weight:600;margin-bottom:5px;}
 .meta{font-size:12px;color:#666;margin-bottom:15px;}
 
+.mail-frame{
+  width:100%;
+  border:none;
+  min-height:500px;
+}
+
 .mail-body{
   font-size:14px;
   line-height:1.6;
@@ -90,12 +96,6 @@ button{
 }
 .mail-body a:hover{
   text-decoration:underline;
-}
-
-.mail-frame{
-  width:100%;
-  border:none;
-  min-height:500px;
 }
 
 /* ===== DARK MODE ===== */
@@ -161,22 +161,16 @@ body.dark .meta{
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-/* ===== CLEAN TEXT ===== */
-
-function decodeQuotedPrintable(str){
-  return str
-    .replace(/=\r?\n/g,"")
-    .replace(/=3D/g,"=")
-    .replace(/=([A-F0-9]{2})/gi,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
-}
+/* ================= TEXT CLEANER ================= */
 
 function cleanText(content){
   if(!content) return "";
-
-  content = decodeQuotedPrintable(content);
+  content = content
+    .replace(/=\r?\n/g,"")
+    .replace(/=3D/g,"=")
+    .replace(/=([A-F0-9]{2})/gi,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
 
   content = content.replace(/\?g"/g,"?g=");
-
   content = content.replace(
     /\[(https?:\/\/[^\]]+)\]/g,
     '<a href="$1" target="_blank">$1</a>'
@@ -185,13 +179,11 @@ function cleanText(content){
   return content.trim();
 }
 
-/* ===== SMART HTML DETECTOR ===== */
+/* =============================================== */
 
-function isHTML(content){
-  return /<html|<body|<table|<div|<img/i.test(content);
+function isHTML(str){
+  return /<\/?[a-z][\s\S]*>/i.test(str);
 }
-
-/* ================================= */
 
 function createEmail(){
   const user = document.getElementById("username").value.trim();
@@ -226,16 +218,46 @@ async function loadInbox(){
 
     data.reverse().forEach(mail=>{
 
-      let content = decodeQuotedPrintable(mail.content || "");
-
+      let content = mail.content || "";
       let rendered = "";
 
       if(isHTML(content)){
-        const blob = new Blob([content], {type:"text/html"});
+
+        const enhancedHTML = `
+        <html>
+        <head>
+          <base target="_blank">
+          <style>
+            body{
+              font-family:Arial, Helvetica, sans-serif;
+              max-width:800px;
+              margin:20px auto;
+            }
+            img{max-width:100%;}
+          </style>
+        </head>
+        <body>
+          ${content}
+          <script>
+            document.querySelectorAll("a").forEach(a=>{
+              a.setAttribute("target","_blank");
+              a.setAttribute("rel","noopener noreferrer");
+            });
+          <\/script>
+        </body>
+        </html>
+        `;
+
+        const blob = new Blob([enhancedHTML], {type:"text/html"});
         const url = URL.createObjectURL(blob);
+
         rendered = `<iframe class="mail-frame" src="${url}"></iframe>`;
+
       } else {
-        rendered = `<div class="mail-body">${cleanText(content)}</div>`;
+
+        const clean = cleanText(content);
+
+        rendered = `<div class="mail-body">${clean}</div>`;
       }
 
       html += `
