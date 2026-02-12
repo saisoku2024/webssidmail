@@ -161,25 +161,25 @@ body.dark .meta{
 
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-/* ================= TEXT CLEANER ================= */
+/* ===== TEXT CLEANER (PLAIN TEXT ONLY) ===== */
 
 function cleanText(content){
   if(!content) return "";
+
   content = content
     .replace(/=\r?\n/g,"")
     .replace(/=3D/g,"=")
     .replace(/=([A-F0-9]{2})/gi,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
 
   content = content.replace(/\?g"/g,"?g=");
+
   content = content.replace(
     /\[(https?:\/\/[^\]]+)\]/g,
-    '<a href="$1" target="_blank">$1</a>'
+    '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
   );
 
   return content.trim();
 }
-
-/* =============================================== */
 
 function isHTML(str){
   return /<\/?[a-z][\s\S]*>/i.test(str);
@@ -238,12 +238,6 @@ async function loadInbox(){
         </head>
         <body>
           ${content}
-          <script>
-            document.querySelectorAll("a").forEach(a=>{
-              a.setAttribute("target","_blank");
-              a.setAttribute("rel","noopener noreferrer");
-            });
-          <\/script>
         </body>
         </html>
         `;
@@ -256,7 +250,6 @@ async function loadInbox(){
       } else {
 
         const clean = cleanText(content);
-
         rendered = `<div class="mail-body">${clean}</div>`;
       }
 
