@@ -69,42 +69,19 @@ button{
 .generate{background:#6366f1;}
 .copy{background:#10b981;}
 .refresh{background:#f59e0b;}
-.reset{background:#ef4444;}
 
 .mail{
   background:#f9fafb;
-  border-radius:12px;
-  margin-bottom:12px;
-  overflow:hidden;
-  border:1px solid #e5e7eb;
-}
-
-.mail-header{
   padding:15px;
-  cursor:pointer;
-  transition:0.2s;
+  border-radius:12px;
+  margin-bottom:15px;
 }
 
-.mail-header:hover{
-  background:#eef2ff;
-}
-
-.subject{font-weight:600;}
+.subject{font-weight:600;margin-bottom:5px;}
 .meta{font-size:12px;color:#666;}
 
 .mail-body{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.4s ease;
-  padding:0 15px;
-}
-
-.mail.open .mail-body{
-  max-height:1000px;
-  padding:15px;
-}
-
-.mail-content{
+  margin-top:10px;
   white-space:pre-wrap;
   font-size:14px;
 }
@@ -154,8 +131,7 @@ button{
   <div class="buttons">
     <button class="generate" onclick="createEmail()">Create</button>
     <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="refresh" onclick="manualRefresh()">Refresh</button>
-    <button class="reset" onclick="collapseAll()">Reset View</button>
+    <button class="refresh" onclick="manualRefresh()">Refresh Inbox</button>
   </div>
 
   <div class="countdown" id="countdown"></div>
@@ -171,12 +147,13 @@ button{
 
 <script>
 
-const workerURL = "/inbox?email="; // IMPORTANT: pakai domain sendiri
-let refreshInterval = 30;
-let secondsLeft = refreshInterval;
-let timer;
+const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-/* CREATE */
+let refreshInterval = 30;
+let countdownTimer;
+let secondsLeft = refreshInterval;
+
+/* CREATE EMAIL */
 function createEmail(){
   const user = document.getElementById("username").value.trim();
   if(!user){ alert("Enter username first"); return; }
@@ -190,6 +167,7 @@ function createEmail(){
 /* COPY */
 function copyEmail(){
   const email = document.getElementById("email").innerText;
+  if(email==="Not generated") return;
   navigator.clipboard.writeText(email);
   alert("Copied!");
 }
@@ -220,10 +198,11 @@ async function loadInbox(resetTimer=false){
 
     let html = "";
 
-    data.reverse().forEach((mail,index)=>{
+    data.reverse().forEach(mail=>{
 
       let content = mail.content || "";
 
+      /* CLEAN ENCODING */
       content = content
         .replace(/=3D/g,"=")
         .replace(/=C2=A0/g," ")
@@ -231,9 +210,11 @@ async function loadInbox(resetTimer=false){
         .replace(/MIME-Version:.*/g,"")
         .replace(/Content-Type:.*/g,"");
 
+      /* OTP DETECT */
       let otp = content.match(/\b\d{4,8}\b/);
       let otpBox = otp ? `<div class="otp">🔐 OTP: ${otp[0]}</div>` : "";
 
+      /* LINK DETECT */
       let links = content.match(/https?:\/\/[^\s)]+/g);
       let linkButtons = "";
       if(links){
@@ -243,18 +224,13 @@ async function loadInbox(resetTimer=false){
       }
 
       html += `
-        <div class="mail" id="mail-${index}">
-          <div class="mail-header" onclick="toggleMail(${index})">
-            <div class="subject">${mail.subject || "(No Subject)"}</div>
-            <div class="meta">${mail.from || ""}</div>
-            <div class="meta">${mail.date || ""}</div>
-          </div>
-
-          <div class="mail-body">
-            ${otpBox}
-            <div class="mail-content">${content}</div>
-            ${linkButtons}
-          </div>
+        <div class="mail">
+          <div class="subject">${mail.subject || "(No Subject)"}</div>
+          <div class="meta">${mail.from || ""}</div>
+          <div class="meta">${mail.date || ""}</div>
+          ${otpBox}
+          <div class="mail-body">${content}</div>
+          ${linkButtons}
         </div>
       `;
     });
@@ -270,24 +246,11 @@ async function loadInbox(resetTimer=false){
   }
 }
 
-/* EXPAND / COLLAPSE */
-function toggleMail(index){
-  const mail = document.getElementById("mail-"+index);
-  mail.classList.toggle("open");
-}
+/* AUTO REFRESH 30s */
+function startAutoRefresh(){
+  clearInterval(countdownTimer);
 
-/* RESET VIEW */
-function collapseAll(){
-  document.querySelectorAll(".mail").forEach(mail=>{
-    mail.classList.remove("open");
-  });
-}
-
-/* AUTO REFRESH */
-function startTimer(){
-  clearInterval(timer);
-
-  timer = setInterval(()=>{
+  countdownTimer = setInterval(()=>{
     const email = localStorage.getItem("tempEmail");
     if(!email) return;
 
@@ -312,7 +275,7 @@ if(saved){
   loadInbox();
 }
 
-startTimer();
+startAutoRefresh();
 
 </script>
 
