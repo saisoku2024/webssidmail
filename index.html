@@ -73,6 +73,7 @@ button{
   margin-bottom:20px;
   box-shadow:0 5px 15px rgba(0,0,0,0.08);
   transition:0.3s;
+  cursor:pointer;
 }
 .subject{font-weight:600;margin-bottom:5px;}
 .meta{font-size:12px;color:#666;margin-bottom:15px;}
@@ -197,6 +198,8 @@ function copyEmail(){
   navigator.clipboard.writeText(user+"@ssidmail.my.id");
 }
 
+let mailCache = [];
+
 async function loadInbox(){
 
   const user = document.getElementById("username").value.trim();
@@ -214,57 +217,17 @@ async function loadInbox(){
       return;
     }
 
+    mailCache = data.reverse();
+
     let html = "";
 
-    data.reverse().forEach(mail=>{
-
-      let content = mail.content || "";
-      let rendered = "";
-
-      if(isHTML(content)){
-
-        const enhancedHTML = `
-        <html>
-        <head>
-          <base target="_blank">
-          <style>
-            body{
-              font-family:Arial, Helvetica, sans-serif;
-              max-width:800px;
-              margin:20px auto;
-            }
-            img{max-width:100%;}
-          </style>
-        </head>
-        <body>
-          ${content}
-          <script>
-            document.querySelectorAll("a").forEach(a=>{
-              a.setAttribute("target","_blank");
-              a.setAttribute("rel","noopener noreferrer");
-            });
-          <\/script>
-        </body>
-        </html>
-        `;
-
-        const blob = new Blob([enhancedHTML], {type:"text/html"});
-        const url = URL.createObjectURL(blob);
-
-        rendered = `<iframe class="mail-frame" src="${url}"></iframe>`;
-
-      } else {
-
-        const clean = cleanText(content);
-
-        rendered = `<div class="mail-body">${clean}</div>`;
-      }
+    mailCache.forEach((mail, i)=>{
 
       html += `
-        <div class="mail">
+        <div class="mail" onclick="openMail(${i})">
           <div class="subject">${mail.subject || "(No Subject)"}</div>
           <div class="meta">${mail.from || ""} • ${mail.date || ""}</div>
-          ${rendered}
+          <div id="mail-body-${i}" style="display:none;"></div>
         </div>
       `;
     });
@@ -274,6 +237,55 @@ async function loadInbox(){
   }catch(e){
     inbox.innerHTML = "Failed to load inbox.";
   }
+}
+
+function openMail(index){
+
+  const container = document.getElementById("mail-body-"+index);
+
+  if(container.style.display === "block"){
+    container.style.display = "none";
+    return;
+  }
+
+  const mail = mailCache[index];
+  let content = mail.content || "";
+  let rendered = "";
+
+  if(isHTML(content)){
+
+    const enhancedHTML = `
+    <html>
+    <head>
+      <base target="_blank">
+      <style>
+        body{
+          font-family:Arial, Helvetica, sans-serif;
+          max-width:800px;
+          margin:20px auto;
+        }
+        img{max-width:100%;}
+      </style>
+    </head>
+    <body>
+      ${content}
+    </body>
+    </html>
+    `;
+
+    const blob = new Blob([enhancedHTML], {type:"text/html"});
+    const url = URL.createObjectURL(blob);
+
+    rendered = `<iframe class="mail-frame" src="${url}"></iframe>`;
+
+  } else {
+
+    const clean = cleanText(content);
+    rendered = `<div class="mail-body">${clean}</div>`;
+  }
+
+  container.innerHTML = rendered;
+  container.style.display = "block";
 }
 
 /* ===== DARK MODE ===== */
