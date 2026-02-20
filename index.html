@@ -76,7 +76,7 @@ button{
   cursor:pointer;
 }
 .subject{font-weight:600;margin-bottom:5px;}
-.meta{font-size:12px;color:#666;margin-bottom:15px;}
+.meta{font-size:12px;color:#666;margin-bottom:15px; line-height: 1.6;}
 
 .mail-frame{
   width:100%;
@@ -100,69 +100,42 @@ button{
 }
 
 /* ===== DARK MODE ===== */
-
-body.dark{
-  background:#0f172a;
-}
-
-body.dark .card{
-  background:#1e293b;
-  color:#f1f5f9;
-}
-
-body.dark .username-group input{
-  background:#0f172a;
-  border:1px solid #334155;
-  color:#f1f5f9;
-}
-
-body.dark .domain-label{
-  background:#0f172a;
-}
-
-body.dark .mail{
-  background:#0f172a;
-  color:#f1f5f9;
-}
-
-body.dark .meta{
-  color:#94a3b8;
-}
+body.dark{background:#0f172a;}
+body.dark .card{background:#1e293b; color:#f1f5f9;}
+body.dark .username-group input{background:#0f172a; border:1px solid #334155; color:#f1f5f9;}
+body.dark .domain-label{background:#0f172a;}
+body.dark .mail{background:#0f172a; color:#f1f5f9;}
+body.dark .meta{color:#94a3b8;}
 </style>
 </head>
 
 <body>
 
 <div class="wrapper">
+  <div class="card">
+    <button class="dark-btn" onclick="toggleDark()">🌙 Dark</button>
+    <h2>📬 SSIDMail</h2>
 
-<div class="card">
-  <button class="dark-btn" onclick="toggleDark()">🌙 Dark</button>
-  <h2>📬 SSIDMail</h2>
+    <div class="username-group">
+      <input id="username" placeholder="Enter username">
+      <div class="domain-label">@ssidmail.my.id</div>
+    </div>
 
-  <div class="username-group">
-    <input id="username" placeholder="Enter username">
-    <div class="domain-label">@ssidmail.my.id</div>
+    <div class="buttons">
+      <button class="generate" onclick="createEmail()">Create</button>
+      <button class="copy" onclick="copyEmail()">Copy</button>
+      <button class="refresh" onclick="loadInbox()">Refresh</button>
+    </div>
   </div>
 
-  <div class="buttons">
-    <button class="generate" onclick="createEmail()">Create</button>
-    <button class="copy" onclick="copyEmail()">Copy</button>
-    <button class="refresh" onclick="loadInbox()">Refresh</button>
+  <div class="card">
+    <h3>📥 Inbox</h3>
+    <div id="inboxContent">No emails loaded...</div>
   </div>
-</div>
-
-<div class="card">
-  <h3>📥 Inbox</h3>
-  <div id="inboxContent">No emails loaded...</div>
-</div>
-
 </div>
 
 <script>
-
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
-
-/* ================= TEXT CLEANER ================= */
 
 function cleanText(content){
   if(!content) return "";
@@ -176,11 +149,8 @@ function cleanText(content){
     /\[(https?:\/\/[^\]]+)\]/g,
     '<a href="$1" target="_blank">$1</a>'
   );
-
   return content.trim();
 }
-
-/* =============================================== */
 
 function isHTML(str){
   return /<\/?[a-z][\s\S]*>/i.test(str);
@@ -201,7 +171,6 @@ function copyEmail(){
 let mailCache = [];
 
 async function loadInbox(){
-
   const user = document.getElementById("username").value.trim();
   if(!user) return;
 
@@ -209,40 +178,46 @@ async function loadInbox(){
   inbox.innerHTML = "Loading...";
 
   try{
-    const res = await fetch(workerURL + user+"@ssidmail.my.id" + "&t=" + Date.now());
+    const res = await fetch(workerURL + user + "@ssidmail.my.id" + "&t=" + Date.now());
     const data = await res.json();
 
-    if(!data.length){
+    if(!data || !data.length){
       inbox.innerHTML = "No emails yet...";
       return;
     }
 
-    mailCache = data.reverse();
+    // Urutan terbaru di atas
+    mailCache = data.sort((a, b) => {
+        const tsA = parseInt(a.id.split(':').pop()) || 0;
+        const tsB = parseInt(b.id.split(':').pop()) || 0;
+        return tsB - tsA; 
+    });
 
     let html = "";
-
     mailCache.forEach((mail, i)=>{
-
+      const displayDate = mail.receivedAt || mail.date || "Unknown Date";
+      
       html += `
         <div class="mail" onclick="openMail(${i})">
           <div class="subject">${mail.subject || "(No Subject)"}</div>
-          <div class="meta">${mail.from || ""} • ${mail.date || ""}</div>
-          <div id="mail-body-${i}" style="display:none;"></div>
+          <div class="meta">
+            <b>From:</b> ${mail.from.split('<')[0] || mail.from} <br>
+            <b>Received:</b> ${displayDate}
+          </div>
+          <div id="mail-body-${i}" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;"></div>
         </div>
       `;
     });
-
     inbox.innerHTML = html;
 
-  }catch(e){
+  } catch(e) {
+    console.error(e);
     inbox.innerHTML = "Failed to load inbox.";
   }
 }
 
 function openMail(index){
-
   const container = document.getElementById("mail-body-"+index);
-
   if(container.style.display === "block"){
     container.style.display = "none";
     return;
@@ -253,53 +228,36 @@ function openMail(index){
   let rendered = "";
 
   if(isHTML(content)){
-
     const enhancedHTML = `
     <html>
     <head>
       <base target="_blank">
       <style>
-        body{
-          font-family:Arial, Helvetica, sans-serif;
-          max-width:800px;
-          margin:20px auto;
-        }
-        img{max-width:100%;}
+        body{ font-family:Arial, sans-serif; max-width:100%; margin:10px; line-height:1.4; color:#333; }
+        img{ max-width:100%; height:auto; }
       </style>
     </head>
-    <body>
-      ${content}
-    </body>
-    </html>
-    `;
-
+    <body> ${content} </body>
+    </html>`;
     const blob = new Blob([enhancedHTML], {type:"text/html"});
     const url = URL.createObjectURL(blob);
-
-    rendered = `<iframe class="mail-frame" src="${url}"></iframe>`;
-
+    rendered = `<iframe class="mail-frame" src="${url}" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"></iframe>`;
   } else {
-
-    const clean = cleanText(content);
-    rendered = `<div class="mail-body">${clean}</div>`;
+    rendered = `<div class="mail-body">${cleanText(content)}</div>`;
   }
 
   container.innerHTML = rendered;
   container.style.display = "block";
 }
 
-/* ===== DARK MODE ===== */
-
 function toggleDark(){
   document.body.classList.toggle("dark");
-  localStorage.setItem("darkMode",
-    document.body.classList.contains("dark"));
+  localStorage.setItem("darkMode", document.body.classList.contains("dark"));
 }
 
 if(localStorage.getItem("darkMode")==="true"){
   document.body.classList.add("dark");
 }
-
 </script>
 
 </body>
