@@ -202,9 +202,39 @@ async function loadInbox(){
     });
 
     let html = "";
-    mailCache.forEach((mail, i)=>{
+    mailCache.forEach((mail, i) => {
       const displayDate = mail.receivedAt || mail.date || "Unknown Date";
       
+      // 1. Ambil Subject yang bersih (Netflix Notification)
+      // Jika subject mengandung teks MIME, kita bersihkan atau beri default
+      let cleanSubject = mail.subject ? mail.subject.split(';')[0] : "Netflix Notification";
+      if (cleanSubject.includes("MIME-Version") || cleanSubject.includes("Content-Type")) {
+          cleanSubject = "Netflix Notification";
+      }
+
+      // 2. Ambil Alamat Email Sender secara utuh
+      // Kita ambil bagian di dalam <...> jika ada, atau teks aslinya
+      let rawFrom = mail.from || "Unknown Sender";
+      let cleanFrom = rawFrom;
+      const emailMatch = rawFrom.match(/<([^>]+)>/);
+      if (emailMatch) {
+          cleanFrom = emailMatch[1]; // Mengambil info@account.netflix.com
+      } else {
+          // Jika formatnya berantakan seperti di gambar, kita bersihkan teks teknisnya
+          cleanFrom = rawFrom.split(';')[0].split('To:')[0].trim();
+      }
+
+      html += `
+        <div class="mail" onclick="openMail(${i})">
+          <div class="subject">${cleanSubject}</div>
+          <div class="meta">
+            <b>From:</b> ${cleanFrom} <br>
+            <b>Received:</b> ${displayDate}
+          </div>
+          <div id="mail-body-${i}" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;"></div>
+        </div>
+      `;
+    });      
       // MEMBERSIHKAN HEADER DARI TEKS MIME
       // Filter Nama Pengirim: Netflix <info@...> jadi Netflix
       let cleanFrom = mail.from ? mail.from.split('<')[0].replace(/"/g, '').trim() : "Unknown Sender";
