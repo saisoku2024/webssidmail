@@ -137,6 +137,14 @@ body.dark .meta{color:#94a3b8;}
 <script>
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
+/* --- FUNGSI HEADER UNTUK MEMBERSIHKAN MIME --- */
+function getHeader(raw, name) {
+  if (!raw) return "";
+  // Mencari baris yang tepat dimulai dengan NamaHeader:
+  const m = raw.match(new RegExp("^" + name + ":\\s*(.*)$", "im"));
+  return m ? m[1].trim() : "";
+}
+
 function cleanText(content){
   if(!content) return "";
   content = content
@@ -197,11 +205,20 @@ async function loadInbox(){
     mailCache.forEach((mail, i)=>{
       const displayDate = mail.receivedAt || mail.date || "Unknown Date";
       
+      // MEMBERSIHKAN HEADER DARI TEKS MIME
+      // Filter Nama Pengirim: Netflix <info@...> jadi Netflix
+      let cleanFrom = mail.from ? mail.from.split('<')[0].replace(/"/g, '').trim() : "Unknown Sender";
+      
+      // Filter Subject: Jika mengandung MIME teks, ambil judul asli
+      let cleanSubject = (mail.subject && !mail.subject.includes("MIME-Version")) 
+                         ? mail.subject 
+                         : "Netflix Notification";
+
       html += `
         <div class="mail" onclick="openMail(${i})">
-          <div class="subject">${mail.subject || "(No Subject)"}</div>
+          <div class="subject">${cleanSubject}</div>
           <div class="meta">
-            <b>From:</b> ${mail.from.split('<')[0] || mail.from} <br>
+            <b>From:</b> ${cleanFrom} <br>
             <b>Received:</b> ${displayDate}
           </div>
           <div id="mail-body-${i}" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;"></div>
