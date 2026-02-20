@@ -1,289 +1,145 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SSIDMail - Clean Viewer</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-<style>
-body{
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  background:#f1f3f4;
-  padding:30px;
-  transition:0.3s;
-}
-.wrapper{max-width:720px;margin:auto;}
-.card{
-  background:#fff;
-  padding:25px;
-  border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
-  margin-bottom:25px;
-  position:relative;
-  transition:0.3s;
-}
-
-/* DARK BUTTON TOP RIGHT */
-.dark-btn{
-  position:absolute;
-  top:20px;
-  right:20px;
-  background:#111;
-  color:#fff;
-  border:none;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:12px;
-  cursor:pointer;
-}
-
-.username-group{display:flex;gap:10px;margin-bottom:15px;}
-.username-group input{
-  flex:1;
-  padding:12px;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-.domain-label{
-  display:flex;
-  align-items:center;
-  padding:0 14px;
-  background:#f3f4f6;
-  border-radius:8px;
-}
-.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-  color:#fff;
-}
-.generate{background:#6366f1;}
-.copy{background:#10b981;}
-.refresh{background:#f59e0b;}
-
-.mail{
-  background:#fff;
-  padding:20px;
-  border-radius:14px;
-  margin-bottom:20px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
-  transition:0.3s;
-  cursor:pointer;
-}
-.subject{font-weight:600;margin-bottom:5px;}
-.meta{font-size:12px;color:#666;margin-bottom:15px; line-height: 1.6;}
-
-.mail-frame{
-  width:100%;
-  border:none;
-  min-height:500px;
-}
-
-.mail-body{
-  font-size:14px;
-  line-height:1.6;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
-
-.mail-body a{
-  color:#1a73e8;
-  text-decoration:none;
-}
-.mail-body a:hover{
-  text-decoration:underline;
-}
-
-/* ===== DARK MODE ===== */
-body.dark{background:#0f172a;}
-body.dark .card{background:#1e293b; color:#f1f5f9;}
-body.dark .username-group input{background:#0f172a; border:1px solid #334155; color:#f1f5f9;}
-body.dark .domain-label{background:#0f172a;}
-body.dark .mail{background:#0f172a; color:#f1f5f9;}
-body.dark .meta{color:#94a3b8;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSIDMail - Clean Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body{ margin:0; font-family:'Poppins',sans-serif; background:#f1f3f4; padding:30px; transition:0.3s; }
+        .wrapper{max-width:720px;margin:auto;}
+        .card{ background:#fff; padding:25px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); margin-bottom:25px; position:relative; transition:0.3s; }
+        .dark-btn{ position:absolute; top:20px; right:20px; background:#111; color:#fff; border:none; padding:6px 12px; border-radius:20px; font-size:12px; cursor:pointer; }
+        .username-group{display:flex;gap:10px;margin-bottom:15px;}
+        .username-group input{ flex:1; padding:12px; border-radius:8px; border:1px solid #ddd; }
+        .domain-label{ display:flex; align-items:center; padding:0 14px; background:#f3f4f6; border-radius:8px; }
+        .buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+        button{ padding:10px; border:none; border-radius:8px; font-weight:600; cursor:pointer; color:#fff; }
+        .generate{background:#6366f1;} .copy{background:#10b981;} .refresh{background:#f59e0b;}
+        .mail{ background:#fff; padding:20px; border-radius:14px; margin-bottom:20px; box-shadow:0 5px 15px rgba(0,0,0,0.08); transition:0.3s; cursor:pointer; }
+        .subject{font-weight:600;margin-bottom:5px;}
+        .meta{font-size:12px;color:#666;margin-bottom:15px; line-height: 1.6;}
+        .mail-frame{ width:100%; border:none; min-height:500px; }
+        .mail-body{ font-size:14px; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+        .mail-body a{ color:#1a73e8; text-decoration:none; }
+        body.dark{background:#0f172a;}
+        body.dark .card{background:#1e293b; color:#f1f5f9;}
+        body.dark .username-group input{background:#0f172a; border:1px solid #334155; color:#f1f5f9;}
+        body.dark .domain-label{background:#0f172a;}
+        body.dark .mail{background:#0f172a; color:#f1f5f9;}
+    </style>
 </head>
-
 <body>
-
 <div class="wrapper">
-  <div class="card">
-    <button class="dark-btn" onclick="toggleDark()">🌙 Dark</button>
-    <h2>📬 SSIDMail</h2>
-
-    <div class="username-group">
-      <input id="username" placeholder="Enter username">
-      <div class="domain-label">@ssidmail.my.id</div>
+    <div class="card">
+        <button class="dark-btn" onclick="toggleDark()">🌙 Dark</button>
+        <h2>📬 SSIDMail</h2>
+        <div class="username-group">
+            <input id="username" placeholder="Enter username">
+            <div class="domain-label">@ssidmail.my.id</div>
+        </div>
+        <div class="buttons">
+            <button class="generate" onclick="createEmail()">Create</button>
+            <button class="copy" onclick="copyEmail()">Copy</button>
+            <button class="refresh" onclick="loadInbox()">Refresh</button>
+        </div>
     </div>
-
-    <div class="buttons">
-      <button class="generate" onclick="createEmail()">Create</button>
-      <button class="copy" onclick="copyEmail()">Copy</button>
-      <button class="refresh" onclick="loadInbox()">Refresh</button>
+    <div class="card">
+        <h3>📥 Inbox</h3>
+        <div id="inboxContent">No emails loaded...</div>
     </div>
-  </div>
-
-  <div class="card">
-    <h3>📥 Inbox</h3>
-    <div id="inboxContent">No emails loaded...</div>
-  </div>
 </div>
 
 <script>
 const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-function getHeader(raw, name) {
-  if (!raw) return "";
-  const m = raw.match(new RegExp("^" + name + ":\\s*(.*)$", "im"));
-  return m ? m[1].trim() : "";
-}
-
 function cleanText(content){
-  if(!content) return "";
-  content = content
-    .replace(/=\r?\n/g,"")
-    .replace(/=3D/g,"=")
-    .replace(/=([A-F0-9]{2})/gi,(m,hex)=>String.fromCharCode(parseInt(hex,16)));
-
-  content = content.replace(/\?g"/g,"?g=");
-  content = content.replace(
-    /\[(https?:\/\/[^\]]+)\]/g,
-    '<a href="$1" target="_blank">$1</a>'
-  );
-  return content.trim();
+    if(!content) return "";
+    return content.replace(/=\r?\n/g,"").replace(/=3D/g,"=").replace(/=([A-F0-9]{2})/gi,(m,hex)=>String.fromCharCode(parseInt(hex,16))).trim();
 }
 
-function isHTML(str){
-  return /<\/?[a-z][\s\S]*>/i.test(str);
-}
+function isHTML(str){ return /<\/?[a-z][\s\S]*>/i.test(str); }
 
 function createEmail(){
-  const user = document.getElementById("username").value.trim();
-  if(!user) return;
-  loadInbox();
+    const user = document.getElementById("username").value.trim();
+    if(!user) return;
+    loadInbox();
 }
 
 function copyEmail(){
-  const user = document.getElementById("username").value.trim();
-  if(!user) return;
-  navigator.clipboard.writeText(user+"@ssidmail.my.id");
+    const user = document.getElementById("username").value.trim();
+    if(!user) return;
+    navigator.clipboard.writeText(user+"@ssidmail.my.id");
 }
 
 let mailCache = [];
 
 async function loadInbox(){
-  const user = document.getElementById("username").value.trim();
-  if(!user) return;
+    const user = document.getElementById("username").value.trim();
+    if(!user) return;
+    const inbox = document.getElementById("inboxContent");
+    inbox.innerHTML = "Loading...";
 
-  const inbox = document.getElementById("inboxContent");
-  inbox.innerHTML = "Loading...";
+    try {
+        const res = await fetch(workerURL + user + "@ssidmail.my.id" + "&t=" + Date.now());
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = await res.json();
 
-  try{
-    const res = await fetch(workerURL + user + "@ssidmail.my.id" + "&t=" + Date.now());
-    const data = await res.json();
+        if(!data || data.length === 0){
+            inbox.innerHTML = "No emails yet...";
+            return;
+        }
 
-    if(!data || !data.length){
-      inbox.innerHTML = "No emails yet...";
-      return;
+        mailCache = data.sort((a, b) => {
+            const tsA = parseInt(a.id.split(':').pop()) || 0;
+            const tsB = parseInt(b.id.split(':').pop()) || 0;
+            return tsB - tsA; 
+        });
+
+        let html = "";
+        mailCache.forEach((mail, i) => {
+            const displayDate = mail.receivedAt || mail.date || "Unknown Date";
+            let cleanSubject = mail.subject ? mail.subject.split(';')[0].trim() : "Netflix Notification";
+            if (cleanSubject.toLowerCase().includes("mime-version")) {
+                cleanSubject = "Kode akses sementara Netflix-mu"; 
+            }
+            let cleanFrom = mail.from ? mail.from.split(';')[0].trim() : "Unknown Sender";
+            const emailMatch = cleanFrom.match(/<([^>]+)>/);
+            if (emailMatch) cleanFrom = emailMatch[1];
+
+            html += `
+                <div class="mail" onclick="openMail(${i})">
+                    <div class="subject" style="color: #6366f1;">${cleanSubject}</div>
+                    <div class="meta">
+                        <b>From:</b> ${cleanFrom} <br>
+                        <b>Received:</b> ${displayDate}
+                    </div>
+                    <div id="mail-body-${i}" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;"></div>
+                </div>`;
+        });
+        inbox.innerHTML = html;
+    } catch(e) {
+        console.error("Fetch Error:", e);
+        inbox.innerHTML = "<span style='color:red;'>Failed to load inbox.</span>";
     }
-
-    // Sort: Newest First
-    mailCache = data.sort((a, b) => {
-        const tsA = parseInt(a.id.split(':').pop()) || 0;
-        const tsB = parseInt(b.id.split(':').pop()) || 0;
-        return tsB - tsA; 
-    });
-
-    let html = "";
-    mailCache.forEach((mail, i) => {
-      const displayDate = mail.receivedAt || mail.date || "Unknown Date";
-      
-      // 1. Ambil Subject yang bersih
-      let cleanSubject = mail.subject ? mail.subject.split(';')[0] : "Netflix Notification";
-      if (cleanSubject.includes("MIME-Version") || cleanSubject.includes("Content-Type")) {
-          cleanSubject = "Netflix Notification";
-      }
-
-      // 2. Ambil Alamat Email Sender (Pembersihan MIME)
-      let rawFrom = mail.from || "Unknown Sender";
-      let cleanFrom = rawFrom;
-      const emailMatch = rawFrom.match(/<([^>]+)>/);
-      
-      if (emailMatch) {
-          cleanFrom = emailMatch[1]; 
-      } else {
-          // Bersihkan teks teknis jika format pecah
-          cleanFrom = rawFrom.split(';')[0].split('To:')[0].replace(/From:/gi, '').trim();
-      }
-
-      html += `
-        <div class="mail" onclick="openMail(${i})">
-          <div class="subject">${cleanSubject}</div>
-          <div class="meta">
-            <b>From:</b> ${cleanFrom} <br>
-            <b>Received:</b> ${displayDate}
-          </div>
-          <div id="mail-body-${i}" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;"></div>
-        </div>
-      `;
-    });
-    
-    inbox.innerHTML = html;
-
-  } catch(e) {
-    console.error(e);
-    inbox.innerHTML = "Failed to load inbox.";
-  }
 }
 
 function openMail(index){
-  const container = document.getElementById("mail-body-"+index);
-  if(container.style.display === "block"){
-    container.style.display = "none";
-    return;
-  }
-
-  const mail = mailCache[index];
-  let content = mail.content || "";
-  let rendered = "";
-
-  if(isHTML(content)){
-    const enhancedHTML = `
-    <html>
-    <head>
-      <base target="_blank">
-      <style>
-        body{ font-family:Arial, sans-serif; max-width:100%; margin:10px; line-height:1.4; color:#333; }
-        img{ max-width:100%; height:auto; }
-      </style>
-    </head>
-    <body> ${content} </body>
-    </html>`;
-    const blob = new Blob([enhancedHTML], {type:"text/html"});
-    const url = URL.createObjectURL(blob);
-    rendered = `<iframe class="mail-frame" src="${url}" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"></iframe>`;
-  } else {
-    rendered = `<div class="mail-body">${cleanText(content)}</div>`;
-  }
-
-  container.innerHTML = rendered;
-  container.style.display = "block";
+    const container = document.getElementById("mail-body-"+index);
+    if(container.style.display === "block"){ container.style.display = "none"; return; }
+    const mail = mailCache[index];
+    let content = mail.content || "";
+    if(isHTML(content)){
+        const blob = new Blob([`<html><body style="font-family:Arial;">${content}</body></html>`], {type:"text/html"});
+        container.innerHTML = `<iframe class="mail-frame" src="${URL.createObjectURL(blob)}" sandbox="allow-popups allow-scripts"></iframe>`;
+    } else {
+        container.innerHTML = `<div class="mail-body">${cleanText(content)}</div>`;
+    }
+    container.style.display = "block";
 }
 
-function toggleDark(){
-  document.body.classList.toggle("dark");
-  localStorage.setItem("darkMode", document.body.classList.contains("dark"));
-}
-
-if(localStorage.getItem("darkMode")==="true"){
-  document.body.classList.add("dark");
-}
+function toggleDark(){ document.body.classList.toggle("dark"); localStorage.setItem("darkMode", document.body.classList.contains("dark")); }
+if(localStorage.getItem("darkMode")==="true"){ document.body.classList.add("dark"); }
 </script>
-
 </body>
 </html>
