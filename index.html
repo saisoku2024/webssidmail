@@ -469,34 +469,64 @@ function openMail(index){
 
     if(isHTML(content)){
 
-        container.innerHTML = `
-            <div class="mail-body">
+        const safeHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <base target="_blank">
+                <style>
+                    body{
+                        margin:0;
+                        padding:15px;
+                        font-family:Arial,sans-serif;
+                        background:#fff;
+                    }
+
+                    img{
+                        max-width:100%;
+                        height:auto;
+                    }
+
+                    a{
+                        word-break:break-all;
+                    }
+                </style>
+            </head>
+            <body>
                 ${content}
-            </div>
+            </body>
+            </html>
         `;
 
-        // semua link buka tab baru
-        setTimeout(() => {
-
-            container.querySelectorAll("a").forEach(link => {
-
-                link.setAttribute("target","_blank");
-                link.setAttribute("rel","noopener noreferrer");
-
-            });
-
-        }, 100);
+        container.innerHTML = `
+            <iframe
+                class="mail-frame"
+                sandbox="allow-popups allow-popups-to-escape-sandbox"
+                style="
+                    width:100%;
+                    min-height:700px;
+                    border:none;
+                    background:#fff;
+                    border-radius:10px;
+                "
+                srcdoc='${safeHTML
+                    .replace(/'/g,"&apos;")
+                    .replace(/"/g,"&quot;")}'>
+            </iframe>
+        `;
 
     } else {
 
-        container.innerHTML =
-            `<div class="mail-body">
+        container.innerHTML = `
+            <div class="mail-body">
                 ${cleanText(content)}
-            </div>`;
+            </div>
+        `;
     }
 
     container.style.display = "block";
 }
+
 function toggleDark(){
 
     document.body.classList.toggle("dark");
