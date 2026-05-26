@@ -659,46 +659,7 @@ function renderList(mails){
   }).join('');
 }
 
-function openMail(index){
-  selectedIndex = index;
-  const mail = mailCache[index];
-  const sender = getSender(mail);
-  const sname = getSenderName(mail);
-  const subj = getSubject(mail);
-  const cc = getColor(sender);
-  const init = getInitial(sname||sender);
-  const date = mail.receivedAt || mail.date || '';
-
-  // re-render list to update selection
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = q ? mailCache.filter(m=>(m.subject||'').toLowerCase().includes(q)||(m.from||'').toLowerCase().includes(q)) : mailCache;
-  renderList(filtered);
-
-  let bodyHTML = '';
-  const content = mail.content || '';
-  if(isHTML(content)){
-    const blob = new Blob([`<html><body style="font-family:Arial,sans-serif;font-size:14px;padding:20px;background:#fff;color:#111;line-height:1.7;">${content}</body></html>`],{type:'text/html'});
-    bodyHTML = `<iframe class="mail-frame" src="${URL.createObjectURL(blob)}" sandbox="allow-popups allow-same-origin"></iframe>`;
-  } else {
-    bodyHTML = `<div class="text-body">${cleanText(content)||'(Empty message)'}</div>`;
-  }
-
-  document.getElementById('mailDetail').innerHTML = `
-    <div class="detail-header">
-      <div class="detail-subject">${subj}</div>
-      <div class="detail-meta">
-        <div class="detail-from">
-          <div class="detail-avatar ${cc}">${init}</div>
-          <div class="detail-from-info">
-            <div class="detail-name">${sname||sender}</div>
-            <div class="detail-email">${sender}</div>
-          </div>
-        </div>
-        <div class="detail-time">${date}</div>
-      </div>
-    </div>
-    <div class="detail-body">${bodyHTML}</div>`;
-}
+unction openMail(index){
 
 function filterMail(){
   const q = document.getElementById('searchInput').value.toLowerCase();
