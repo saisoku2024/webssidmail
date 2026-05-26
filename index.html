@@ -469,23 +469,23 @@ function openMail(index){
 
     if(isHTML(content)){
 
-        const blob = new Blob(
-            [
-                `<html>
-                    <body style="font-family:Arial;">
-                        ${content}
-                    </body>
-                </html>`
-            ],
-            {type:"text/html"}
-        );
+        container.innerHTML = `
+            <div class="mail-body">
+                ${content}
+            </div>
+        `;
 
-        container.innerHTML =
-            `<iframe
-                class="mail-frame"
-                src="${URL.createObjectURL(blob)}"
-                sandbox="allow-popups allow-scripts">
-            </iframe>`;
+        // semua link buka tab baru
+        setTimeout(() => {
+
+            container.querySelectorAll("a").forEach(link => {
+
+                link.setAttribute("target","_blank");
+                link.setAttribute("rel","noopener noreferrer");
+
+            });
+
+        }, 100);
 
     } else {
 
@@ -497,7 +497,6 @@ function openMail(index){
 
     container.style.display = "block";
 }
-
 function toggleDark(){
 
     document.body.classList.toggle("dark");
