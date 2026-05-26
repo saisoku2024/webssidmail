@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SSIDMail // Tactical HUD</title>
+<title>SSIDMail // Email Acces</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -17,52 +17,104 @@
 }
 
 body{
+
     font-family:'Poppins',sans-serif;
 
-    background:
-    radial-gradient(circle at center,
-    #101426 0%,
-    #050816 45%,
-    #02030a 100%);
+    background:#02030a;
 
     min-height:100vh;
+
     overflow-x:hidden;
+
     color:#dbe7ff;
 }
 
 /* =========================
-   CYBER HUD BACKGROUND
+   FULL HUD IMAGE BG
 ========================= */
 
 .hud-bg{
+
     position:fixed;
+
     inset:0;
+
     width:100%;
+
     height:100%;
+
     z-index:0;
+
     pointer-events:none;
+
+    background-image:url("hud backgroud ssidmail.png");
+
+    background-size:cover;
+
+    background-position:center;
+
+    background-repeat:no-repeat;
+
+    opacity:1;
 }
 
-.scanlines{
+/* =========================
+   OVERLAY
+========================= */
+
+.bg-overlay{
+
     position:fixed;
+
     inset:0;
+
     z-index:1;
+
+    pointer-events:none;
+
+    background:
+
+    radial-gradient(
+        circle at center,
+        rgba(0,0,0,0.05),
+        rgba(0,0,0,0.55)
+    );
+}
+
+/* =========================
+   SCANLINES
+========================= */
+
+.scanlines{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:2;
+
     pointer-events:none;
 
     background:
     repeating-linear-gradient(
         to bottom,
-        rgba(255,255,255,0.015),
-        rgba(255,255,255,0.015) 1px,
+        rgba(255,255,255,0.012),
+        rgba(255,255,255,0.012) 1px,
         transparent 1px,
         transparent 4px
     );
 }
 
+/* =========================
+   CONTENT LAYER
+========================= */
+
 .wrapper,
 .login-box{
+
     position:relative;
-    z-index:3;
+
+    z-index:5;
 }
 
 /* =========================
@@ -70,8 +122,11 @@ body{
 ========================= */
 
 .login-box{
+
     width:100%;
+
     max-width:420px;
+
     margin:90px auto;
 }
 
@@ -80,8 +135,11 @@ body{
 ========================= */
 
 .wrapper{
+
     width:100%;
+
     max-width:980px;
+
     margin:40px auto;
 }
 
@@ -93,11 +151,11 @@ body{
 
     position:relative;
 
-    background:rgba(5,10,25,0.72);
+    background:rgba(3,8,20,0.62);
 
     backdrop-filter:blur(18px);
 
-    border:1px solid rgba(255,80,80,0.12);
+    border:1px solid rgba(255,60,60,0.14);
 
     border-radius:22px;
 
@@ -108,9 +166,12 @@ body{
     overflow:hidden;
 
     box-shadow:
+
         0 0 0 1px rgba(255,80,80,0.04),
+
         0 0 40px rgba(255,0,60,0.08),
-        0 0 120px rgba(0,40,255,0.06);
+
+        0 0 120px rgba(0,40,255,0.05);
 }
 
 .card::before{
@@ -124,9 +185,9 @@ body{
     background:
     linear-gradient(
         135deg,
-        rgba(255,0,60,0.05),
+        rgba(255,0,60,0.04),
         transparent 35%,
-        rgba(0,120,255,0.05)
+        rgba(0,120,255,0.04)
     );
 
     pointer-events:none;
@@ -142,7 +203,7 @@ body{
     left:0;
 
     width:100%;
-    height:2px;
+    height:1px;
 
     background:
     linear-gradient(
@@ -177,8 +238,11 @@ h2,h3{
 ========================= */
 
 .username-group{
+
     display:flex;
+
     gap:10px;
+
     margin-bottom:15px;
 }
 
@@ -214,6 +278,7 @@ h2,h3{
 .domain-label{
 
     display:flex;
+
     align-items:center;
 
     padding:0 16px;
@@ -232,8 +297,11 @@ h2,h3{
 ========================= */
 
 .buttons{
+
     display:grid;
+
     grid-template-columns:repeat(3,1fr);
+
     gap:12px;
 }
 
@@ -259,23 +327,34 @@ button{
 }
 
 button:hover{
+
     transform:translateY(-2px);
 }
 
 .generate{
+
     background:#2048ff;
-    box-shadow:0 0 20px rgba(32,72,255,0.35);
+
+    box-shadow:
+        0 0 20px rgba(32,72,255,0.35);
 }
 
 .copy{
+
     background:#00ffd0;
+
     color:#001018;
-    box-shadow:0 0 20px rgba(0,255,208,0.3);
+
+    box-shadow:
+        0 0 20px rgba(0,255,208,0.3);
 }
 
 .refresh{
+
     background:#ff5b2e;
-    box-shadow:0 0 20px rgba(255,91,46,0.35);
+
+    box-shadow:
+        0 0 20px rgba(255,91,46,0.35);
 }
 
 .login-btn{
@@ -387,17 +466,6 @@ button:hover{
 }
 
 /* =========================
-   DARK MODE
-========================= */
-
-body.dark{
-
-    filter:
-    saturate(1.2)
-    contrast(1.05);
-}
-
-/* =========================
    MOBILE
 ========================= */
 
@@ -430,110 +498,19 @@ body.dark{
 
 <body>
 
-<!-- =========================
-     HUD BACKGROUND
-========================= -->
+<!-- FULL HUD IMAGE -->
 
-<svg class="hud-bg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+<div class="hud-bg"></div>
 
-<defs>
+<!-- OVERLAY -->
 
-<radialGradient id="coreGlow">
+<div class="bg-overlay"></div>
 
-<stop offset="0%" stop-color="rgba(255,80,80,0.20)" />
-<stop offset="100%" stop-color="transparent" />
-
-</radialGradient>
-
-</defs>
-
-<!-- CENTER CORE -->
-
-<circle cx="800" cy="500" r="360"
-fill="none"
-stroke="rgba(255,60,60,0.08)"
-stroke-width="2"/>
-
-<circle cx="800" cy="500" r="320"
-fill="none"
-stroke="rgba(255,60,60,0.12)"
-stroke-width="8"/>
-
-<circle cx="800" cy="500" r="280"
-fill="none"
-stroke="rgba(70,90,255,0.08)"
-stroke-width="2"/>
-
-<circle cx="800" cy="500" r="230"
-fill="url(#coreGlow)"/>
-
-<!-- CROSS -->
-
-<line x1="0" y1="500" x2="1600" y2="500"
-stroke="rgba(255,80,80,0.08)"
-stroke-width="1"/>
-
-<line x1="800" y1="0" x2="800" y2="1000"
-stroke="rgba(255,80,80,0.08)"
-stroke-width="1"/>
-
-<!-- SIDE HUD -->
-
-<rect x="40" y="120"
-width="120"
-height="760"
-fill="none"
-stroke="rgba(255,80,80,0.08)"
-stroke-width="1"/>
-
-<rect x="1440" y="120"
-width="120"
-height="760"
-fill="none"
-stroke="rgba(255,80,80,0.08)"
-stroke-width="1"/>
-
-<!-- CORNER LINES -->
-
-<line x1="0" y1="0" x2="240" y2="0"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="0" y1="0" x2="0" y2="240"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="1600" y1="0" x2="1360" y2="0"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="1600" y1="0" x2="1600" y2="240"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="0" y1="1000" x2="240" y2="1000"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="0" y1="1000" x2="0" y2="760"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="1600" y1="1000" x2="1360" y2="1000"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-<line x1="1600" y1="1000" x2="1600" y2="760"
-stroke="rgba(255,80,80,0.2)"
-stroke-width="2"/>
-
-</svg>
+<!-- SCANLINES -->
 
 <div class="scanlines"></div>
 
-<!-- =========================
-     LOGIN PAGE
-========================= -->
+<!-- LOGIN PAGE -->
 
 <div id="loginPage" class="login-box">
 
@@ -565,9 +542,7 @@ LOGIN
 </div>
 </div>
 
-<!-- =========================
-     MAIN APP
-========================= -->
+<!-- MAIN APP -->
 
 <div id="mainApp" style="display:none;">
 
@@ -651,9 +626,7 @@ No emails loaded...
 const workerURL =
 "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-/* =========================
-   LOGIN
-========================= */
+/* LOGIN */
 
 const APP_USER = "admin";
 const APP_PASS = "12345";
@@ -677,7 +650,6 @@ document.getElementById("mainApp").style.display = "block";
 }else{
 
 alert("ACCESS DENIED");
-
 }
 }
 
@@ -709,9 +681,7 @@ document.getElementById("mainApp").style.display = "none";
 
 checkLogin();
 
-/* =========================
-   MAIL SYSTEM
-========================= */
+/* MAIL SYSTEM */
 
 function cleanText(content){
 
@@ -829,9 +799,7 @@ html += `
 onclick="openMail(${i})">
 
 <div class="subject">
-
 ${cleanSubject}
-
 </div>
 
 <div class="meta">
@@ -950,16 +918,6 @@ container.style.display = "block";
 function toggleDark(){
 
 document.body.classList.toggle("dark");
-
-localStorage.setItem(
-"darkMode",
-document.body.classList.contains("dark")
-);
-}
-
-if(localStorage.getItem("darkMode")==="true"){
-
-document.body.classList.add("dark");
 }
 
 </script>
