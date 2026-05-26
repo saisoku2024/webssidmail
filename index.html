@@ -3,16 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSIDMail - Clean Viewer</title>
+
+    <title>SSIDMail - Tactical Viewer</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
+
         body{
             margin:0;
             font-family:'Poppins',sans-serif;
-            background:#f1f3f4;
+            background:#e8edf8;
             padding:30px;
             transition:0.3s;
+            overflow-x:hidden;
+            position:relative;
+            min-height:100vh;
+        }
+
+        /* HUD BACKGROUND */
+
+        .hud-bg{
+            position:fixed;
+            inset:0;
+            width:100%;
+            height:100%;
+            z-index:0;
+            pointer-events:none;
+        }
+
+        .wrapper,
+        .login-box{
+            position:relative;
+            z-index:2;
         }
 
         .wrapper{
@@ -21,10 +44,14 @@
         }
 
         .card{
-            background:#fff;
+            background:rgba(255,255,255,0.92);
+            backdrop-filter:blur(10px);
+            border:1px solid rgba(26,63,160,0.12);
             padding:25px;
             border-radius:16px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.1);
+            box-shadow:
+                0 10px 40px rgba(26,63,160,0.08),
+                0 2px 10px rgba(0,0,0,0.06);
             margin-bottom:25px;
             position:relative;
             transition:0.3s;
@@ -34,7 +61,7 @@
             position:absolute;
             top:20px;
             right:20px;
-            background:#111;
+            background:#111827;
             color:#fff;
             border:none;
             padding:6px 12px;
@@ -53,15 +80,18 @@
             flex:1;
             padding:12px;
             border-radius:8px;
-            border:1px solid #ddd;
+            border:1px solid #dbe4ff;
+            background:rgba(255,255,255,0.9);
         }
 
         .domain-label{
             display:flex;
             align-items:center;
             padding:0 14px;
-            background:#f3f4f6;
+            background:#eef3ff;
             border-radius:8px;
+            color:#1a3fa0;
+            font-weight:600;
         }
 
         .buttons{
@@ -79,18 +109,39 @@
             color:#fff;
         }
 
-        .generate{background:#6366f1;}
-        .copy{background:#10b981;}
-        .refresh{background:#f59e0b;}
+        .generate{
+            background:#1a3fa0;
+        }
+
+        .copy{
+            background:#059669;
+        }
+
+        .refresh{
+            background:#c8001e;
+        }
+
+        .logout-btn{
+            background:#111827;
+            margin-top:10px;
+            width:100%;
+        }
 
         .mail{
-            background:#fff;
+            background:rgba(255,255,255,0.88);
+            backdrop-filter:blur(8px);
+            border:1px solid rgba(26,63,160,0.08);
             padding:20px;
             border-radius:14px;
             margin-bottom:20px;
-            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+            box-shadow:0 5px 15px rgba(0,0,0,0.05);
             transition:0.3s;
             cursor:pointer;
+        }
+
+        .mail:hover{
+            transform:translateY(-2px);
+            box-shadow:0 10px 25px rgba(26,63,160,0.1);
         }
 
         .subject{
@@ -100,7 +151,7 @@
 
         .meta{
             font-size:12px;
-            color:#666;
+            color:#64748b;
             margin-bottom:15px;
             line-height:1.6;
         }
@@ -108,7 +159,9 @@
         .mail-frame{
             width:100%;
             border:none;
-            min-height:500px;
+            min-height:700px;
+            background:#fff;
+            border-radius:10px;
         }
 
         .mail-body{
@@ -119,35 +172,12 @@
         }
 
         .mail-body a{
-            color:#1a73e8;
+            color:#2563eb;
             text-decoration:none;
         }
 
-        body.dark{
-            background:#0f172a;
-        }
-
-        body.dark .card{
-            background:#1e293b;
-            color:#f1f5f9;
-        }
-
-        body.dark .username-group input{
-            background:#0f172a;
-            border:1px solid #334155;
-            color:#f1f5f9;
-        }
-
-        body.dark .domain-label{
-            background:#0f172a;
-        }
-
-        body.dark .mail{
-            background:#0f172a;
-            color:#f1f5f9;
-        }
-
         /* LOGIN */
+
         .login-box{
             max-width:420px;
             margin:100px auto;
@@ -158,29 +188,139 @@
             padding:12px;
             margin-bottom:15px;
             border-radius:8px;
-            border:1px solid #ddd;
+            border:1px solid #dbe4ff;
             box-sizing:border-box;
+            background:rgba(255,255,255,0.9);
         }
 
         .login-btn{
             width:100%;
-            background:#6366f1;
+            background:#1a3fa0;
         }
 
-        .logout-btn{
-            background:#ef4444;
-            margin-top:10px;
-            width:100%;
+        h2,h3{
+            color:#1a3fa0;
         }
+
+        /* DARK MODE */
+
+        body.dark{
+            background:#071120;
+        }
+
+        body.dark .card{
+            background:rgba(15,23,42,0.88);
+            color:#f1f5f9;
+            border:1px solid rgba(59,130,246,0.15);
+            backdrop-filter:blur(10px);
+        }
+
+        body.dark .mail{
+            background:rgba(15,23,42,0.88);
+            color:#f1f5f9;
+            border:1px solid rgba(59,130,246,0.15);
+        }
+
+        body.dark .username-group input,
+        body.dark .login-input{
+            background:#0f172a;
+            border:1px solid #334155;
+            color:#f1f5f9;
+        }
+
+        body.dark .domain-label{
+            background:#0f172a;
+            color:#93c5fd;
+        }
+
+        body.dark h2,
+        body.dark h3{
+            color:#93c5fd;
+        }
+
     </style>
 </head>
 
 <body>
 
+<!-- HUD BACKGROUND -->
+
+<svg class="hud-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+
+<defs>
+
+<pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+<path d="M 44 0 L 0 0 0 44"
+fill="none"
+stroke="rgba(26,63,160,0.08)"
+stroke-width="0.5"/>
+</pattern>
+
+<pattern id="grid-large" width="220" height="220" patternUnits="userSpaceOnUse">
+<path d="M 220 0 L 0 0 0 220"
+fill="none"
+stroke="rgba(26,63,160,0.12)"
+stroke-width="1"/>
+</pattern>
+
+<radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+<stop offset="0%" stop-color="rgba(232,237,248,0)" />
+<stop offset="100%" stop-color="rgba(200,210,235,0.55)" />
+</radialGradient>
+
+</defs>
+
+<rect width="1440" height="900" fill="url(#grid)" />
+<rect width="1440" height="900" fill="url(#grid-large)" />
+
+<!-- DIAGONAL BLUE -->
+<line x1="0" y1="300" x2="200" y2="460"
+stroke="rgba(26,63,160,0.08)"
+stroke-width="40"/>
+
+<line x1="1440" y1="300" x2="1240" y2="460"
+stroke="rgba(26,63,160,0.08)"
+stroke-width="40"/>
+
+<!-- RED ACCENTS -->
+<line x1="200" y1="880" x2="500" y2="200"
+stroke="rgba(200,0,30,0.05)"
+stroke-width="60"/>
+
+<line x1="1240" y1="880" x2="940" y2="200"
+stroke="rgba(200,0,30,0.05)"
+stroke-width="60"/>
+
+<!-- CENTER HUD -->
+<circle cx="720" cy="450" r="300"
+fill="none"
+stroke="rgba(26,63,160,0.05)"
+stroke-width="1"/>
+
+<circle cx="720" cy="450" r="240"
+fill="none"
+stroke="rgba(26,63,160,0.04)"
+stroke-width="0.5"/>
+
+<line x1="420" y1="450" x2="540" y2="450"
+stroke="rgba(26,63,160,0.08)"
+stroke-width="0.5"/>
+
+<line x1="900" y1="450" x2="1020" y2="450"
+stroke="rgba(26,63,160,0.08)"
+stroke-width="0.5"/>
+
+<rect width="1440" height="900" fill="url(#vignette)"/>
+
+</svg>
+
 <!-- LOGIN PAGE -->
+
 <div id="loginPage" class="login-box">
+
     <div class="card">
-        <h2>🔐 Login</h2>
+
+        <h2>🔐 SSID Tactical Access</h2>
 
         <input
             id="loginUser"
@@ -196,10 +336,13 @@
         <button class="login-btn" onclick="login()">
             Login
         </button>
+
     </div>
+
 </div>
 
 <!-- MAIN APP -->
+
 <div id="mainApp" style="display:none;">
 
 <div class="wrapper">
@@ -210,14 +353,20 @@
             🌙 Dark
         </button>
 
-        <h2>📬 SSIDMail</h2>
+        <h2>📬 SSIDMail Tactical Viewer</h2>
 
         <div class="username-group">
+
             <input id="username" placeholder="Enter username">
-            <div class="domain-label">@ssidmail.my.id</div>
+
+            <div class="domain-label">
+                @ssidmail.my.id
+            </div>
+
         </div>
 
         <div class="buttons">
+
             <button class="generate" onclick="createEmail()">
                 Create
             </button>
@@ -229,6 +378,7 @@
             <button class="refresh" onclick="loadInbox()">
                 Refresh
             </button>
+
         </div>
 
         <button class="logout-btn" onclick="logout()">
@@ -238,10 +388,13 @@
     </div>
 
     <div class="card">
+
         <h3>📥 Inbox</h3>
+
         <div id="inboxContent">
             No emails loaded...
         </div>
+
     </div>
 
 </div>
@@ -249,28 +402,32 @@
 
 <script>
 
-const workerURL = "https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
+const workerURL =
+"https://email-handler.saisoku-id2020.workers.dev/inbox?email=";
 
-/* =========================
-   LOGIN SYSTEM
-========================= */
+/* LOGIN */
 
 const APP_USER = "admin";
 const APP_PASS = "12345";
 
 function login(){
 
-    const user = document.getElementById("loginUser").value.trim();
-    const pass = document.getElementById("loginPass").value.trim();
+    const user =
+        document.getElementById("loginUser").value.trim();
+
+    const pass =
+        document.getElementById("loginPass").value.trim();
 
     if(user === APP_USER && pass === APP_PASS){
 
         localStorage.setItem("ssidmail_login","true");
 
         document.getElementById("loginPage").style.display = "none";
+
         document.getElementById("mainApp").style.display = "block";
 
     }else{
+
         alert("Username / Password salah");
     }
 }
@@ -284,25 +441,26 @@ function logout(){
 
 function checkLogin(){
 
-    const logged = localStorage.getItem("ssidmail_login");
+    const logged =
+        localStorage.getItem("ssidmail_login");
 
     if(logged === "true"){
 
         document.getElementById("loginPage").style.display = "none";
+
         document.getElementById("mainApp").style.display = "block";
 
     }else{
 
         document.getElementById("loginPage").style.display = "block";
+
         document.getElementById("mainApp").style.display = "none";
     }
 }
 
 checkLogin();
 
-/* =========================
-   MAIL SYSTEM
-========================= */
+/* MAIL */
 
 function cleanText(content){
 
@@ -317,12 +475,14 @@ function cleanText(content){
 }
 
 function isHTML(str){
+
     return /<\/?[a-z][\s\S]*>/i.test(str);
 }
 
 function createEmail(){
 
-    const user = document.getElementById("username").value.trim();
+    const user =
+        document.getElementById("username").value.trim();
 
     if(!user) return;
 
@@ -331,7 +491,8 @@ function createEmail(){
 
 function copyEmail(){
 
-    const user = document.getElementById("username").value.trim();
+    const user =
+        document.getElementById("username").value.trim();
 
     if(!user) return;
 
@@ -344,11 +505,13 @@ let mailCache = [];
 
 async function loadInbox(){
 
-    const user = document.getElementById("username").value.trim();
+    const user =
+        document.getElementById("username").value.trim();
 
     if(!user) return;
 
-    const inbox = document.getElementById("inboxContent");
+    const inbox =
+        document.getElementById("inboxContent");
 
     inbox.innerHTML = "Loading...";
 
@@ -375,8 +538,11 @@ async function loadInbox(){
 
         mailCache = data.sort((a, b) => {
 
-            const tsA = parseInt(a.id.split(':').pop()) || 0;
-            const tsB = parseInt(b.id.split(':').pop()) || 0;
+            const tsA =
+                parseInt(a.id.split(':').pop()) || 0;
+
+            const tsB =
+                parseInt(b.id.split(':').pop()) || 0;
 
             return tsB - tsA;
         });
@@ -393,11 +559,7 @@ async function loadInbox(){
             let cleanSubject =
                 mail.subject
                 ? mail.subject.split(';')[0].trim()
-                : "Netflix Notification";
-
-            if (cleanSubject.toLowerCase().includes("mime-version")) {
-                cleanSubject = "Kode akses sementara Netflix-mu";
-            }
+                : "Notification";
 
             let cleanFrom =
                 mail.from
@@ -407,16 +569,17 @@ async function loadInbox(){
             const emailMatch =
                 cleanFrom.match(/<([^>]+)>/);
 
-            if (emailMatch)
+            if(emailMatch)
                 cleanFrom = emailMatch[1];
 
             html += `
                 <div class="mail" onclick="openMail(${i})">
 
                     <div class="subject"
-                        style="color: #6366f1;">
+                        style="color:#1a3fa0;">
 
                         ${cleanSubject}
+
                     </div>
 
                     <div class="meta">
@@ -433,7 +596,7 @@ async function loadInbox(){
                         style="
                             display:none;
                             margin-top:15px;
-                            border-top:1px solid #eee;
+                            border-top:1px solid #e2e8f0;
                             padding-top:15px;
                         ">
                     </div>
@@ -502,13 +665,6 @@ function openMail(index){
             <iframe
                 class="mail-frame"
                 sandbox="allow-popups allow-popups-to-escape-sandbox"
-                style="
-                    width:100%;
-                    min-height:700px;
-                    border:none;
-                    background:#fff;
-                    border-radius:10px;
-                "
                 srcdoc='${safeHTML
                     .replace(/'/g,"&apos;")
                     .replace(/"/g,"&quot;")}'>
@@ -538,6 +694,7 @@ function toggleDark(){
 }
 
 if(localStorage.getItem("darkMode")==="true"){
+
     document.body.classList.add("dark");
 }
 
