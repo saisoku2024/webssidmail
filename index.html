@@ -60,6 +60,7 @@ function cleanText(content){
 
 function isHTML(str){ return /<\/?[a-z][\s\S]*>/i.test(str); }
 
+// Fungsi create hanya me-reload inbox, sama seperti refresh
 function createEmail(){
     const user = document.getElementById("username").value.trim();
     if(!user) return;
@@ -69,7 +70,14 @@ function createEmail(){
 function copyEmail(){
     const user = document.getElementById("username").value.trim();
     if(!user) return;
-    navigator.clipboard.writeText(user+"@ssidmail.my.id");
+    
+    navigator.clipboard.writeText(user+"@ssidmail.my.id").then(() => {
+        // UX: Beri tahu pengguna bahwa teks berhasil di-copy
+        const copyBtn = document.querySelector('.copy');
+        const originalText = copyBtn.innerText;
+        copyBtn.innerText = "Copied!";
+        setTimeout(() => { copyBtn.innerText = originalText; }, 1500);
+    });
 }
 
 let mailCache = [];
@@ -81,7 +89,9 @@ async function loadInbox(){
     inbox.innerHTML = "Loading...";
 
     try {
-        const res = await fetch(workerURL + user + "@ssidmail.my.id" + "&t=" + Date.now());
+        // BUG FIX: Gunakan encodeURIComponent agar URL aman
+        const safeEmail = encodeURIComponent(user + "@ssidmail.my.id");
+        const res = await fetch(`${workerURL}${safeEmail}&t=${Date.now()}`);
         if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
 
@@ -99,10 +109,13 @@ async function loadInbox(){
         let html = "";
         mailCache.forEach((mail, i) => {
             const displayDate = mail.receivedAt || mail.date || "Unknown Date";
-            let cleanSubject = mail.subject ? mail.subject.split(';')[0].trim() : "Netflix Notification";
+            let cleanSubject = mail.subject ? mail.subject.split(';')[0].trim() : "No Subject";
+            
+            // Catatan: Jika memungkinkan, pindahkan logika MIME Netflix ini ke Cloudflare Worker nanti.
             if (cleanSubject.toLowerCase().includes("mime-version")) {
                 cleanSubject = "Kode akses sementara Netflix-mu"; 
             }
+            
             let cleanFrom = mail.from ? mail.from.split(';')[0].trim() : "Unknown Sender";
             const emailMatch = cleanFrom.match(/<([^>]+)>/);
             if (emailMatch) cleanFrom = emailMatch[1];
@@ -129,16 +142,30 @@ function openMail(index){
     if(container.style.display === "block"){ container.style.display = "none"; return; }
     const mail = mailCache[index];
     let content = mail.content || "";
+    
+    // Cek apakah dark mode sedang aktif
+    const isDarkMode = document.body.classList.contains("dark");
+    
     if(isHTML(content)){
-        const blob = new Blob([`<html><body style="font-family:Arial;">${content}</body></html>`], {type:"text/html"});
-        container.innerHTML = `<iframe class="mail-frame" src="${URL.createObjectURL(blob)}" sandbox="allow-popups allow-scripts"></iframe>`;
+        // UX FIX: Menambahkan style dasar ke blob agar sesuai dengan mode tampilan pengguna
+        const bodyStyle = isDarkMode ? "background-color: #1e293b; color: #f1f5f9;" : "background-color: #fff; color: #000;";
+        const blob = new Blob([`<html><body style="font-family:Arial; ${bodyStyle}">${content}</body></html>`], {type:"text/html"});
+        
+        // SECURITY FIX: Hapus allow-scripts dari sandbox untuk mencegah XSS
+        container.innerHTML = `<iframe class="mail-frame" src="${URL.createObjectURL(blob)}" sandbox="allow-popups allow-same-origin"></iframe>`;
     } else {
         container.innerHTML = `<div class="mail-body">${cleanText(content)}</div>`;
     }
     container.style.display = "block";
 }
 
-function toggleDark(){ document.body.classList.toggle("dark"); localStorage.setItem("darkMode", document.body.classList.contains("dark")); }
+function toggleDark(){ 
+    document.body.classList.toggle("dark"); 
+    localStorage.setItem("darkMode", document.body.classList.contains("dark")); 
+    
+    // Opsional: Jika mau mereload iframe agar warnanya ikut berubah saat toggle diklik, bisa tambahkan logic di sini nanti.
+}
+
 if(localStorage.getItem("darkMode")==="true"){ document.body.classList.add("dark"); }
 </script>
 </body>
