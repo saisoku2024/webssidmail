@@ -442,6 +442,7 @@ body{
 </head>
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-top">
     <div class="wordmark">
@@ -491,6 +492,7 @@ body{
   </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <div class="search-wrap">
@@ -506,6 +508,7 @@ body{
   </div>
 
   <div class="inbox-wrap">
+    <!-- MAIL LIST -->
     <div class="mail-list">
       <div class="list-header">
         <i class="ti ti-messages" style="font-size:16px;color:var(--text3);"></i>
@@ -520,6 +523,7 @@ body{
       </div>
     </div>
 
+    <!-- MAIL DETAIL -->
     <div class="mail-detail" id="mailDetail">
       <div class="detail-empty">
         <i class="ti ti-mail-opened"></i>
@@ -657,34 +661,53 @@ function renderList(mails){
 
 function openMail(index){
   selectedIndex = index;
-  renderList(mailCache); // Re-render untuk memunculkan efek "selected" (garis biru)
-
   const mail = mailCache[index];
-  const detailEl = document.getElementById('mailDetail');
-  
-  if(!mail){
-    detailEl.innerHTML = `<div class="detail-empty"><i class="ti ti-mail-opened"></i><p>Message not found</p></div>`;
-    return;
-  }
-
   const sender = getSender(mail);
   const sname = getSenderName(mail);
   const subj = getSubject(mail);
   const cc = getColor(sender);
-  const init = getInitial(sname || sender);
+  const init = getInitial(sname||sender);
   const date = mail.receivedAt || mail.date || '';
-  
-  // Membersihkan isi konten email
-  let bodyContent = cleanText(mail.content || '');
-  let renderBody = '';
 
-  // Mengecek apakah email berformat HTML atau Teks biasa
-  if(isHTML(bodyContent)){
-    const blob = new Blob([bodyContent], {type: 'text/html'});
-    const url = URL.createObjectURL(blob);
-    renderBody = `<iframe class="mail-frame" src="${url}"></iframe>`;
+  // re-render list to update selection
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = q ? mailCache.filter(m=>(m.subject||'').toLowerCase().includes(q)||(m.from||'').toLowerCase().includes(q)) : mailCache;
+  renderList(filtered);
+
+  let bodyHTML = '';
+  const content = mail.content || '';
+  if(isHTML(content)){
+    const blob = new Blob([`<html><body style="font-family:Arial,sans-serif;font-size:14px;padding:20px;background:#fff;color:#111;line-height:1.7;">${content}</body></html>`],{type:'text/html'});
+    bodyHTML = `<iframe class="mail-frame" src="${URL.createObjectURL(blob)}" sandbox="allow-popups allow-same-origin"></iframe>`;
   } else {
-    renderBody = `<div class="text-body">${bodyContent}</div>`;
+    bodyHTML = `<div class="text-body">${cleanText(content)||'(Empty message)'}</div>`;
   }
 
-  // Menyuntik
+  document.getElementById('mailDetail').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-subject">${subj}</div>
+      <div class="detail-meta">
+        <div class="detail-from">
+          <div class="detail-avatar ${cc}">${init}</div>
+          <div class="detail-from-info">
+            <div class="detail-name">${sname||sender}</div>
+            <div class="detail-email">${sender}</div>
+          </div>
+        </div>
+        <div class="detail-time">${date}</div>
+      </div>
+    </div>
+    <div class="detail-body">${bodyHTML}</div>`;
+}
+
+function filterMail(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = q ? mailCache.filter(m=>(m.subject||'').toLowerCase().includes(q)||(m.from||'').toLowerCase().includes(q)) : mailCache;
+  renderList(filtered);
+}
+
+// auto refresh
+setInterval(()=>{ const u=document.getElementById('username').value.trim(); if(u) loadInbox(); }, 15000);
+</script>
+</body>
+</html>
