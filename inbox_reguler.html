@@ -1432,14 +1432,6 @@
       }
     }
 
-    if (res.status === 401 || res.status === 503) {
-      token = prompt('Masukkan Admin API Token Cloudflare Worker:') || '';
-      if (token) {
-        localStorage.setItem('ssidmail_admin_api_token', token);
-        return workerRequest(path, options);
-      }
-    }
-
     if (!res.ok) {
       throw new Error(payload?.error || payload?.message || `Worker request failed (${res.status})`);
     }
