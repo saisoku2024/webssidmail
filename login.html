@@ -665,8 +665,11 @@
   }
 
   function checkSession() {
-    // BYPASS LOGIN PAGE
-    window.location.href = 'inbox_reguler.html';
+    const mode = localStorage.getItem('ssidmail_login_mode');
+    const val = localStorage.getItem('ssidmail_session_value');
+    if (mode && val) {
+      window.location.href = 'inbox_reguler.html';
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
