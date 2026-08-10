@@ -6,36 +6,51 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✉️</text></svg>">
 <title data-i18n="login-header">SAISOKU.ID — Login Page</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-page: #eef0f4;
+    /* ── Neobrutalist / Insight Design Tokens ── */
+    --bg-page: #f1f5f9;
     --panel-white: #ffffff;
-    --ink-900: #14161f;
-    --ink-600: #6b7080;
-    --ink-400: #a2a6b3;
-    --border: #e7e8ee;
-    --field-bg: #f5f6fa;
-    --brand-blue: #2f5bff;
-    --brand-red: #ff3b30;
+    --ink-900: #0f172a;
+    --ink-600: #475569;
+    --ink-400: #94a3b8;
+    --border: #0f172a;
+    --field-bg: #ffffff;
+    --brand-blue: #4285F4;
+    --brand-red: #EA4335;
+    --insight-shadow: #0f172a;
+    --google-red: #EA4335;
+    --google-yellow: #FBBC05;
+    --google-green: #34A853;
+    --insight-grid: #cbd5e1;
+    --insight-grad-1: rgba(66,133,244,0.08);
+    --insight-grad-2: rgba(52,168,83,0.06);
+    /* Legacy grad vars kept for panel-showcase */
     --grad-a: #3b2fe0;
     --grad-b: #2f6bff;
     --grad-c: #17c3d9;
-    --radius-lg: 28px;
-    --radius-md: 16px;
-    --radius-sm: 12px;
-    --shadow-card: 0 34px 80px -28px rgba(20, 22, 31, 0.22);
+    /* Radii — kept for backward compat */
+    --radius-lg: 0px;
+    --radius-md: 0px;
+    --radius-sm: 0px;
+    --shadow-card: 8px 8px 0 var(--insight-shadow);
   }
 
-  [data-theme="dark"] {
-    --bg-page: #0b0c11;
-    --panel-white: #14151d;
-    --ink-900: #f3f4f8;
-    --ink-600: #9a9db0;
-    --ink-400: #64687a;
-    --border: #262835;
-    --field-bg: #1c1e29;
-    --shadow-card: 0 30px 60px -20px rgba(0, 0, 0, 0.4);
+  html.dark {
+    --bg-page: #0f172a;
+    --panel-white: #1e293b;
+    --ink-900: #f8fafc;
+    --ink-600: #cbd5e1;
+    --ink-400: #64748b;
+    --border: #94a3b8;
+    --field-bg: #1e293b;
+    --insight-shadow: #000000;
+    --insight-grid: #1e293b;
+    --insight-grad-1: rgba(66,133,244,0.12);
+    --insight-grad-2: rgba(52,168,83,0.08);
+    --shadow-card: 8px 8px 0 var(--insight-shadow);
   }
 
   * {
@@ -47,28 +62,32 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--bg-page);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background:
+      linear-gradient(var(--insight-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--insight-grid) 1px, transparent 1px),
+      radial-gradient(circle at 15% 10%, var(--insight-grad-1), transparent 45%),
+      radial-gradient(circle at 85% 90%, var(--insight-grad-2), transparent 45%),
+      var(--bg-page);
+    background-size: 24px 24px, 24px 24px, 100% 100%, 100% 100%, auto;
+    font-family: 'Geist Mono', 'Courier New', monospace;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 36px 20px;
+    padding: 44px 20px 36px; /* extra top padding for Google top bar */
     position: relative;
     overflow-x: hidden;
     transition: background 0.25s ease, color 0.25s ease;
     color: var(--ink-900);
   }
 
-  body::before, body::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, var(--field-bg), transparent 70%);
-    z-index: 0;
-    opacity: 0.6;
+  /* Page fade-in animation */
+  @keyframes insightPageFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  body::before { width: 560px; height: 560px; top: -200px; left: -180px; }
-  body::after { width: 460px; height: 460px; bottom: -170px; right: -130px; }
+  .insight-page-fade {
+    animation: insightPageFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
   .login-shell {
     position: relative;
@@ -77,11 +96,12 @@
     width: 100%;
     max-width: 780px;
     min-height: 480px;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: var(--shadow-card);
+    border: 4px solid var(--border);
+    box-shadow: 8px 8px 0 var(--insight-shadow);
     background: var(--panel-white);
-    transition: background 0.25s ease, box-shadow 0.25s ease;
+    transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
   /* ---------- LEFT: showcase panel ---------- */
@@ -209,17 +229,19 @@
 
   /* ---------- TABS ---------- */
   .login-tabs {
-    display: flex; background: var(--field-bg); padding: 5px;
-    border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border);
+    display: flex; background: var(--field-bg); padding: 4px;
+    border-radius: 0; margin-bottom: 20px;
+    border: 2px solid var(--border);
   }
   .tab-btn {
-    flex: 1; padding: 10px 12px; border-radius: var(--radius-sm);
+    flex: 1; padding: 10px 12px; border-radius: 0;
     font-size: 11.5px; font-weight: 700; border: none; background: transparent;
     color: var(--ink-600); cursor: pointer; transition: all 0.2s ease; font-family: inherit;
   }
   .tab-btn.active {
     background: var(--panel-white); color: var(--brand-blue);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-bottom: 3px solid var(--brand-blue);
+    font-weight: 800;
   }
 
   /* FIX (height sync): #formKey and #formAdmin are stacked in the SAME
@@ -263,12 +285,13 @@
   }
 
   .field-card {
-    background: var(--field-bg); border: 1.5px solid var(--border);
-    border-radius: var(--radius-md); padding: 10px 12px;
+    background: var(--field-bg); border: 2px solid var(--border);
+    border-radius: 0; padding: 10px 12px;
     display: flex; align-items: center; gap: 10px;
-    transition: border-color 0.15s ease; width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease; width: 100%;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
-  .field-card:focus-within { border-color: var(--brand-blue); }
+  .field-card:focus-within { border-color: var(--brand-blue); box-shadow: 3px 3px 0 var(--brand-blue); }
   .field-card > svg { width: 16px; height: 16px; color: var(--ink-400); flex-shrink: 0; }
   .field-card input {
     flex: 1; border: none; background: transparent; outline: none;
@@ -298,15 +321,16 @@
   .toggle-visibility svg { width: 16px; height: 16px; }
 
   .btn-submit {
-    width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+    width: 100%; padding: 12px 14px; border-radius: 0;
+    font-size: 13px; font-weight: 700; cursor: pointer;
     font-family: inherit; color: #fff;
     background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
-    box-shadow: 0 12px 24px -10px rgba(47, 91, 255, 0.4);
-    transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+    border: 3px solid #111827;
+    box-shadow: 4px 4px 0 #111827;
+    transition: transform 160ms ease, box-shadow 160ms ease;
   }
-  .btn-submit:hover { opacity: 0.94; transform: translateY(-1px); }
-  .btn-submit:active { transform: translateY(1px); }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 #111827; }
+  .btn-submit:active { transform: translateY(1px); box-shadow: 2px 2px 0 #111827; }
 
   .hint {
     margin-top: 14px; font-size: 11.5px; color: var(--ink-400);
@@ -336,8 +360,11 @@
 </head>
 <body data-theme="light" data-lang="id">
 
+<!-- Google 4-color top bar (neobrutalist accent) -->
+<div class="google-top-bar" style="position:fixed;top:0;left:0;right:0;z-index:1000;height:4px;background:linear-gradient(90deg,#4285F4 0% 25%,#EA4335 25% 50%,#FBBC05 50% 75%,#34A853 75% 100%)"></div>
+
 <!-- LOGIN PAGE -->
-<div class="login-shell">
+<div class="login-shell insight-page-fade">
   <!-- LEFT PANEL -->
   <div class="panel-showcase">
     <div class="blob blob-1"></div>
@@ -525,7 +552,9 @@
 
   // Apply Theme
   function applyTheme(theme) {
+    // Support both: data-theme attribute (legacy) AND html.dark class (neobrutalist)
     body.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('ssidmail_theme', theme);
     document.querySelectorAll('.theme-icon-svg').forEach(icon => {
       icon.innerHTML = theme === 'light'

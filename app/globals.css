@@ -1,0 +1,188 @@
+﻿/* =============================================================
+   SAISOKU — Neobrutalist Design System (globals.css)
+   Ported from saisoku-insight-sales design tokens.
+   No Tailwind dependency — plain CSS custom properties.
+   ============================================================= */
+
+/* -- Google Fonts -- */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ======================================================
+   1. DESIGN TOKENS — Light Mode (default)
+   ====================================================== */
+:root {
+  --insight-bg:     #f1f5f9;
+  --insight-grid:   #cbd5e1;
+  --insight-card:   #ffffff;
+  --insight-panel:  #ffffff;
+  --insight-text:   #0f172a;
+  --insight-muted:  #475569;
+  --insight-border: #0f172a;
+  --insight-shadow: #0f172a;
+  --insight-grad-1: rgba(66, 133, 244, 0.08);
+  --insight-grad-2: rgba(52, 168,  83, 0.06);
+  --insight-blue:   #4285F4;
+  --google-blue:    #4285F4;
+  --google-red:     #EA4335;
+  --google-yellow:  #FBBC05;
+  --google-green:   #34A853;
+  --bg-page:        var(--insight-bg);
+  --panel-white:    var(--insight-card);
+  --ink-900:        var(--insight-text);
+  --ink-600:        var(--insight-muted);
+  --ink-400:        #94a3b8;
+  --border:         var(--insight-border);
+  --field-bg:       var(--insight-card);
+  --brand-blue:     var(--google-blue);
+  --brand-red:      var(--google-red);
+  --grad-a: #3b2fe0;
+  --grad-b: #2f6bff;
+  --grad-c: #17c3d9;
+  --radius-lg: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
+}
+
+/* ======================================================
+   2. DESIGN TOKENS — Dark Mode (html.dark)
+   ====================================================== */
+html.dark {
+  --insight-bg:     #0f172a;
+  --insight-grid:   #1e293b;
+  --insight-card:   #1e293b;
+  --insight-panel:  #0f172a;
+  --insight-text:   #f8fafc;
+  --insight-muted:  #cbd5e1;
+  --insight-border: #94a3b8;
+  --insight-shadow: #000000;
+  --insight-grad-1: rgba(66, 133, 244, 0.12);
+  --insight-grad-2: rgba(52, 168,  83, 0.08);
+  --bg-page:     var(--insight-bg);
+  --panel-white: var(--insight-card);
+  --ink-900:     var(--insight-text);
+  --ink-600:     var(--insight-muted);
+  --ink-400:     #64748b;
+  --border:      var(--insight-border);
+  --field-bg:    var(--insight-card);
+}
+
+/* ======================================================
+   3. GLOBAL RESET & BASE
+   ====================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Geist Mono', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--insight-text);
+  background:
+    linear-gradient(var(--insight-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--insight-grid) 1px, transparent 1px),
+    radial-gradient(circle at 15% 10%, var(--insight-grad-1), transparent 45%),
+    radial-gradient(circle at 85% 90%, var(--insight-grad-2), transparent 45%),
+    var(--insight-bg);
+  background-size: 24px 24px, 24px 24px, 100% 100%, 100% 100%, auto;
+  transition: background 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+}
+
+a { color: var(--google-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.insight-font { font-family: 'Geist Mono', 'Courier New', monospace; }
+
+/* ======================================================
+   4. GOOGLE 4-COLOR TOP BAR
+   ====================================================== */
+.google-top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 4px;
+  background: linear-gradient(90deg, #4285F4 0% 25%, #EA4335 25% 50%, #FBBC05 50% 75%, #34A853 75% 100%);
+}
+
+/* ======================================================
+   5. NEOBRUTALIST CARD
+   ====================================================== */
+.insight-card {
+  background: var(--insight-card);
+  border: 4px solid var(--insight-border);
+  box-shadow: 6px 6px 0 var(--insight-shadow);
+  border-radius: 0;
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+.insight-card:hover { box-shadow: 8px 8px 0 var(--insight-shadow); }
+
+/* ======================================================
+   6. NEOBRUTALIST BUTTON
+   ====================================================== */
+.insight-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px;
+  font-family: 'Geist Mono', monospace; font-size: 13px; font-weight: 700;
+  color: var(--insight-text); background: var(--insight-panel);
+  border: 3px solid var(--insight-border);
+  box-shadow: 4px 4px 0 var(--insight-shadow);
+  border-radius: 0; cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  letter-spacing: 0.02em; text-transform: uppercase;
+}
+.insight-button:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 var(--insight-shadow); }
+.insight-button:active { transform: translateY(1px); box-shadow: 2px 2px 0 var(--insight-shadow); }
+
+.insight-button--primary { background: var(--google-blue); color: #fff; border-color: #111827; box-shadow: 4px 4px 0 #111827; }
+.insight-button--primary:hover { box-shadow: 4px 6px 0 #111827; }
+.insight-button--danger  { background: var(--google-red);  color: #fff; border-color: #111827; box-shadow: 4px 4px 0 #111827; }
+
+/* ======================================================
+   7. AUTH PAGE BACKGROUND
+   ====================================================== */
+.auth-page-bg {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 44px 20px 36px;
+  background:
+    linear-gradient(var(--insight-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--insight-grid) 1px, transparent 1px),
+    radial-gradient(circle at 15% 10%, var(--insight-grad-1), transparent 45%),
+    radial-gradient(circle at 85% 90%, var(--insight-grad-2), transparent 45%),
+    var(--insight-bg);
+  background-size: 24px 24px, 24px 24px, 100% 100%, 100% 100%, auto;
+}
+
+/* ======================================================
+   8. ANIMATIONS
+   ====================================================== */
+@keyframes insightPageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.insight-page-fade { animation: insightPageFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes insightSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.insight-slide-up { animation: insightSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* ======================================================
+   9. UTILITY CLASSES
+   ====================================================== */
+.insight-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--google-blue);
+}
+.insight-mono { font-family: 'Geist Mono', 'Courier New', monospace; }
+
+.insight-badge {
+  display: inline-flex; align-items: center; padding: 2px 8px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; font-family: 'Geist Mono', monospace;
+  border: 2px solid var(--insight-border); background: var(--insight-card);
+  color: var(--insight-text); box-shadow: 2px 2px 0 var(--insight-shadow);
+}
+.insight-badge--blue   { background: var(--google-blue);   color: #fff;    border-color: #1a56cc; box-shadow: 2px 2px 0 #1a56cc; }
+.insight-badge--red    { background: var(--google-red);    color: #fff;    border-color: #9b1c1c; box-shadow: 2px 2px 0 #9b1c1c; }
+.insight-badge--yellow { background: var(--google-yellow); color: #0f172a; border-color: #78530a; box-shadow: 2px 2px 0 #78530a; }
+.insight-badge--green  { background: var(--google-green);  color: #fff;    border-color: #14532d; box-shadow: 2px 2px 0 #14532d; }
+
+.insight-divider { border: none; border-top: 2px solid var(--insight-border); margin: 16px 0; }
