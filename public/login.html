@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✉️</text></svg>">
+<title data-i18n="login-header">SAISOKU.ID — Login Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-page: #eef0f4;
+    --panel-white: #ffffff;
+    --ink-900: #14161f;
+    --ink-600: #6b7080;
+    --ink-400: #a2a6b3;
+    --border: #e7e8ee;
+    --field-bg: #f5f6fa;
+    --brand-blue: #2f5bff;
+    --brand-red: #ff3b30;
+    --grad-a: #3b2fe0;
+    --grad-b: #2f6bff;
+    --grad-c: #17c3d9;
+    --radius-lg: 28px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+    --shadow-card: 0 34px 80px -28px rgba(20, 22, 31, 0.22);
+  }
+
+  [data-theme="dark"] {
+    --bg-page: #0b0c11;
+    --panel-white: #14151d;
+    --ink-900: #f3f4f8;
+    --ink-600: #9a9db0;
+    --ink-400: #64687a;
+    --border: #262835;
+    --field-bg: #1c1e29;
+    --shadow-card: 0 30px 60px -20px rgba(0, 0, 0, 0.4);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg-page);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 20px;
+    position: relative;
+    overflow-x: hidden;
+    transition: background 0.25s ease, color 0.25s ease;
+    color: var(--ink-900);
+  }
+
+  body::before, body::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--field-bg), transparent 70%);
+    z-index: 0;
+    opacity: 0.6;
+  }
+  body::before { width: 560px; height: 560px; top: -200px; left: -180px; }
+  body::after { width: 460px; height: 460px; bottom: -170px; right: -130px; }
+
+  .login-shell {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: 100%;
+    max-width: 780px;
+    min-height: 480px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    background: var(--panel-white);
+    transition: background 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  /* ---------- LEFT: showcase panel ---------- */
+  .panel-showcase {
+    flex: 1 1 47%;
+    position: relative;
+    background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 36px;
+    color: #fff;
+  }
+
+  .blob { position: absolute; border-radius: 50%; opacity: 0.9; }
+  .blob-1 {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle at 35% 30%, #ffd166, #ff7a5c 60%, transparent 75%);
+    bottom: -100px; right: -80px; opacity: 0.8;
+  }
+  .blob-2 {
+    width: 260px; height: 260px;
+    background: radial-gradient(circle at 60% 40%, #6ee7f8, #2f6bff 65%, transparent 78%);
+    top: -70px; left: -60px;
+  }
+  .blob-3 {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle at 40% 40%, #f178e0, #7b3ff2 65%, transparent 78%);
+    bottom: -130px; left: 40px;
+  }
+
+  .showcase-content { position: relative; z-index: 2; max-width: 300px; }
+
+  .showcase-icon {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 22px; backdrop-filter: blur(6px);
+  }
+  .showcase-icon svg { width: 22px; height: 22px; }
+
+  .showcase-content h2 {
+    font-size: 21px; font-weight: 800; margin: 0 0 10px;
+    letter-spacing: -0.01em; line-height: 1.3;
+  }
+  .showcase-content p {
+    font-size: 12.5px; line-height: 1.55;
+    color: rgba(255,255,255,0.86); margin: 0;
+  }
+
+  .stat-strip {
+    position: relative; z-index: 2;
+    display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap;
+  }
+  .stat-strip .num { font-size: 14.5px; font-weight: 800; white-space: nowrap; }
+  .stat-strip .lbl { font-size: 9.5px; color: rgba(255,255,255,0.75); margin-top: 3px; }
+
+  /* ---------- RIGHT: form panel ---------- */
+  .panel-form {
+    flex: 1 1 53%;
+    padding: 30px 38px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--grad-a), var(--grad-c));
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .brand-mark svg { width: 16px; height: 16px; }
+  .brand-name { font-weight: 800; font-size: 14.5px; letter-spacing: 0.02em; color: var(--ink-900); }
+  .brand-name span { color: var(--brand-blue); }
+
+  .controls { display: flex; align-items: center; gap: 8px; }
+
+  .icon-btn, .lang-toggle {
+    height: 34px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--field-bg); color: var(--ink-600); cursor: pointer;
+    font-family: inherit; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .icon-btn { width: 34px; }
+  .icon-btn:hover, .lang-toggle:hover { border-color: var(--brand-blue); color: var(--ink-900); }
+  .icon-btn svg { width: 15px; height: 15px; }
+
+  .lang-toggle { padding: 0 12px; gap: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.03em; }
+  .lang-toggle .divider-dot { color: var(--ink-400); font-weight: 400; }
+  .lang-toggle .lang-opt { opacity: 0.4; transition: opacity 0.15s ease; }
+  .lang-toggle .lang-opt.active { opacity: 1; color: var(--brand-blue); }
+
+  .form-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 312px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 6px 0;
+  }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--brand-blue); margin: 0 0 12px;
+  }
+
+  h1 {
+    margin: 0 0 10px; font-size: 19px; font-weight: 800;
+    color: var(--ink-900); letter-spacing: -0.01em; line-height: 1.3;
+  }
+  h1 .accent { color: var(--brand-blue); }
+
+  .subtitle { margin: 0; color: var(--ink-600); font-size: 11.5px; line-height: 1.5; }
+
+  .form-copy { margin-bottom: 20px; }
+
+  /* ---------- TABS ---------- */
+  .login-tabs {
+    display: flex; background: var(--field-bg); padding: 5px;
+    border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border);
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 12px; border-radius: var(--radius-sm);
+    font-size: 11.5px; font-weight: 700; border: none; background: transparent;
+    color: var(--ink-600); cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+  }
+  .tab-btn.active {
+    background: var(--panel-white); color: var(--brand-blue);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  /* FIX (height sync): #formKey and #formAdmin are stacked in the SAME
+     grid cell of .forms-stage. CSS Grid sizes a row to fit the tallest
+     item placed in it — including items that are only visibility:hidden
+     (not display:none). So the stage always reserves the height of
+     whichever tab is taller, and the card never resizes/jumps when you
+     switch between Temp Email and Admin, or between ID/EN copy. */
+  .forms-stage {
+    display: grid;
+  }
+  #formKey, #formAdmin {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: opacity 0.15s ease;
+  }
+  #formKey.tab-inactive, #formAdmin.tab-inactive {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .form-inputs-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .form-inputs-group.single-field-group {
+    gap: 10px;
+    margin: 4px 0 18px;
+  }
+
+  .field-label {
+    display: block; font-size: 11.5px; font-weight: 700;
+    color: var(--ink-900); margin-bottom: 8px;
+  }
+
+  .field-card {
+    background: var(--field-bg); border: 1.5px solid var(--border);
+    border-radius: var(--radius-md); padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px;
+    transition: border-color 0.15s ease; width: 100%;
+  }
+  .field-card:focus-within { border-color: var(--brand-blue); }
+  .field-card > svg { width: 16px; height: 16px; color: var(--ink-400); flex-shrink: 0; }
+  .field-card input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: inherit; font-size: 13px; color: var(--ink-900); min-width: 0;
+  }
+  .field-card input::placeholder {
+    color: var(--ink-400); font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: normal;
+  }
+
+  .select-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
+  .select-wrap select {
+    flex: 1; width: 100%; border: none; background: transparent; outline: none;
+    font-family: inherit; font-size: 13px; color: var(--ink-900);
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    padding-right: 18px; cursor: pointer;
+  }
+  .select-wrap .chevron {
+    position: absolute; right: 0; width: 13px; height: 13px;
+    color: var(--ink-400); pointer-events: none;
+  }
+
+  .toggle-visibility {
+    border: none; background: none; cursor: pointer; padding: 2px;
+    color: var(--ink-400); display: flex; align-items: center; flex-shrink: 0;
+  }
+  .toggle-visibility:hover { color: var(--ink-600); }
+  .toggle-visibility svg { width: 16px; height: 16px; }
+
+  .btn-submit {
+    width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+    font-family: inherit; color: #fff;
+    background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+    box-shadow: 0 12px 24px -10px rgba(47, 91, 255, 0.4);
+    transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn-submit:hover { opacity: 0.94; transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(1px); }
+
+  .hint {
+    margin-top: 14px; font-size: 11.5px; color: var(--ink-400);
+    text-align: center; line-height: 1.4;
+  }
+
+  footer {
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--ink-400);
+  }
+  footer a { color: var(--ink-600); text-decoration: none; margin-left: 14px; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 780px) {
+    body { padding: 24px 16px; align-items: flex-start; }
+    .login-shell { flex-direction: column; max-width: 460px; min-height: 0; }
+    .panel-showcase { min-height: 240px; padding: 34px; }
+    .showcase-content h2 { font-size: 24px; }
+    .stat-strip { margin-top: 34px; gap: 16px; flex-wrap: wrap; }
+    .panel-form { padding: 32px 28px 28px; }
+    .form-wrap { max-width: none; }
+    footer { flex-direction: column; gap: 10px; align-items: flex-start; }
+    footer a { margin-left: 0; margin-right: 14px; }
+  }
+</style>
+</head>
+<body data-theme="light" data-lang="id">
+
+<!-- LOGIN PAGE -->
+<div class="login-shell">
+  <!-- LEFT PANEL -->
+  <div class="panel-showcase">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="showcase-content">
+      <div class="showcase-brand" style="display: flex; align-items: center; gap: 10px; margin-bottom: 22px; color: #fff;">
+        <svg viewBox="0 0 24 24" fill="none" style="width: 34px; height: 34px; flex-shrink: 0;">
+          <rect x="2.5" y="3.5" width="19" height="17" rx="5" stroke="white" stroke-width="2.8" fill="none"/>
+          <path d="M7 9.5l5 3.8 5-3.8" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.01em; font-family: 'Plus Jakarta Sans', sans-serif;">TMail</span>
+      </div>
+      <h2 data-i18n="showcase-title">PREMIUM TEMP MAIL</h2>
+      <p data-i18n="showcase-desc">Sign up for accounts, verify stuff, or bypass OTP. No registration, no personal data.</p>
+    </div>
+
+    <div class="stat-strip">
+      <div><div class="num">15.240+</div><div class="lbl" data-i18n="stat-emails-created">Email Dibuat</div></div>
+      <div><div class="num">89.320+</div><div class="lbl" data-i18n="stat-emails-received">Email Diterima</div></div>
+      <div><div class="num">24/7</div><div class="lbl" data-i18n="stat-access">Akses</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel-form">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 18V10L12 4L20 10V18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 18V13H15V18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name">SAISOKU<span>.ID</span></div>
+      </div>
+
+      <div class="controls">
+        <button class="lang-toggle" onclick="toggleLanguage()" type="button" title="Switch language">
+          <span class="lang-opt" data-lang-opt="id">ID</span>
+          <span class="divider-dot">/</span>
+          <span class="lang-opt" data-lang-opt="en">EN</span>
+        </button>
+        <button class="icon-btn" onclick="toggleTheme()" type="button" title="Toggle theme">
+          <svg class="theme-icon-svg" viewBox="0 0 24 24" fill="none"></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-wrap">
+      <p class="eyebrow" data-i18n="eyebrow">Login Page</p>
+
+      <!-- MODE TABS -->
+      <div class="login-tabs">
+        <button type="button" class="tab-btn active" id="tabKey" onclick="switchLoginTab('key')" data-i18n="tab-key">Temp Email</button>
+        <button type="button" class="tab-btn" id="tabAdmin" onclick="switchLoginTab('admin')" data-i18n="tab-admin">Admin Panel</button>
+      </div>
+
+      <!-- FIX (height sync): both tab panels now live inside .forms-stage
+           so the grid can measure them together and lock the card to a
+           single, consistent height regardless of which tab is active. -->
+      <div class="forms-stage">
+        <!-- FORM TEMP EMAIL ACCESS -->
+        <div id="formKey">
+          <div class="form-copy">
+            <h1 data-i18n="greeting-key">Masuk ke <span class="accent">SAISOKU</span> Temp Mail</h1>
+            <p class="subtitle" data-i18n="subtitle-key">Gunakan nama inbox sementara untuk membuka pesan masuk Anda.</p>
+          </div>
+
+          <div class="form-inputs-group single-field-group">
+            <div>
+              <label class="field-label" data-i18n="field-label-key" for="accessKey">Email</label>
+              <div class="field-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <input id="accessKey" type="email" data-i18n-placeholder="key-placeholder" placeholder="email@ssidmail.my.id">
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-submit" type="button" onclick="login()" data-i18n="login-btn-key">Masuk ke Inbox</button>
+          <p class="hint" data-i18n="hint-key">Enter your registered email address<br>to access your messages.</p>
+        </div>
+
+        <!-- FORM ADMIN -->
+        <div id="formAdmin" class="tab-inactive">
+          <div class="form-copy">
+            <h1 data-i18n="greeting-admin">Login Admin <span class="accent">SAISOKU</span></h1>
+          </div>
+
+          <div class="form-inputs-group">
+            <div>
+              <label class="field-label" data-i18n="field-label-user" for="adminUser">Username Admin</label>
+              <div class="field-card">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <input id="adminUser" type="text" data-i18n-placeholder="user-placeholder" placeholder="Masukkan username" autocomplete="username">
+              </div>
+            </div>
+
+            <div>
+              <label class="field-label" data-i18n="field-label-pass" for="adminPass">Password Admin</label>
+              <div class="field-card">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <input id="adminPass" type="password" data-i18n-placeholder="pass-placeholder" placeholder="Masukkan password" autocomplete="current-password">
+                <button type="button" class="toggle-visibility" onclick="togglePasswordVisibility()" title="Show/hide password">
+                  <svg id="pwEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-submit" type="button" onclick="login()" data-i18n="login-btn-admin">Login Admin</button>
+          <p class="hint" data-i18n="hint-admin">Mode admin hanya untuk simulasi tampilan mockup.</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>&copy; 2026 SAISOKU.ID</span>
+      <span>
+        <a href="#" data-i18n="footer-privacy">Privasi</a>
+        <a href="#" data-i18n="footer-terms">Ketentuan</a>
+      </span>
+    </footer>
+  </div>
+</div>
+
+<script>
+  const i18n = {
+    id: {
+      "login-header": "SAISOKU.ID — Login Page",
+      "showcase-title": "PREMIUM TEMP MAIL",
+      "showcase-desc": "Sign up for accounts, verify stuff, or bypass OTP. No registration, no personal data.",
+      "stat-emails-created": "Email Dibuat",
+      "stat-emails-received": "Email Diterima",
+      "stat-access": "Akses 24/7",
+      "eyebrow": "Login Page",
+      "tab-key": "Temp Email",
+      "tab-admin": "Admin Panel",
+      "greeting-key": "Masuk ke <span class=\"accent\">SAISOKU</span> Temp Mail",
+      "subtitle-key": "Gunakan nama inbox sementara untuk membuka pesan masuk Anda.",
+      "field-label-key": "Email",
+      "field-label-domain": "Domain Email",
+      "key-placeholder": "email@ssidmail.my.id",
+      "login-btn-key": "Masuk ke Inbox",
+      "hint-key": "Enter your registered email address<br>to access your messages.",
+      "greeting-admin": "Login Admin <span class=\"accent\">SAISOKU</span>",
+      "field-label-user": "Username Admin",
+      "user-placeholder": "Masukkan username",
+      "field-label-pass": "Password Admin",
+      "pass-placeholder": "Masukkan password",
+      "login-btn-admin": "Login Admin",
+      "hint-admin": "Mode admin hanya untuk simulasi tampilan mockup.",
+      "footer-privacy": "Privasi",
+      "footer-terms": "Ketentuan"
+    },
+    en: {
+      "login-header": "SAISOKU.ID — Login Page",
+      "showcase-title": "PREMIUM TEMP MAIL",
+      "showcase-desc": "Sign up for accounts, verify stuff, or bypass OTP. No registration, no personal data.",
+      "stat-emails-created": "Emails Created",
+      "stat-emails-received": "Emails Received",
+      "stat-access": "Access 24/7",
+      "eyebrow": "Login Page",
+      "tab-key": "Temp Email",
+      "tab-admin": "Admin Panel",
+      "greeting-key": "Sign in to <span class=\"accent\">SAISOKU</span> Temp Mail",
+      "subtitle-key": "Use a temporary inbox name to open your incoming messages.",
+      "field-label-key": "Email",
+      "field-label-domain": "Email Domain",
+      "key-placeholder": "email@ssidmail.my.id",
+      "login-btn-key": "Enter Inbox",
+      "hint-key": "Enter your registered email address<br>to access your messages.",
+      "greeting-admin": "Admin Login <span class=\"accent\">SAISOKU</span>",
+      "field-label-user": "Admin Username",
+      "user-placeholder": "Enter username",
+      "field-label-pass": "Admin Password",
+      "pass-placeholder": "Enter password",
+      "login-btn-admin": "Admin Login",
+      "hint-admin": "Admin mode is only for the dashboard mockup preview.",
+      "footer-privacy": "Privacy",
+      "footer-terms": "Terms"
+    }
+  };
+
+  const body = document.body;
+  let activeLoginTab = 'key';
+
+  // Apply Theme
+  function applyTheme(theme) {
+    body.setAttribute('data-theme', theme);
+    localStorage.setItem('ssidmail_theme', theme);
+    document.querySelectorAll('.theme-icon-svg').forEach(icon => {
+      icon.innerHTML = theme === 'light'
+        ? '<path d="M12 3v1.5M12 19.5V21M4.22 4.22l1.06 1.06M18.72 18.72l1.06 1.06M3 12h1.5M19.5 12H21M4.22 19.78l1.06-1.06M18.72 5.28l1.06-1.06" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/>'
+        : '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+    });
+  }
+
+  function toggleTheme() {
+    const current = body.getAttribute('data-theme') || 'light';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  }
+
+  // Apply Language
+  function applyLang(lang) {
+    body.setAttribute('data-lang', lang);
+    document.documentElement.setAttribute('lang', lang);
+    localStorage.setItem('ssidmail_lang', lang);
+
+    document.querySelectorAll('[data-lang-opt]').forEach(el => {
+      el.classList.toggle('active', el.getAttribute('data-lang-opt') === lang);
+    });
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (i18n[lang][key]) el.innerHTML = i18n[lang][key];
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
+    });
+  }
+
+  function toggleLanguage() {
+    const current = body.getAttribute('data-lang') || 'id';
+    applyLang(current === 'id' ? 'en' : 'id');
+  }
+
+  // Switch Login Tab
+  // FIX (height sync): toggles a 'tab-inactive' class (visibility:hidden)
+  // instead of display:none, so the hidden panel still counts toward the
+  // .forms-stage grid row height and the card size stays fixed.
+  function switchLoginTab(mode) {
+    activeLoginTab = mode;
+    const tabKey = document.getElementById('tabKey');
+    const tabAdmin = document.getElementById('tabAdmin');
+    const formKey = document.getElementById('formKey');
+    const formAdmin = document.getElementById('formAdmin');
+
+    if (mode === 'key') {
+      tabKey.classList.add('active');
+      tabAdmin.classList.remove('active');
+      formKey.classList.remove('tab-inactive');
+      formAdmin.classList.add('tab-inactive');
+    } else {
+      tabKey.classList.remove('active');
+      tabAdmin.classList.add('active');
+      formKey.classList.add('tab-inactive');
+      formAdmin.classList.remove('tab-inactive');
+    }
+  }
+
+  // Show/hide admin password
+  function togglePasswordVisibility() {
+    const pass = document.getElementById('adminPass');
+    const icon = document.getElementById('pwEyeIcon');
+    const showing = pass.type === 'text';
+    pass.type = showing ? 'password' : 'text';
+    icon.innerHTML = showing
+      ? '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>'
+      : '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-5.94M9.9 4.24A9.7 9.7 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  }
+
+  // Login handler
+  function login() {
+    const lang = body.getAttribute('data-lang') || 'id';
+
+    if (activeLoginTab === 'key') {
+      let inputVal = document.getElementById('accessKey').value.trim();
+      if (!inputVal) {
+        alert(lang === 'id' ? "Silakan masukkan Alamat Email Anda!" : "Please enter your Email Address!");
+        return;
+      }
+
+      let emailPrefix = inputVal.toLowerCase().split('@')[0].replace(/[^a-z0-9_-]/g, "");
+      if (!emailPrefix) {
+        alert(lang === 'id' ? "Format email tidak valid!" : "Invalid email format!");
+        return;
+      }
+
+      localStorage.setItem('ssidmail_login_mode', 'key');
+      localStorage.setItem('ssidmail_session_value', emailPrefix);
+
+      window.location.href = 'inbox_reguler.html';
+    } else {
+      const user = document.getElementById('adminUser').value.trim();
+      const pass = document.getElementById('adminPass').value.trim();
+
+      if (user.toLowerCase() === "admin" && (pass === "admin123#" || pass === "admin123")) {
+        localStorage.setItem('ssidmail_login_mode', 'admin');
+        localStorage.setItem('ssidmail_session_value', 'admin');
+        window.location.href = 'inbox_reguler.html';
+      } else {
+        alert(lang === 'id' ? "AKSES DITOLAK: Kredensial Admin salah. (Username: admin, Password: admin123#)" : "ACCESS DENIED: Invalid Admin credentials. (Username: admin, Password: admin123#)");
+      }
+    }
+  }
+
+  function checkSession() {
+    // BYPASS LOGIN PAGE
+    window.location.href = 'inbox_reguler.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    checkSession();
+
+    const savedTheme = localStorage.getItem('ssidmail_theme') || 'light';
+    applyTheme(savedTheme);
+
+    const savedLang = localStorage.getItem('ssidmail_lang') || 'id';
+    applyLang(savedLang);
+
+    switchLoginTab('key');
+
+    ['accessKey', 'adminUser', 'adminPass'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') login();
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
