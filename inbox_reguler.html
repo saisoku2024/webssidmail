@@ -1642,9 +1642,9 @@
     const clean = String(value || '')
       .toLowerCase()
       .split('@')[0]
-      .replace(/[^a-z0-9_-]/g, '')
+      .replace(/[^a-z0-9_.-]/g, '')
       .replace(/_{2,}/g, '_')
-      .slice(0, 32);
+      .slice(0, 48);
     return clean || fallback;
   }
 

@@ -640,7 +640,7 @@
         return;
       }
 
-      let emailPrefix = inputVal.toLowerCase().split('@')[0].replace(/[^a-z0-9_-]/g, "");
+      let emailPrefix = inputVal.toLowerCase().split('@')[0].replace(/[^a-z0-9_.-]/g, "");
       if (!emailPrefix) {
         alert(lang === 'id' ? "Format email tidak valid!" : "Invalid email format!");
         return;

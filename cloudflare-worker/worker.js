@@ -36,7 +36,7 @@ function requireAuth(request, env) {
 
 function normalizeEmail(value) {
   const raw = String(value || '').trim().toLowerCase();
-  const local = raw.split('@')[0].replace(/[^a-z0-9_-]/g, '').slice(0, 48);
+  const local = raw.split('@')[0].replace(/[^a-z0-9_.-]/g, '').slice(0, 48);
   if (!local) return '';
   return `${local}@ssidmail.my.id`;
 }
