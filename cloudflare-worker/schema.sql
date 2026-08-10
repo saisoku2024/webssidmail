@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS emails (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  size_mb REAL NOT NULL DEFAULT 0,
+  message_count INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  deleted INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_emails_created_at ON emails(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emails_deleted ON emails(deleted);
+CREATE INDEX IF NOT EXISTS idx_emails_active ON emails(active);
