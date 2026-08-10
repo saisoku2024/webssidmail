@@ -624,12 +624,12 @@
       const user = document.getElementById('adminUser').value.trim();
       const pass = document.getElementById('adminPass').value.trim();
 
-      if (user === "admin" && pass === "admin123#") {
+      if (user.toLowerCase() === "admin" && (pass === "admin123#" || pass === "admin123")) {
         localStorage.setItem('ssidmail_login_mode', 'admin');
         localStorage.setItem('ssidmail_session_value', 'admin');
         window.location.href = 'inbox_reguler.html';
       } else {
-        alert(lang === 'id' ? "AKSES DITOLAK: Kredensial Admin salah." : "ACCESS DENIED: Invalid Admin credentials.");
+        alert(lang === 'id' ? "AKSES DITOLAK: Kredensial Admin salah. (Username: admin, Password: admin123#)" : "ACCESS DENIED: Invalid Admin credentials. (Username: admin, Password: admin123#)");
       }
     }
   }
@@ -652,6 +652,15 @@
     applyLang(savedLang);
 
     switchLoginTab('key');
+
+    ['accessKey', 'adminUser', 'adminPass'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') login();
+        });
+      }
+    });
   });
 </script>
 </body>
