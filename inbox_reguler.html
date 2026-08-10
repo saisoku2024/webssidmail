@@ -2137,14 +2137,15 @@
     }
   }
 
-  // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
-    // Session Security Guard
-    const mode = localStorage.getItem('ssidmail_login_mode');
-    const value = localStorage.getItem('ssidmail_session_value');
+    // Session Security Guard (BYPASSED)
+    let mode = localStorage.getItem('ssidmail_login_mode');
+    let value = localStorage.getItem('ssidmail_session_value');
     if (!mode || !value) {
-      window.location.href = 'login.html';
-      return;
+      mode = 'admin';
+      value = 'admin';
+      localStorage.setItem('ssidmail_login_mode', mode);
+      localStorage.setItem('ssidmail_session_value', value);
     }
 
     applySidebarAccess(mode);

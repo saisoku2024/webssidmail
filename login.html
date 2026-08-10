@@ -635,11 +635,8 @@
   }
 
   function checkSession() {
-    const mode = localStorage.getItem('ssidmail_login_mode');
-    const value = localStorage.getItem('ssidmail_session_value');
-    if (mode && value) {
-      window.location.href = 'inbox_reguler.html';
-    }
+    // BYPASS LOGIN PAGE
+    window.location.href = 'inbox_reguler.html';
   }
 
   document.addEventListener('DOMContentLoaded', () => {
