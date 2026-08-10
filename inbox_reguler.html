@@ -1201,7 +1201,7 @@
       <div class="email-display-container">
         <div class="email-display-label" data-i18n="dashboard-subtitle">YOUR TEMPORARY EMAIL</div>
         <div class="email-display-box">
-          <input id="username" type="text" placeholder="Loading..." readonly>
+          <input id="username" type="text" placeholder="Ketik/edit email..." onkeydown="if(event.key==='Enter') loadInbox()" onchange="loadInbox()">
         </div>
       </div>
       
@@ -1220,11 +1220,11 @@
       <div class="topbar-stats">
         <div class="stat-card">
           <div class="stat-lbl" data-i18n="stat-emails-created">Emails created</div>
-          <div class="stat-num">5,844,783</div>
+          <div class="stat-num" id="statEmailsCreated">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-lbl" data-i18n="stat-emails-received">Messages received</div>
-          <div class="stat-num">3,562,633</div>
+          <div class="stat-num" id="statEmailsReceived">0</div>
         </div>
       </div>
 
@@ -1579,6 +1579,30 @@
     return rows.map(normalizeActivityRecord).filter(row => row.email);
   }
 
+  async function updateRealStats() {
+    const createdEl = document.getElementById('statEmailsCreated');
+    const receivedEl = document.getElementById('statEmailsReceived');
+    if (!createdEl || !receivedEl) return;
+
+    try {
+      const stats = await workerRequest('/stats');
+      if (stats && typeof stats.emails_created === 'number') {
+        createdEl.textContent = stats.emails_created.toLocaleString('en-US');
+        receivedEl.textContent = stats.messages_received.toLocaleString('en-US');
+        return;
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    const validRows = activityLogs.filter(row => !row.deleted);
+    const totalCreated = validRows.length;
+    const totalMessages = validRows.reduce((sum, row) => sum + (Number(row.messages) || 0), 0);
+
+    createdEl.textContent = totalCreated.toLocaleString('en-US');
+    receivedEl.textContent = totalMessages.toLocaleString('en-US');
+  }
+
   async function loadActivityLogs() {
     try {
       const payload = await workerRequest('/emails');
@@ -1588,6 +1612,7 @@
       console.warn('Activity Worker unavailable:', error);
       renderActivityTable();
     }
+    updateRealStats();
   }
 
   async function saveCreatedEmails(emails) {
@@ -1602,6 +1627,7 @@
       const savedRows = normalizeActivityPayload(payload);
       if (savedRows.length) {
         upsertActivityRows(savedRows);
+        updateRealStats();
         return;
       }
     } catch (error) {
@@ -1609,6 +1635,7 @@
     }
 
     addActivityEmails(cleanEmails, false);
+    updateRealStats();
   }
 
   async function updateActivityOnWorker(row, patch) {
@@ -1973,14 +2000,26 @@
   }
 
   function copyEmail() {
-    const user = document.getElementById("username").value.trim();
+    const input = document.getElementById("username");
+    if (!input) return;
+    let user = input.value.trim();
     if (!user) return;
+    if (!user.includes('@')) {
+      user = user + '@ssidmail.my.id';
+      input.value = user;
+    }
     navigator.clipboard.writeText(user);
   }
 
   async function loadInbox() {
-    const user = document.getElementById("username").value.trim();
+    const input = document.getElementById("username");
+    if (!input) return;
+    let user = input.value.trim();
     if (!user) return;
+    if (!user.includes('@')) {
+      user = user + '@ssidmail.my.id';
+      input.value = user;
+    }
 
     const inboxListCol = document.getElementById("inboxListColumn");
     const lang = body.getAttribute('data-lang') || 'id';

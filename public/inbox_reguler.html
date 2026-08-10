@@ -6,56 +6,128 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✉️</text></svg>">
 <title data-i18n="login-header">SAISOKU.ID — Temporary Mail Access</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
+  /* ── SAISOKU Insight Design System ─────────────────────────── */
   :root {
-    --bg-page: #eef0f4;
-    --panel-white: #ffffff;
-    --ink-900: #14161f;
-    --ink-600: #6b7080;
-    --ink-400: #a2a6b3;
-    --border: #e7e8ee;
-    --field-bg: #f5f6fa;
-    --brand-blue: #2f5bff;
-    --brand-red: #ff3b30;
-    --grad-a: #3b2fe0;
-    --grad-b: #2f6bff;
-    --grad-c: #17c3d9;
-    --radius-lg: 22px;
-    --radius-md: 12px;
-    --radius-sm: 10px;
-    --shadow-card: 0 30px 60px -20px rgba(20, 22, 31, 0.08);
+    color-scheme: light;
+    /* Google Brand Colors */
+    --google-blue: #4285F4;
+    --google-red: #EA4335;
+    --google-yellow: #FBBC05;
+    --google-green: #34A853;
+    /* Insight Tokens – Light */
+    --insight-bg: #f1f5f9;
+    --insight-grid: #cbd5e1;
+    --insight-card: #ffffff;
+    --insight-panel: #ffffff;
+    --insight-text: #0f172a;
+    --insight-muted: #475569;
+    --insight-border: #0f172a;
+    --insight-shadow: #0f172a;
+    --insight-blue: #4285F4;
+    --insight-cyan: #06b6d4;
+    --insight-grad-1: rgba(66, 133, 244, 0.12);
+    --insight-grad-2: rgba(52, 168, 83, 0.12);
+    /* Legacy aliases (keep JS working) */
+    --bg-page: var(--insight-bg);
+    --panel-white: var(--insight-card);
+    --ink-900: var(--insight-text);
+    --ink-600: var(--insight-muted);
+    --ink-400: #94a3b8;
+    --border: var(--insight-border);
+    --field-bg: var(--insight-card);
+    --brand-blue: var(--google-blue);
+    --brand-red: var(--google-red);
+    --grad-a: #1a56db;
+    --grad-b: #4285F4;
+    --grad-c: #06b6d4;
+    --radius-lg: 0px;
+    --radius-md: 0px;
+    --radius-sm: 0px;
+    --shadow-card: 6px 6px 0 var(--insight-shadow);
   }
 
-  [data-theme="dark"] {
-    --bg-page: #0b0c11;
-    --panel-white: #14151d;
-    --ink-900: #f3f4f8;
-    --ink-600: #9a9db0;
-    --ink-400: #64687a;
-    --border: #262835;
-    --field-bg: #1c1e29;
-    --shadow-card: 0 30px 60px -20px rgba(0, 0, 0, 0.4);
+  html.dark {
+    color-scheme: dark;
+    --insight-bg: #0f172a;
+    --insight-grid: #1e293b;
+    --insight-card: #1e293b;
+    --insight-panel: #0f172a;
+    --insight-text: #f8fafc;
+    --insight-muted: #cbd5e1;
+    --insight-border: #94a3b8;
+    --insight-shadow: #000000;
+    --insight-grad-1: rgba(139, 92, 246, 0.30);
+    --insight-grad-2: rgba(34, 211, 238, 0.22);
+    --ink-400: #64748b;
+    --field-bg: #1e293b;
   }
 
-  * { 
-    box-sizing: border-box; 
+  * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
 
+  html, body { min-height: 100%; }
+
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--bg-page);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background:
+      linear-gradient(var(--insight-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--insight-grid) 1px, transparent 1px),
+      radial-gradient(circle at 15% 10%, var(--insight-grad-1), transparent 45%),
+      radial-gradient(circle at 85% 90%, var(--insight-grad-2), transparent 45%),
+      var(--insight-bg);
+    background-size: 24px 24px;
+    font-family: 'Geist Mono', 'Courier New', monospace;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    transition: background 0.25s ease, color 0.25s ease;
-    color: var(--ink-900);
+    transition: background 0.3s ease, color 0.3s ease;
+    color: var(--insight-text);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html.dark body { color: var(--insight-text); }
+
+  a { color: inherit; text-decoration: none; }
+
+  button, input, select, textarea { font: inherit; }
+
+  ::selection { background: rgba(15, 23, 42, 0.16); }
+  html.dark ::selection { background: rgba(148, 163, 184, 0.24); }
+
+  /* ── Page fade-in animation ─────────────────────────────────── */
+  @keyframes insightPageFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .insight-page-fade {
+    animation: insightPageFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* ── Google 4-color top bar ──────────────────────────────────── */
+  .google-top-bar {
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      #4285F4 0% 25%,
+      #EA4335 25% 50%,
+      #FBBC05 50% 75%,
+      #34A853 75% 100%
+    );
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
   }
 
   /* Full Screen Layout Container */
@@ -65,37 +137,39 @@
     display: flex;
     width: 100vw;
     height: 100vh;
-    background: var(--panel-white);
-    transition: background 0.25s ease;
+    margin-top: 4px; /* offset for google-top-bar */
+    background: var(--insight-panel);
+    border: 3px solid var(--insight-border);
+    transition: background 0.3s ease;
   }
 
   /* ---------- NARROW SIDEBAR ---------- */
   .sidebar {
     width: 72px;
-    background: #090b12;
-    border-right: 1px solid var(--border);
+    background: #0f172a;
+    border-right: 3px solid var(--insight-border);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 0 18px;
     flex-shrink: 0;
     z-index: 10;
-    transition: background 0.25s ease, border-color 0.25s ease;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
 
   .sidebar-logo {
     width: 40px;
     height: 40px;
     background: linear-gradient(135deg, var(--grad-a), var(--grad-c));
-    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    color: #2f5bff;
+    color: #fff;
     font-size: 20px;
     margin: 0 auto 22px;
-    box-shadow: 0 12px 28px rgba(47, 91, 255, 0.22);
+    box-shadow: 4px 4px 0 rgba(66, 133, 244, 0.4);
   }
   .sidebar-logo svg {
     width: 30px;
@@ -136,14 +210,14 @@
     margin-top: 4px;
   }
   .nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--ink-900);
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
   }
   .nav-item.active {
-    background: rgba(47, 91, 255, 0.1);
-    color: var(--brand-blue);
-    border-left: 2px solid var(--brand-blue);
-    border-radius: 0 14px 14px 0;
+    background: rgba(66, 133, 244, 0.15);
+    color: var(--google-blue);
+    border-left: 3px solid var(--google-blue);
+    border-radius: 0;
     width: 58px;
     align-self: flex-start;
     margin-left: 0;
@@ -211,19 +285,25 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background: var(--bg-page);
+    background: var(--insight-bg);
+    background:
+      linear-gradient(var(--insight-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--insight-grid) 1px, transparent 1px),
+      var(--insight-bg);
+    background-size: 24px 24px;
   }
 
   /* ---------- TOPBAR ---------- */
   .topbar-dash {
-    background: var(--panel-white);
-    border-bottom: 1px solid var(--border);
+    background: var(--insight-panel);
+    border-bottom: 3px solid var(--insight-border);
     padding: 14px 22px;
     display: flex;
     align-items: center;
     gap: 14px;
     flex-wrap: nowrap;
-    transition: background 0.25s ease, border-color 0.25s ease;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 3px 0 var(--insight-shadow);
   }
 
   .email-display-container {
@@ -243,26 +323,28 @@
   .email-display-box {
     display: flex;
     align-items: center;
-    border: 1px solid var(--border);
-    background: var(--field-bg);
-    border-radius: 8px;
+    border: 2px solid var(--insight-border);
+    background: var(--insight-card);
+    border-radius: 0;
     padding: 0 14px;
     height: 40px;
     min-width: 0;
     width: 100%;
     transition: border-color 0.2s ease;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
   .email-display-box:focus-within {
-    border-color: var(--brand-blue);
+    border-color: var(--google-blue);
+    box-shadow: 5px 5px 0 var(--insight-shadow);
   }
   .email-display-box input {
     border: none;
     background: transparent;
     outline: none;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Geist Mono', 'JetBrains Mono', monospace;
     font-size: 13.5px;
     font-weight: 600;
-    color: var(--ink-900);
+    color: var(--insight-text);
     width: 100%;
   }
 
@@ -277,23 +359,24 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: var(--insight-panel);
+    border: 2px solid var(--insight-border);
+    border-radius: 0;
     padding: 9px 12px;
     min-height: 40px;
     font-size: 12.5px;
     font-weight: 700;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 160ms ease, box-shadow 160ms ease;
     font-family: inherit;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
   .action-txt-btn svg { width: 14px; height: 14px; }
   .action-txt-btn:hover {
-    border-color: var(--brand-blue);
-    color: var(--ink-900);
-    background: var(--field-bg);
+    color: var(--insight-text);
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 0 var(--insight-shadow);
   }
 
   .topbar-stats {
@@ -305,12 +388,13 @@
     flex-shrink: 0;
   }
   .stat-card {
-    background: var(--field-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    background: var(--insight-card);
+    border: 2px solid var(--insight-border);
+    border-radius: 0;
     padding: 7px 12px;
     min-width: 112px;
     text-align: right;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
   .stat-lbl {
     font-size: 8.5px;
@@ -330,17 +414,18 @@
   }
 
   .lang-selector-container select {
-    background: var(--field-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: var(--insight-card);
+    border: 2px solid var(--insight-border);
+    border-radius: 0;
     padding: 9px 12px;
     min-height: 40px;
     font-size: 12.5px;
     font-weight: 700;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     outline: none;
     cursor: pointer;
     font-family: inherit;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
 
   /* ---------- CONTENT BODY ---------- */
@@ -377,18 +462,18 @@
 
   .middle-pane-list {
     width: 320px;
-    background: var(--panel-white);
-    border-right: 1px solid var(--border);
+    background: var(--insight-panel);
+    border-right: 3px solid var(--insight-border);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     min-height: 0;
-    transition: background 0.25s ease, border-color 0.25s ease;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
 
   .search-bar-container {
     padding: 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--insight-border);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -396,7 +481,7 @@
   .search-icon {
     width: 16px;
     height: 16px;
-    color: var(--ink-400);
+    color: var(--insight-muted);
   }
   .search-bar-container input {
     flex: 1;
@@ -404,8 +489,8 @@
     background: transparent;
     outline: none;
     font-size: 13.5px;
-    color: var(--ink-900);
-    font-family: inherit;
+    color: var(--insight-text);
+    font-family: 'Geist Mono', monospace;
   }
   .select-all-icon {
     width: 16px;
@@ -424,12 +509,12 @@
 
   .list-mail-item {
     background: transparent;
-    border: 1px solid transparent;
-    border-radius: 10px;
+    border: 2px solid transparent;
+    border-radius: 0;
     padding: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.16s ease;
     position: relative;
     overflow: hidden;
   }
@@ -441,24 +526,27 @@
     height: 70%;
     width: 3px;
     background: transparent;
-    border-radius: 0 4px 4px 0;
     transition: background 0.2s ease;
   }
   .list-mail-item:hover {
-    background: var(--field-bg);
+    background: var(--insight-card);
+    border-color: var(--insight-border);
+    box-shadow: 3px 3px 0 var(--insight-shadow);
+    transform: translateX(2px);
   }
   .list-mail-item.active {
-    background: rgba(47, 91, 255, 0.06);
-    border-color: rgba(47, 91, 255, 0.15);
+    background: var(--insight-card);
+    border-color: var(--google-blue);
+    box-shadow: 4px 4px 0 var(--google-blue);
   }
   .list-mail-item.active::before {
-    background: var(--brand-blue);
+    background: var(--google-blue);
   }
 
   .list-mail-sender {
     font-size: 12.5px;
     font-weight: 700;
-    color: var(--ink-900);
+    color: var(--insight-text);
     margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -467,7 +555,7 @@
   .list-mail-subject {
     font-size: 13px;
     font-weight: 700;
-    color: var(--brand-blue);
+    color: var(--google-blue);
     margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -475,7 +563,7 @@
   }
   .list-mail-preview {
     font-size: 11.5px;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -486,39 +574,45 @@
   /* Right Pane: Mail Reader */
   .right-pane-reader {
     flex: 1;
-    background: var(--bg-page);
+    background: var(--insight-bg);
+    background:
+      linear-gradient(var(--insight-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--insight-grid) 1px, transparent 1px),
+      var(--insight-bg);
+    background-size: 24px 24px;
     display: flex;
     flex-direction: column;
     min-height: 0;
     padding: 24px;
     position: relative;
-    transition: background 0.25s ease;
+    transition: background 0.3s ease;
   }
 
   .reader-actions-bar {
     display: flex;
     gap: 16px;
     padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--insight-border);
     margin-bottom: 20px;
   }
   .reader-action-btn {
-    background: transparent;
-    border: none;
+    background: var(--insight-card);
+    border: 2px solid var(--insight-border);
     font-size: 13.5px;
     font-weight: 700;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 8px;
-    transition: color 0.2s ease;
+    padding: 6px 10px;
+    transition: transform 160ms ease, box-shadow 160ms ease;
     font-family: inherit;
+    box-shadow: 2px 2px 0 var(--insight-shadow);
   }
   .reader-action-btn svg { width: 15px; height: 15px; }
-  .reader-action-btn:hover { color: var(--ink-900); }
-  .reader-action-btn.btn-delete { color: var(--brand-red); }
+  .reader-action-btn:hover { color: var(--insight-text); transform: translateY(-2px); box-shadow: 4px 4px 0 var(--insight-shadow); }
+  .reader-action-btn.btn-delete { color: var(--google-red); }
   .reader-action-btn.btn-delete:hover { filter: brightness(1.1); }
 
   .reader-sender-section {
@@ -530,14 +624,16 @@
   .sender-avatar {
     width: 42px;
     height: 42px;
-    border-radius: 50%;
-    background: rgba(47, 91, 255, 0.15);
-    color: var(--brand-blue);
+    border-radius: 0;
+    background: rgba(66, 133, 244, 0.15);
+    color: var(--google-blue);
+    border: 2px solid var(--insight-border);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     font-weight: 700;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
   .sender-info-text {
     display: flex;
@@ -561,32 +657,32 @@
   }
 
   .reader-body-card {
-    background: var(--panel-white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    background: var(--insight-card);
+    border: 3px solid var(--insight-border);
+    border-radius: 0;
     padding: 24px;
     flex: 1;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+    box-shadow: 6px 6px 0 var(--insight-shadow);
   }
   .reader-body-subject {
     font-size: 18px;
     font-weight: 800;
-    color: var(--ink-900);
+    color: var(--insight-text);
     margin-bottom: 12px;
     line-height: 1.35;
   }
   .reader-body-text {
     font-size: 13.5px;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     line-height: 1.6;
   }
 
   .mail-frame {
     width: 100%;
     min-height: 400px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border: 2px solid var(--insight-border);
+    border-radius: 0;
     background: #ffffff;
   }
 
@@ -615,7 +711,7 @@
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--brand-blue);
+    color: var(--google-blue);
     margin-bottom: 6px;
   }
 
@@ -623,36 +719,37 @@
     font-size: 24px;
     line-height: 1.2;
     font-weight: 800;
-    color: var(--ink-900);
+    color: var(--insight-text);
     margin-bottom: 8px;
   }
 
   .create-desc {
     font-size: 13px;
     line-height: 1.6;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     max-width: 560px;
   }
 
   .create-mini-stat {
-    background: var(--panel-white);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    background: var(--insight-card);
+    border: 3px solid var(--insight-border);
+    border-radius: 0;
     padding: 12px 16px;
     min-width: 154px;
     text-align: right;
+    box-shadow: 4px 4px 0 var(--insight-shadow);
   }
 
   .create-mini-stat .num {
     font-size: 20px;
     font-weight: 800;
-    color: var(--ink-900);
+    color: var(--insight-text);
   }
 
   .create-mini-stat .lbl {
     font-size: 10px;
     font-weight: 700;
-    color: var(--ink-400);
+    color: var(--insight-muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -664,11 +761,11 @@
   }
 
   .create-card {
-    background: var(--panel-white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    background: var(--insight-card);
+    border: 3px solid var(--insight-border);
+    border-radius: 0;
     padding: 22px;
-    box-shadow: 0 16px 36px -26px rgba(0, 0, 0, 0.35);
+    box-shadow: 6px 6px 0 var(--insight-shadow);
   }
 
   .create-card-head {
@@ -695,10 +792,11 @@
   .create-badge {
     font-size: 10px;
     font-weight: 800;
-    color: var(--brand-blue);
-    background: rgba(47, 91, 255, 0.1);
-    border-radius: 999px;
-    padding: 5px 9px;
+    color: var(--google-blue);
+    background: rgba(66, 133, 244, 0.1);
+    border: 2px solid var(--google-blue);
+    border-radius: 0;
+    padding: 4px 8px;
     white-space: nowrap;
   }
 
@@ -718,22 +816,23 @@
   .create-select,
   .create-textarea {
     width: 100%;
-    border: 1px solid var(--border);
-    background: var(--field-bg);
-    color: var(--ink-900);
-    border-radius: 12px;
+    border: 2px solid var(--insight-border);
+    background: var(--insight-card);
+    color: var(--insight-text);
+    border-radius: 0;
     outline: none;
-    font-family: inherit;
+    font-family: 'Geist Mono', monospace;
     font-size: 13px;
     padding: 12px 13px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 2px 2px 0 var(--insight-shadow);
   }
 
   .create-input:focus,
   .create-select:focus,
   .create-textarea:focus {
-    border-color: var(--brand-blue);
-    box-shadow: 0 0 0 3px rgba(47, 91, 255, 0.12);
+    border-color: var(--google-blue);
+    box-shadow: 4px 4px 0 var(--google-blue);
   }
 
   .create-row {
@@ -748,22 +847,23 @@
     justify-content: space-between;
     gap: 12px;
     padding: 12px 13px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--field-bg);
+    border: 2px solid var(--insight-border);
+    border-radius: 0;
+    background: var(--insight-card);
     margin-bottom: 14px;
+    box-shadow: 2px 2px 0 var(--insight-shadow);
   }
 
   .create-toggle-row span {
     font-size: 12px;
-    color: var(--ink-600);
+    color: var(--insight-muted);
     line-height: 1.4;
   }
 
   .create-toggle-row input {
     width: 18px;
     height: 18px;
-    accent-color: var(--brand-blue);
+    accent-color: var(--google-blue);
   }
 
   .create-actions {
@@ -774,32 +874,35 @@
   }
 
   .create-btn {
-    border: 1px solid var(--border);
-    background: var(--field-bg);
-    color: var(--ink-900);
-    border-radius: 12px;
+    border: 2px solid var(--insight-border);
+    background: var(--insight-card);
+    color: var(--insight-text);
+    border-radius: 0;
     padding: 11px 14px;
     min-height: 40px;
     font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
-    transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
 
   .create-btn:hover {
-    border-color: var(--brand-blue);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 0 var(--insight-shadow);
   }
 
   .create-btn.primary {
     color: #ffffff;
-    border-color: transparent;
+    border-color: #1a56db;
     background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
+    box-shadow: 3px 3px 0 #1a56db;
   }
 
   .create-btn.danger {
-    color: var(--brand-red);
+    color: var(--google-red);
+    border-color: var(--google-red);
   }
 
   .result-box {
@@ -809,19 +912,20 @@
     gap: 12px;
     min-height: 48px;
     padding: 12px 14px;
-    border-radius: 14px;
-    background: var(--field-bg);
-    border: 1px dashed rgba(47, 91, 255, 0.35);
-    color: var(--ink-900);
-    font-family: 'JetBrains Mono', monospace;
+    border-radius: 0;
+    background: var(--insight-card);
+    border: 2px dashed var(--google-blue);
+    color: var(--insight-text);
+    font-family: 'Geist Mono', monospace;
     font-size: 13px;
     font-weight: 600;
     word-break: break-all;
+    box-shadow: 3px 3px 0 var(--insight-shadow);
   }
 
   .result-placeholder {
-    color: var(--ink-400);
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    color: var(--insight-muted);
+    font-family: 'Geist Mono', monospace;
     font-weight: 600;
   }
 
@@ -829,7 +933,7 @@
     min-height: 258px;
     max-height: 360px;
     resize: vertical;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Geist Mono', monospace;
     line-height: 1.6;
   }
 
@@ -843,11 +947,11 @@
 
   /* ---------- LOG ACTIVITY PAGE ---------- */
   .activity-table-card {
-    background: var(--panel-white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    background: var(--insight-card);
+    border: 3px solid var(--insight-border);
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 16px 36px -26px rgba(0, 0, 0, 0.35);
+    box-shadow: 6px 6px 0 var(--insight-shadow);
   }
 
   .activity-table-wrap {
@@ -864,7 +968,7 @@
   .activity-table th,
   .activity-table td {
     padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--insight-border);
     text-align: left;
     vertical-align: middle;
   }
@@ -874,13 +978,13 @@
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ink-400);
-    background: var(--field-bg);
+    color: var(--insight-muted);
+    background: var(--insight-bg);
   }
 
   .activity-table td {
     font-size: 13px;
-    color: var(--ink-600);
+    color: var(--insight-muted);
   }
 
   .activity-table tr:last-child td {
@@ -888,15 +992,15 @@
   }
 
   .activity-email-cell {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Geist Mono', monospace;
     font-weight: 700;
-    color: var(--ink-900);
+    color: var(--insight-text);
   }
 
   .activity-empty {
     padding: 48px 20px;
     text-align: center;
-    color: var(--ink-400);
+    color: var(--insight-muted);
     font-size: 13px;
     font-weight: 700;
   }
@@ -932,7 +1036,7 @@
   }
 
   .activity-toggle.is-active {
-    background: var(--brand-blue);
+    background: var(--google-blue);
   }
 
   .activity-toggle.is-active::after {
@@ -940,19 +1044,22 @@
   }
 
   .activity-delete {
-    border: 1px solid rgba(255, 59, 48, 0.2);
-    background: rgba(255, 59, 48, 0.08);
-    color: var(--brand-red);
-    border-radius: 10px;
+    border: 2px solid var(--google-red);
+    background: rgba(234, 67, 53, 0.08);
+    color: var(--google-red);
+    border-radius: 0;
     padding: 8px 10px;
     font-size: 12px;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
+    box-shadow: 2px 2px 0 var(--google-red);
+    transition: transform 160ms ease, box-shadow 160ms ease;
   }
 
   .activity-delete:hover {
-    border-color: var(--brand-red);
+    transform: translateY(-1px);
+    box-shadow: 4px 4px 0 var(--google-red);
   }
 
   /* ---------- RESPONSIVE OVERRIDES ---------- */
@@ -969,7 +1076,7 @@
       height: 60px;
       padding: 0 16px;
       border-right: none;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 3px solid var(--insight-border);
     }
     .sidebar-logo {
       margin-bottom: 0;
@@ -990,7 +1097,7 @@
     .nav-item.active {
       width: 36px;
       border-left: none;
-      border-bottom: 3px solid var(--brand-blue);
+      border-bottom: 3px solid var(--google-blue);
       border-radius: 0;
       margin-right: 0;
       align-self: center;
@@ -1048,7 +1155,8 @@
 </head>
 <body>
 
-<div id="mainApp" class="app-container">
+<div class="google-top-bar"></div>
+<div id="mainApp" class="app-container insight-page-fade">
   <!-- NARROW SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -1093,7 +1201,7 @@
       <div class="email-display-container">
         <div class="email-display-label" data-i18n="dashboard-subtitle">YOUR TEMPORARY EMAIL</div>
         <div class="email-display-box">
-          <input id="username" type="text" placeholder="Loading..." readonly>
+          <input id="username" type="text" placeholder="Ketik/edit email..." onkeydown="if(event.key==='Enter') loadInbox()" onchange="loadInbox()">
         </div>
       </div>
       
@@ -1112,11 +1220,11 @@
       <div class="topbar-stats">
         <div class="stat-card">
           <div class="stat-lbl" data-i18n="stat-emails-created">Emails created</div>
-          <div class="stat-num">5,844,783</div>
+          <div class="stat-num" id="statEmailsCreated">0</div>
         </div>
         <div class="stat-card">
           <div class="stat-lbl" data-i18n="stat-emails-received">Messages received</div>
-          <div class="stat-num">3,562,633</div>
+          <div class="stat-num" id="statEmailsReceived">0</div>
         </div>
       </div>
 
@@ -1471,6 +1579,30 @@
     return rows.map(normalizeActivityRecord).filter(row => row.email);
   }
 
+  async function updateRealStats() {
+    const createdEl = document.getElementById('statEmailsCreated');
+    const receivedEl = document.getElementById('statEmailsReceived');
+    if (!createdEl || !receivedEl) return;
+
+    try {
+      const stats = await workerRequest('/stats');
+      if (stats && typeof stats.emails_created === 'number') {
+        createdEl.textContent = stats.emails_created.toLocaleString('en-US');
+        receivedEl.textContent = stats.messages_received.toLocaleString('en-US');
+        return;
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    const validRows = activityLogs.filter(row => !row.deleted);
+    const totalCreated = validRows.length;
+    const totalMessages = validRows.reduce((sum, row) => sum + (Number(row.messages) || 0), 0);
+
+    createdEl.textContent = totalCreated.toLocaleString('en-US');
+    receivedEl.textContent = totalMessages.toLocaleString('en-US');
+  }
+
   async function loadActivityLogs() {
     try {
       const payload = await workerRequest('/emails');
@@ -1480,6 +1612,7 @@
       console.warn('Activity Worker unavailable:', error);
       renderActivityTable();
     }
+    updateRealStats();
   }
 
   async function saveCreatedEmails(emails) {
@@ -1494,6 +1627,7 @@
       const savedRows = normalizeActivityPayload(payload);
       if (savedRows.length) {
         upsertActivityRows(savedRows);
+        updateRealStats();
         return;
       }
     } catch (error) {
@@ -1501,6 +1635,7 @@
     }
 
     addActivityEmails(cleanEmails, false);
+    updateRealStats();
   }
 
   async function updateActivityOnWorker(row, patch) {
@@ -1534,9 +1669,9 @@
     const clean = String(value || '')
       .toLowerCase()
       .split('@')[0]
-      .replace(/[^a-z0-9_-]/g, '')
+      .replace(/[^a-z0-9_.-]/g, '')
       .replace(/_{2,}/g, '_')
-      .slice(0, 32);
+      .slice(0, 48);
     return clean || fallback;
   }
 
@@ -1757,9 +1892,10 @@
     setCreateStatus('bulkStatus', 'Bulk list cleared.');
   }
 
-  // Apply Theme
+  // Apply Theme — uses html.dark class (Insight Design System)
   function applyTheme(theme) {
     body.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('ssidmail_theme', theme);
     document.querySelectorAll('.theme-icon-svg').forEach(icon => {
       icon.innerHTML = theme === 'light'
@@ -1769,7 +1905,7 @@
   }
 
   function toggleTheme() {
-    const current = body.getAttribute('data-theme') || 'light';
+    const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
     const next = current === 'light' ? 'dark' : 'light';
     applyTheme(next);
   }
@@ -1864,14 +2000,26 @@
   }
 
   function copyEmail() {
-    const user = document.getElementById("username").value.trim();
+    const input = document.getElementById("username");
+    if (!input) return;
+    let user = input.value.trim();
     if (!user) return;
+    if (!user.includes('@')) {
+      user = user + '@ssidmail.my.id';
+      input.value = user;
+    }
     navigator.clipboard.writeText(user);
   }
 
   async function loadInbox() {
-    const user = document.getElementById("username").value.trim();
+    const input = document.getElementById("username");
+    if (!input) return;
+    let user = input.value.trim();
     if (!user) return;
+    if (!user.includes('@')) {
+      user = user + '@ssidmail.my.id';
+      input.value = user;
+    }
 
     const inboxListCol = document.getElementById("inboxListColumn");
     const lang = body.getAttribute('data-lang') || 'id';
@@ -1903,8 +2051,8 @@
       const data = await res.json();
       
       if (!data || !Array.isArray(data) || data.length === 0) {
-        mailCache = [mockNetflixEmail];
-        selectedMailIndex = 0;
+        mailCache = [];
+        selectedMailIndex = null;
         renderMailList();
         renderActiveMail();
         return;
@@ -1916,7 +2064,7 @@
         return tsB - tsA;
       });
 
-      mailCache = [...fetched, mockNetflixEmail];
+      mailCache = fetched;
 
       if (selectedMailIndex === null || selectedMailIndex >= mailCache.length) {
         selectedMailIndex = 0;
@@ -1927,9 +2075,8 @@
 
     } catch (e) {
       console.error("Fetch Error:", e);
-      // Fallback: keep mock email visible even on fetch fail
-      mailCache = [mockNetflixEmail];
-      selectedMailIndex = 0;
+      mailCache = [];
+      selectedMailIndex = null;
       renderMailList();
       renderActiveMail();
     }

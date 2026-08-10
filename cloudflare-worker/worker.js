@@ -148,6 +148,15 @@ async function patchEmail(request, env, id) {
   return json({ email: mapEmailRow(row) });
 }
 
+async function getStats(env) {
+  const createdRow = await env.DB.prepare('SELECT COUNT(*) as cnt FROM emails WHERE deleted = 0').first();
+  const receivedRow = await env.DB.prepare('SELECT SUM(message_count) as total FROM emails WHERE deleted = 0').first();
+  return json({
+    emails_created: Number(createdRow?.cnt || 0),
+    messages_received: Number(receivedRow?.total || 0)
+  });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -161,6 +170,10 @@ export default {
 
       const url = new URL(request.url);
       const path = url.pathname.replace(/\/+$/, '') || '/';
+
+      if (path === '/stats' && request.method === 'GET') {
+        return getStats(env);
+      }
 
       if (path === '/emails' && request.method === 'GET') {
         return getEmails(request, env);
