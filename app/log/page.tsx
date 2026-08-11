@@ -58,23 +58,20 @@ export default function LogPage() {
   };
 
   const handleDelete = async (id: string) => {
-    const updated = logs.map((item) => {
-      if (item.id === id) {
-        return { ...item, deleted: true, active: false, status: "recycled" as const };
-      }
-      return item;
-    });
+    const targetItem = logs.find((item) => item.id === id);
+    const emailToDelete = targetItem?.email;
 
-    const activeList = updated.filter((item) => !item.deleted);
-    setLogs(activeList);
-    localStorage.setItem("ssidmail_activity_logs", JSON.stringify(activeList));
+    const filtered = logs.filter((item) => item.id !== id && item.email !== emailToDelete);
+    setLogs(filtered);
+    localStorage.setItem("ssidmail_activity_logs", JSON.stringify(filtered));
 
     try {
-      await fetch(`${DB_WORKER}/emails/${encodeURIComponent(id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deleted: true, active: false })
-      });
+      if (id) {
+        await fetch(`${DB_WORKER}/emails/${encodeURIComponent(id)}`, { method: "DELETE" });
+      }
+      if (emailToDelete) {
+        await fetch(`${DB_WORKER}/emails/${encodeURIComponent(emailToDelete)}`, { method: "DELETE" });
+      }
     } catch (e) {}
   };
 

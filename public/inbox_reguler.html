@@ -1875,14 +1875,18 @@
   async function deleteActivityRow(id) {
     const current = activityLogs.find(row => row.id === id);
     if (!current) return;
-    activityLogs = activityLogs.map(row => {
-      if (row.id !== id) return row;
-      return { ...row, deleted: true, active: false };
-    });
+    const emailToDelete = current.email;
+
+    activityLogs = activityLogs.filter(row => row.id !== id && row.email !== emailToDelete);
+    saveLocalActivityLogs(activityLogs);
     renderActivityTable();
+    updateRealStats();
 
     try {
-      await updateActivityOnWorker(current, { deleted: true, active: false });
+      await workerRequest(`/emails/${encodeURIComponent(current.id)}`, { method: 'DELETE' });
+      if (emailToDelete) {
+        await workerRequest(`/emails/${encodeURIComponent(emailToDelete)}`, { method: 'DELETE' });
+      }
     } catch (error) {
       console.warn('Delete activity Worker failed:', error);
     }

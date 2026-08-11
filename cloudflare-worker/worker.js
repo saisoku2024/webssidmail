@@ -237,8 +237,8 @@ async function patchEmail(request, env, id) {
 }
 
 // ── DELETE /emails/:id ────────────────────────────────────────
-async function deleteEmail(env, id) {
-  await env.DB.prepare('DELETE FROM emails WHERE id = ?').bind(id).run();
+async function deleteEmail(env, idOrEmail) {
+  await env.DB.prepare('DELETE FROM emails WHERE id = ? OR email = ?').bind(idOrEmail, idOrEmail).run();
   return json({ ok: true });
 }
 
@@ -266,17 +266,17 @@ export default {
         return getStats(env);
       }
 
-      // ── ADMIN endpoints (for PATCH / DELETE / Cron) ──
-      const authError = requireAuth(request, env);
-      if (authError) return authError;
-
-      // /emails/:id
+      // Public /emails/:id for PATCH and DELETE
       const match = path.match(/^\/emails\/([^/]+)$/);
       if (match) {
         const id = decodeURIComponent(match[1]);
         if (method === 'PATCH')  return patchEmail(request, env, id);
         if (method === 'DELETE') return deleteEmail(env, id);
       }
+
+      // ── ADMIN endpoints ──
+      const authError = requireAuth(request, env);
+      if (authError) return authError;
 
       // Manual cron trigger (admin only): GET /cron/expire
       if (path === '/cron/expire' && method === 'GET') {
