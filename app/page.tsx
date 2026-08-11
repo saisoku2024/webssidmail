@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import MailPage from "./mail/page";
 
 export default function HomePage() {
-  redirect("/inbox_reguler.html");
+  return <MailPage />;
 }

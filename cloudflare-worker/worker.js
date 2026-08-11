@@ -259,13 +259,16 @@ export default {
       if ((path === '/emails' || path === '/emails/bulk') && method === 'POST') {
         return createEmails(request, env);
       }
+      if (path === '/emails' && method === 'GET') {
+        return getEmails(request, env);
+      }
+      if (path === '/stats' && method === 'GET') {
+        return getStats(env);
+      }
 
-      // ── ADMIN endpoints ──
+      // ── ADMIN endpoints (for PATCH / DELETE / Cron) ──
       const authError = requireAuth(request, env);
       if (authError) return authError;
-
-      if (path === '/stats' && method === 'GET') return getStats(env);
-      if (path === '/emails' && method === 'GET')  return getEmails(request, env);
 
       // /emails/:id
       const match = path.match(/^\/emails\/([^/]+)$/);

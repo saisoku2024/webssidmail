@@ -1639,16 +1639,38 @@
     receivedEl.textContent = totalMessages.toLocaleString('en-US');
   }
 
-  async function loadActivityLogs() {
+  function loadLocalActivityLogs() {
     try {
-      // include_recycled=1 agar email expired juga muncul di log
-      const payload = await workerRequest('/emails?include_recycled=1');
-      activityLogs = normalizeActivityPayload(payload);
-      renderActivityTable();
-    } catch (error) {
-      console.warn('Activity Worker unavailable:', error);
+      const raw = localStorage.getItem('ssidmail_activity_logs');
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return [];
+  }
+
+  function saveLocalActivityLogs(logs) {
+    try {
+      localStorage.setItem('ssidmail_activity_logs', JSON.stringify(logs || []));
+    } catch (e) {}
+  }
+
+  async function loadActivityLogs() {
+    const cached = loadLocalActivityLogs();
+    if (cached && cached.length) {
+      activityLogs = cached;
       renderActivityTable();
     }
+
+    try {
+      const payload = await workerRequest('/emails?include_recycled=1');
+      const remoteLogs = normalizeActivityPayload(payload);
+      if (remoteLogs && remoteLogs.length) {
+        upsertActivityRows(remoteLogs);
+      }
+    } catch (error) {
+      console.warn('Activity Worker sync failed:', error);
+    }
+    saveLocalActivityLogs(activityLogs);
+    renderActivityTable();
     updateRealStats();
   }
 
@@ -1757,6 +1779,7 @@
         activityLogs.unshift(row);
       }
     });
+    saveLocalActivityLogs(activityLogs);
     renderActivityTable();
   }
 
@@ -1769,6 +1792,7 @@
       ...uniqueNewEmails.map(email => createActivityRecord(email, synced)),
       ...activityLogs
     ];
+    saveLocalActivityLogs(activityLogs);
     renderActivityTable();
   }
 
