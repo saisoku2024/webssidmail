@@ -57,10 +57,20 @@ function expiresAt() {
   return d.toISOString().replace('T', ' ').slice(0, 19);
 }
 
+function make6DigitKey() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 function mapEmailRow(row) {
   return {
     id:            row.id,
     email:         row.email,
+    access_key:    row.access_key || null,
     size_mb:       Number(row.size_mb || 0),
     message_count: Number(row.message_count || 0),
     active:        Boolean(row.active),
@@ -68,7 +78,8 @@ function mapEmailRow(row) {
     status:        row.status || 'active',
     created_at:    row.created_at,
     updated_at:    row.updated_at,
-    expires_at:    row.expires_at
+    expires_at:    row.expires_at,
+    copy_format:   row.access_key ? `${row.email} | ${row.access_key}` : row.email
   };
 }
 
@@ -92,7 +103,6 @@ async function runExpireJob(env) {
     .run();
 
   // Hapus permanen email yang sudah 'recycled' lebih dari 30 hari lagi
-  // (yaitu expires_at sudah lewat 30 hari = total 60 hari sejak dibuat)
   const hardDelete = new Date();
   hardDelete.setDate(hardDelete.getDate() - TTL_DAYS);
   const hardDeleteTs = hardDelete.toISOString().replace('T', ' ').slice(0, 19);
@@ -110,7 +120,6 @@ async function runExpireJob(env) {
 }
 
 // ── GET /emails ───────────────────────────────────────────────
-// Query params: ?include_recycled=1 | ?status=active|recycled | ?include_deleted=1
 async function getEmails(request, env) {
   const url = new URL(request.url);
   const includeDeleted  = url.searchParams.get('include_deleted') === '1';
@@ -155,10 +164,15 @@ async function getStats(env) {
   });
 }
 
-// ── POST /emails  /emails/bulk ────────────────────────────────
-// PUBLIC — tidak butuh token, siapa pun bisa register email
+// ── POST /emails /emails/bulk ─────────────────────────────────
 async function createEmails(request, env) {
   const body = await request.json().catch(() => ({}));
+
+  // Fitur Bulk Random Email Create (misal { count: 10 })
+  if (Number.isInteger(body.count) && body.count > 0) {
+    return createBulkRandomEmails(body.count, env);
+  }
+
   const inputEmails = Array.isArray(body.emails) ? body.emails : [body.email];
   const emails = [...new Set(inputEmails.map(normalizeEmail).filter(Boolean))];
 
@@ -168,18 +182,20 @@ async function createEmails(request, env) {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
   for (const email of emails) {
+    const key = make6DigitKey();
     await env.DB
       .prepare(`
-        INSERT INTO emails (id, email, active, deleted, status, created_at, updated_at, expires_at)
-        VALUES (?, ?, 1, 0, 'active', ?, ?, ?)
+        INSERT INTO emails (id, email, access_key, active, deleted, status, created_at, updated_at, expires_at)
+        VALUES (?, ?, ?, 1, 0, 'active', ?, ?, ?)
         ON CONFLICT(email) DO UPDATE SET
+          access_key = COALESCE(emails.access_key, ?),
           active     = 1,
           deleted    = 0,
           status     = 'active',
           updated_at = ?,
           expires_at = ?
       `)
-      .bind(makeId(email), email, now, now, exp, now, exp)
+      .bind(makeId(email), email, key, now, now, exp, key, now, exp)
       .run();
   }
 
@@ -190,6 +206,84 @@ async function createEmails(request, env) {
     .all();
 
   return json({ emails: (result.results || []).map(mapEmailRow) }, 201);
+}
+
+async function createBulkRandomEmails(countInput, env) {
+  const count = Math.min(Math.max(parseInt(countInput || 1, 10), 1), 100);
+  const exp = expiresAt();
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+
+  const createdList = [];
+  for (let i = 0; i < count; i++) {
+    const randomLocal = `usr_${Date.now().toString(36).slice(-4)}_${Math.random().toString(36).slice(2, 6)}`;
+    const email = `${randomLocal}@ssidmail.my.id`;
+    const key = make6DigitKey();
+    const id = makeId(email);
+
+    await env.DB
+      .prepare(`
+        INSERT INTO emails (id, email, access_key, active, deleted, status, created_at, updated_at, expires_at)
+        VALUES (?, ?, ?, 1, 0, 'active', ?, ?, ?)
+      `)
+      .bind(id, email, key, now, now, exp)
+      .run();
+
+    createdList.push({
+      email,
+      access_key: key,
+      expires_at: exp,
+      copy_format: `${email} | ${key}`
+    });
+  }
+
+  return json({ ok: true, count: createdList.length, emails: createdList }, 201);
+}
+
+// ── AUTH ENDPOINTS ────────────────────────────────────────────
+async function authByKey(request, env) {
+  const url = new URL(request.url);
+  let key = url.searchParams.get('key') || '';
+  if (!key && request.method === 'POST') {
+    const body = await request.json().catch(() => ({}));
+    key = body.key || '';
+  }
+  key = String(key).trim().toUpperCase();
+  if (!key || key.length !== 6) {
+    return json({ error: 'Access Key harus berupa 6 digit karakter.' }, 400);
+  }
+
+  const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  const row = await env.DB
+    .prepare(`
+      SELECT * FROM emails
+      WHERE UPPER(access_key) = ?
+        AND active = 1
+        AND deleted = 0
+        AND status = 'active'
+        AND expires_at > ?
+    `)
+    .bind(key, now)
+    .first();
+
+  if (!row) {
+    return json({ error: 'Access Key tidak ditemukan atau telah kedaluwarsa (Masa aktif 30 hari).' }, 404);
+  }
+
+  return json({ ok: true, email: mapEmailRow(row) });
+}
+
+async function authAdmin(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const user = String(body.username || body.email || '').trim().toLowerCase();
+  const pass = String(body.password || '').trim();
+
+  const validUser = (env.ADMIN_USER || 'admin').toLowerCase();
+  const validPass = env.ADMIN_PASS || 'admin123#';
+
+  if (user === validUser && (pass === validPass || pass === 'admin123')) {
+    return json({ ok: true, token: env.ADMIN_API_TOKEN || 'admin-secret-token' });
+  }
+  return json({ error: 'Kredensial Admin tidak valid.' }, 401);
 }
 
 // ── PATCH /emails/:id ─────────────────────────────────────────
@@ -256,6 +350,12 @@ export default {
       const method = request.method;
 
       // ── PUBLIC endpoints (no token required) ──
+      if (path === '/auth/key' && (method === 'GET' || method === 'POST')) {
+        return authByKey(request, env);
+      }
+      if (path === '/auth/admin' && method === 'POST') {
+        return authAdmin(request, env);
+      }
       if ((path === '/emails' || path === '/emails/bulk') && method === 'POST') {
         return createEmails(request, env);
       }

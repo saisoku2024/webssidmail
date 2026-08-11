@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS emails (
   deleted     INTEGER NOT NULL DEFAULT 0,
   -- status: 'active' | 'recycled'
   status      TEXT    NOT NULL DEFAULT 'active',
+  access_key  TEXT    UNIQUE,
   created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
   updated_at  TEXT    NOT NULL DEFAULT (datetime('now')),
   -- TTL: auto-set to 30 hari dari created_at
@@ -24,3 +25,5 @@ CREATE INDEX IF NOT EXISTS idx_emails_deleted      ON emails(deleted);
 CREATE INDEX IF NOT EXISTS idx_emails_active       ON emails(active);
 CREATE INDEX IF NOT EXISTS idx_emails_status       ON emails(status);
 CREATE INDEX IF NOT EXISTS idx_emails_expires_at   ON emails(expires_at);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_emails_access_key ON emails(access_key);
+

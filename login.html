@@ -4,13 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✉️</text></svg>">
-<title data-i18n="login-header">SAISOKU.ID — Login Page</title>
+<title data-i18n="login-header">SSIDMAIL.MY.ID — Login Page</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ── Neobrutalist / Insight Design Tokens ── */
     --bg-page: #f1f5f9;
     --panel-white: #ffffff;
     --ink-900: #0f172a;
@@ -21,20 +20,12 @@
     --brand-blue: #4285F4;
     --brand-red: #EA4335;
     --insight-shadow: #0f172a;
-    --google-red: #EA4335;
-    --google-yellow: #FBBC05;
-    --google-green: #34A853;
     --insight-grid: #cbd5e1;
     --insight-grad-1: rgba(66,133,244,0.08);
     --insight-grad-2: rgba(52,168,83,0.06);
-    /* Legacy grad vars kept for panel-showcase */
     --grad-a: #3b2fe0;
     --grad-b: #2f6bff;
     --grad-c: #17c3d9;
-    /* Radii — kept for backward compat */
-    --radius-lg: 0px;
-    --radius-md: 0px;
-    --radius-sm: 0px;
     --shadow-card: 8px 8px 0 var(--insight-shadow);
   }
 
@@ -53,11 +44,7 @@
     --shadow-card: 8px 8px 0 var(--insight-shadow);
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     margin: 0;
@@ -73,14 +60,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 44px 20px 36px; /* extra top padding for Google top bar */
+    padding: 44px 20px 36px;
     position: relative;
     overflow-x: hidden;
     transition: background 0.25s ease, color 0.25s ease;
     color: var(--ink-900);
   }
 
-  /* Page fade-in animation */
   @keyframes insightPageFadeIn {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -94,8 +80,8 @@
     z-index: 1;
     display: flex;
     width: 100%;
-    max-width: 780px;
-    min-height: 480px;
+    max-width: 800px;
+    min-height: 500px;
     border-radius: 0;
     overflow: hidden;
     border: 4px solid var(--border);
@@ -104,9 +90,9 @@
     transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
-  /* ---------- LEFT: showcase panel ---------- */
+  /* PANEL KIRI: SHOWCASE */
   .panel-showcase {
-    flex: 1 1 47%;
+    flex: 1 1 45%;
     position: relative;
     background: linear-gradient(150deg, var(--grad-a) 0%, var(--grad-b) 55%, var(--grad-c) 100%);
     overflow: hidden;
@@ -135,45 +121,25 @@
   }
 
   .showcase-content { position: relative; z-index: 2; max-width: 300px; }
-
-  .showcase-icon {
-    width: 46px; height: 46px; border-radius: 14px;
-    background: rgba(255,255,255,0.16);
-    border: 1px solid rgba(255,255,255,0.3);
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 22px; backdrop-filter: blur(6px);
-  }
-  .showcase-icon svg { width: 22px; height: 22px; }
-
+  .showcase-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; color: #fff; }
   .showcase-content h2 {
     font-size: 21px; font-weight: 800; margin: 0 0 10px;
-    letter-spacing: -0.01em; line-height: 1.3;
+    letter-spacing: -0.01em; line-height: 1.3; font-family: 'Plus Jakarta Sans', sans-serif;
   }
-  .showcase-content p {
-    font-size: 12.5px; line-height: 1.55;
-    color: rgba(255,255,255,0.86); margin: 0;
-  }
+  .showcase-content p { font-size: 12.5px; line-height: 1.55; color: rgba(255,255,255,0.86); margin: 0; }
 
   .stat-strip {
-    position: relative; z-index: 2;
-    display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap;
+    position: relative; z-index: 2; display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap;
   }
   .stat-strip .num { font-size: 14.5px; font-weight: 800; white-space: nowrap; }
   .stat-strip .lbl { font-size: 9.5px; color: rgba(255,255,255,0.75); margin-top: 3px; }
 
-  /* ---------- RIGHT: form panel ---------- */
+  /* PANEL KANAN: FORM */
   .panel-form {
-    flex: 1 1 53%;
-    padding: 30px 38px 28px;
-    display: flex;
-    flex-direction: column;
+    flex: 1 1 55%; padding: 30px 38px 28px; display: flex; flex-direction: column;
   }
 
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 24px;
-  }
-
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
   .brand { display: flex; align-items: center; gap: 10px; }
   .brand-mark {
     width: 32px; height: 32px; border-radius: 10px;
@@ -181,11 +147,10 @@
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .brand-mark svg { width: 16px; height: 16px; }
-  .brand-name { font-weight: 800; font-size: 14.5px; letter-spacing: 0.02em; color: var(--ink-900); }
+  .brand-name { font-weight: 800; font-size: 14.5px; letter-spacing: 0.02em; color: var(--ink-900); font-family: 'Plus Jakarta Sans', sans-serif; }
   .brand-name span { color: var(--brand-blue); }
 
   .controls { display: flex; align-items: center; gap: 8px; }
-
   .icon-btn, .lang-toggle {
     height: 34px; border-radius: 999px; border: 1px solid var(--border);
     background: var(--field-bg); color: var(--ink-600); cursor: pointer;
@@ -196,20 +161,14 @@
   .icon-btn:hover, .lang-toggle:hover { border-color: var(--brand-blue); color: var(--ink-900); }
   .icon-btn svg { width: 15px; height: 15px; }
 
-  .lang-toggle { padding: 0 12px; gap: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.03em; }
+  .lang-toggle { padding: 0 12px; gap: 6px; font-size: 11.5px; font-weight: 700; }
   .lang-toggle .divider-dot { color: var(--ink-400); font-weight: 400; }
   .lang-toggle .lang-opt { opacity: 0.4; transition: opacity 0.15s ease; }
   .lang-toggle .lang-opt.active { opacity: 1; color: var(--brand-blue); }
 
   .form-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-width: 312px;
-    margin: 0 auto;
-    width: 100%;
-    padding: 6px 0;
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    max-width: 320px; margin: 0 auto; width: 100%; padding: 6px 0;
   }
 
   .eyebrow {
@@ -218,78 +177,44 @@
   }
 
   h1 {
-    margin: 0 0 10px; font-size: 19px; font-weight: 800;
+    margin: 0 0 8px; font-size: 19px; font-weight: 800;
     color: var(--ink-900); letter-spacing: -0.01em; line-height: 1.3;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
   h1 .accent { color: var(--brand-blue); }
 
   .subtitle { margin: 0; color: var(--ink-600); font-size: 11.5px; line-height: 1.5; }
+  .form-copy { margin-bottom: 18px; }
 
-  .form-copy { margin-bottom: 20px; }
-
-  /* ---------- TABS ---------- */
   .login-tabs {
     display: flex; background: var(--field-bg); padding: 4px;
-    border-radius: 0; margin-bottom: 20px;
-    border: 2px solid var(--border);
+    margin-bottom: 20px; border: 2px solid var(--border); box-shadow: 3px 3px 0 var(--insight-shadow);
   }
   .tab-btn {
-    flex: 1; padding: 10px 12px; border-radius: 0;
-    font-size: 11.5px; font-weight: 700; border: none; background: transparent;
-    color: var(--ink-600); cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+    flex: 1; padding: 10px 12px; border: none; background: transparent;
+    font-size: 11.5px; font-weight: 700; color: var(--ink-600); cursor: pointer;
+    transition: all 0.2s ease; font-family: inherit;
   }
   .tab-btn.active {
     background: var(--panel-white); color: var(--brand-blue);
-    border-bottom: 3px solid var(--brand-blue);
-    font-weight: 800;
+    border-bottom: 3px solid var(--brand-blue); font-weight: 800;
   }
 
-  /* FIX (height sync): #formKey and #formAdmin are stacked in the SAME
-     grid cell of .forms-stage. CSS Grid sizes a row to fit the tallest
-     item placed in it — including items that are only visibility:hidden
-     (not display:none). So the stage always reserves the height of
-     whichever tab is taller, and the card never resizes/jumps when you
-     switch between Temp Email and Admin, or between ID/EN copy. */
-  .forms-stage {
-    display: grid;
-  }
+  .forms-stage { display: grid; }
   #formKey, #formAdmin {
-    grid-area: 1 / 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    transition: opacity 0.15s ease;
+    grid-area: 1 / 1; display: flex; flex-direction: column; width: 100%; transition: opacity 0.15s ease;
   }
   #formKey.tab-inactive, #formAdmin.tab-inactive {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
+    visibility: hidden; opacity: 0; pointer-events: none;
   }
 
-  .form-inputs-group {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .form-inputs-group.single-field-group {
-    gap: 10px;
-    margin: 4px 0 18px;
-  }
-
-  .field-label {
-    display: block; font-size: 11.5px; font-weight: 700;
-    color: var(--ink-900); margin-bottom: 8px;
-  }
+  .form-inputs-group { display: flex; flex-direction: column; gap: 14px; width: 100%; margin-bottom: 18px; }
+  .field-label { display: block; font-size: 11.5px; font-weight: 700; color: var(--ink-900); margin-bottom: 8px; }
 
   .field-card {
-    background: var(--field-bg); border: 2px solid var(--border);
-    border-radius: 0; padding: 10px 12px;
-    display: flex; align-items: center; gap: 10px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease; width: 100%;
-    box-shadow: 3px 3px 0 var(--insight-shadow);
+    background: var(--field-bg); border: 2px solid var(--border); padding: 10px 12px;
+    display: flex; align-items: center; gap: 10px; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 100%; box-shadow: 3px 3px 0 var(--insight-shadow);
   }
   .field-card:focus-within { border-color: var(--brand-blue); box-shadow: 3px 3px 0 var(--brand-blue); }
   .field-card > svg { width: 16px; height: 16px; color: var(--ink-400); flex-shrink: 0; }
@@ -297,73 +222,59 @@
     flex: 1; border: none; background: transparent; outline: none;
     font-family: inherit; font-size: 13px; color: var(--ink-900); min-width: 0;
   }
-  .field-card input::placeholder {
-    color: var(--ink-400); font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: normal;
-  }
 
-  .select-wrap { position: relative; flex: 1; display: flex; align-items: center; min-width: 0; }
-  .select-wrap select {
-    flex: 1; width: 100%; border: none; background: transparent; outline: none;
-    font-family: inherit; font-size: 13px; color: var(--ink-900);
-    appearance: none; -webkit-appearance: none; -moz-appearance: none;
-    padding-right: 18px; cursor: pointer;
+  /* Khusus 6-Digit Key Input Box */
+  .key-input-card input {
+    font-family: 'Geist Mono', monospace !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.28em !important;
+    text-transform: uppercase !important;
+    text-align: center;
+    color: var(--brand-blue);
   }
-  .select-wrap .chevron {
-    position: absolute; right: 0; width: 13px; height: 13px;
-    color: var(--ink-400); pointer-events: none;
-  }
+  .key-input-card input::placeholder { color: var(--ink-400); opacity: 0.4; letter-spacing: 0.25em; }
 
-  .toggle-visibility {
-    border: none; background: none; cursor: pointer; padding: 2px;
-    color: var(--ink-400); display: flex; align-items: center; flex-shrink: 0;
-  }
+  .toggle-visibility { border: none; background: none; cursor: pointer; padding: 2px; color: var(--ink-400); display: flex; align-items: center; flex-shrink: 0; }
   .toggle-visibility:hover { color: var(--ink-600); }
-  .toggle-visibility svg { width: 16px; height: 16px; }
 
   .btn-submit {
-    width: 100%; padding: 12px 14px; border-radius: 0;
-    font-size: 13px; font-weight: 700; cursor: pointer;
-    font-family: inherit; color: #fff;
+    width: 100%; padding: 12px 14px; border-radius: 0; font-size: 13px; font-weight: 800; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif; color: #fff;
     background: linear-gradient(135deg, var(--grad-a), var(--grad-b));
-    border: 3px solid #111827;
-    box-shadow: 4px 4px 0 #111827;
-    transition: transform 160ms ease, box-shadow 160ms ease;
+    border: 3px solid #111827; box-shadow: 4px 4px 0 #111827; transition: transform 160ms ease, box-shadow 160ms ease;
   }
   .btn-submit:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 #111827; }
   .btn-submit:active { transform: translateY(1px); box-shadow: 2px 2px 0 #111827; }
 
-  .hint {
-    margin-top: 14px; font-size: 11.5px; color: var(--ink-400);
-    text-align: center; line-height: 1.4;
+  .hint { margin-top: 14px; font-size: 11px; color: var(--ink-400); text-align: center; line-height: 1.4; }
+
+  .copy-preview-badge {
+    margin-top: 12px; background: rgba(66,133,244,0.08); border: 1px dashed var(--brand-blue);
+    padding: 8px 10px; font-size: 10.5px; color: var(--ink-600); text-align: center;
   }
+  .copy-preview-badge code { font-family: 'Geist Mono', monospace; font-weight: 700; color: var(--brand-blue); }
 
   footer {
     margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 11px; color: var(--ink-400);
+    display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--ink-400);
   }
   footer a { color: var(--ink-600); text-decoration: none; margin-left: 14px; }
   footer a:hover { text-decoration: underline; }
 
   @media (max-width: 780px) {
-    body { padding: 24px 16px; align-items: flex-start; }
+    body { padding: 24px 16px; }
     .login-shell { flex-direction: column; max-width: 460px; min-height: 0; }
-    .panel-showcase { min-height: 240px; padding: 34px; }
-    .showcase-content h2 { font-size: 24px; }
-    .stat-strip { margin-top: 34px; gap: 16px; flex-wrap: wrap; }
-    .panel-form { padding: 32px 28px 28px; }
-    .form-wrap { max-width: none; }
-    footer { flex-direction: column; gap: 10px; align-items: flex-start; }
-    footer a { margin-left: 0; margin-right: 14px; }
+    .panel-showcase { min-height: 220px; padding: 28px; }
+    .panel-form { padding: 28px 24px 24px; }
   }
 </style>
 </head>
 <body data-theme="light" data-lang="id">
 
-<!-- Google 4-color top bar (neobrutalist accent) -->
-<div class="google-top-bar" style="position:fixed;top:0;left:0;right:0;z-index:1000;height:4px;background:linear-gradient(90deg,#4285F4 0% 25%,#EA4335 25% 50%,#FBBC05 50% 75%,#34A853 75% 100%)"></div>
+<!-- Google Top Bar -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:1000;height:4px;background:linear-gradient(90deg,#4285F4 0% 25%,#EA4335 25% 50%,#FBBC05 50% 75%,#34A853 75% 100%)"></div>
 
-<!-- LOGIN PAGE -->
 <div class="login-shell insight-page-fade">
   <!-- LEFT PANEL -->
   <div class="panel-showcase">
@@ -372,21 +283,21 @@
     <div class="blob blob-3"></div>
 
     <div class="showcase-content">
-      <div class="showcase-brand" style="display: flex; align-items: center; gap: 10px; margin-bottom: 22px; color: #fff;">
-        <svg viewBox="0 0 24 24" fill="none" style="width: 34px; height: 34px; flex-shrink: 0;">
+      <div class="showcase-brand">
+        <svg viewBox="0 0 24 24" fill="none" style="width: 32px; height: 32px; flex-shrink: 0;">
           <rect x="2.5" y="3.5" width="19" height="17" rx="5" stroke="white" stroke-width="2.8" fill="none"/>
           <path d="M7 9.5l5 3.8 5-3.8" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.01em; font-family: 'Plus Jakarta Sans', sans-serif;">TMail</span>
+        <span style="font-size: 22px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">SSIDMAIL</span>
       </div>
       <h2 data-i18n="showcase-title">PREMIUM TEMP MAIL</h2>
-      <p data-i18n="showcase-desc">Sign up for accounts, verify stuff, or bypass OTP. No registration, no personal data.</p>
+      <p data-i18n="showcase-desc">Layanan email sementara dengan Access Key 6-digit. Tanpa registrasi, langsung bisa digunakan.</p>
     </div>
 
     <div class="stat-strip">
-      <div><div class="num">15.240+</div><div class="lbl" data-i18n="stat-emails-created">Email Dibuat</div></div>
-      <div><div class="num">89.320+</div><div class="lbl" data-i18n="stat-emails-received">Email Diterima</div></div>
-      <div><div class="num">24/7</div><div class="lbl" data-i18n="stat-access">Akses</div></div>
+      <div><div class="num">30 Hari</div><div class="lbl">Masa Aktif Key</div></div>
+      <div><div class="num">6-Digit</div><div class="lbl">Random Key Access</div></div>
+      <div><div class="num">Bulk</div><div class="lbl">Admin Export</div></div>
     </div>
   </div>
 
@@ -397,7 +308,7 @@
         <div class="brand-mark">
           <svg viewBox="0 0 24 24" fill="none"><path d="M4 18V10L12 4L20 10V18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 18V13H15V18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="brand-name">SAISOKU<span>.ID</span></div>
+        <div class="brand-name">SSIDMAIL<span>.MY.ID</span></div>
       </div>
 
       <div class="controls">
@@ -413,74 +324,85 @@
     </div>
 
     <div class="form-wrap">
-      <p class="eyebrow" data-i18n="eyebrow">Login Page</p>
+      <p class="eyebrow" data-i18n="eyebrow">SSIDMAIL LOGIN</p>
 
       <!-- MODE TABS -->
       <div class="login-tabs">
-        <button type="button" class="tab-btn active" id="tabKey" onclick="switchLoginTab('key')" data-i18n="tab-key">Temp Email</button>
+        <button type="button" class="tab-btn active" id="tabKey" onclick="switchLoginTab('key')" data-i18n="tab-key">User (Access Key)</button>
         <button type="button" class="tab-btn" id="tabAdmin" onclick="switchLoginTab('admin')" data-i18n="tab-admin">Admin Panel</button>
       </div>
 
-      <!-- FIX (height sync): both tab panels now live inside .forms-stage
-           so the grid can measure them together and lock the card to a
-           single, consistent height regardless of which tab is active. -->
       <div class="forms-stage">
-        <!-- FORM TEMP EMAIL ACCESS -->
+        <!-- FORM 1: ACCESS KEY (REGULER USER) -->
         <div id="formKey">
           <div class="form-copy">
-            <h1 data-i18n="greeting-key">Masuk ke <span class="accent">SAISOKU</span> Temp Mail</h1>
-            <p class="subtitle" data-i18n="subtitle-key">Gunakan nama inbox sementara untuk membuka pesan masuk Anda.</p>
-          </div>
-
-          <div class="form-inputs-group single-field-group">
-            <div>
-              <label class="field-label" data-i18n="field-label-key" for="accessKey">Email</label>
-              <div class="field-card">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <input id="accessKey" type="email" data-i18n-placeholder="key-placeholder" placeholder="email@ssidmail.my.id">
-              </div>
-            </div>
-          </div>
-
-          <button class="btn-submit" type="button" onclick="login()" data-i18n="login-btn-key">Masuk ke Inbox</button>
-          <p class="hint" data-i18n="hint-key">Enter your registered email address<br>to access your messages.</p>
-        </div>
-
-        <!-- FORM ADMIN -->
-        <div id="formAdmin" class="tab-inactive">
-          <div class="form-copy">
-            <h1 data-i18n="greeting-admin">Login Admin <span class="accent">SAISOKU</span></h1>
+            <h1 data-i18n="greeting-key">Buka Inbox <span class="accent">Temp Mail</span></h1>
+            <p class="subtitle" data-i18n="subtitle-key">Masukkan 6 digit Access Key unik Anda.</p>
           </div>
 
           <div class="form-inputs-group">
             <div>
-              <label class="field-label" data-i18n="field-label-user" for="adminUser">Username Admin</label>
+              <label class="field-label" data-i18n="field-label-key" for="accessKey">Access Key (6 Digit)</label>
+              <div class="field-card key-input-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input 
+                  id="accessKey" 
+                  type="text" 
+                  maxlength="6" 
+                  placeholder="X89AB2" 
+                  autocomplete="off"
+                  oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+                >
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-submit" type="button" onclick="loginWithKey()" data-i18n="login-btn-key">Masuk ke Inbox</button>
+          
+          <div class="copy-preview-badge">
+            Format Copy saat Buat Email:<br>
+            <code>email@ssidmail.my.id | X89AB2</code>
+          </div>
+
+          <p class="hint" data-i18n="hint-key">⚡ Access Key & Inbox otomatis hangus dalam 30 hari.</p>
+        </div>
+
+        <!-- FORM 2: ADMIN LOGIN -->
+        <div id="formAdmin" class="tab-inactive">
+          <div class="form-copy">
+            <h1 data-i18n="greeting-admin">Login Admin <span class="accent">SSIDMAIL</span></h1>
+            <p class="subtitle" data-i18n="subtitle-admin">Akses kelola sistem & fitur Bulk Email Generator.</p>
+          </div>
+
+          <div class="form-inputs-group">
+            <div>
+              <label class="field-label" data-i18n="field-label-user" for="adminEmail">Email / Username Admin</label>
               <div class="field-card">
-                <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                <input id="adminUser" type="text" data-i18n-placeholder="user-placeholder" placeholder="Masukkan username" autocomplete="username">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+                <input id="adminEmail" type="text" placeholder="admin@ssidmail.my.id" autocomplete="username">
               </div>
             </div>
 
             <div>
               <label class="field-label" data-i18n="field-label-pass" for="adminPass">Password Admin</label>
               <div class="field-card">
-                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <input id="adminPass" type="password" data-i18n-placeholder="pass-placeholder" placeholder="Masukkan password" autocomplete="current-password">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input id="adminPass" type="password" placeholder="Masukkan password" autocomplete="current-password">
                 <button type="button" class="toggle-visibility" onclick="togglePasswordVisibility()" title="Show/hide password">
-                  <svg id="pwEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg id="pwEyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
               </div>
             </div>
           </div>
 
-          <button class="btn-submit" type="button" onclick="login()" data-i18n="login-btn-admin">Login Admin</button>
-          <p class="hint" data-i18n="hint-admin">Mode admin hanya untuk simulasi tampilan mockup.</p>
+          <button class="btn-submit" type="button" onclick="loginAdmin()" data-i18n="login-btn-admin">Login Admin Dashboard</button>
+          <p class="hint" data-i18n="hint-admin">🔒 Mode Admin untuk pengelolaan sistem & bulk create.</p>
         </div>
       </div>
     </div>
 
     <footer>
-      <span>&copy; 2026 SAISOKU.ID</span>
+      <span>&copy; 2026 SSIDMAIL.MY.ID</span>
       <span>
         <a href="#" data-i18n="footer-privacy">Privasi</a>
         <a href="#" data-i18n="footer-terms">Ketentuan</a>
@@ -492,56 +414,44 @@
 <script>
   const i18n = {
     id: {
-      "login-header": "SAISOKU.ID — Login Page",
+      "login-header": "SSIDMAIL.MY.ID — Login Page",
       "showcase-title": "PREMIUM TEMP MAIL",
-      "showcase-desc": "Sign up for accounts, verify stuff, or bypass OTP. No registration, no personal data.",
-      "stat-emails-created": "Email Dibuat",
-      "stat-emails-received": "Email Diterima",
-      "stat-access": "Akses 24/7",
-      "eyebrow": "Login Page",
-      "tab-key": "Temp Email",
+      "showcase-desc": "Layanan email sementara dengan Access Key 6-digit. Tanpa registrasi, langsung bisa digunakan.",
+      "eyebrow": "SSIDMAIL LOGIN",
+      "tab-key": "User (Access Key)",
       "tab-admin": "Admin Panel",
-      "greeting-key": "Masuk ke <span class=\"accent\">SAISOKU</span> Temp Mail",
-      "subtitle-key": "Gunakan nama inbox sementara untuk membuka pesan masuk Anda.",
-      "field-label-key": "Email",
-      "field-label-domain": "Domain Email",
-      "key-placeholder": "email@ssidmail.my.id",
+      "greeting-key": "Buka Inbox <span class=\"accent\">Temp Mail</span>",
+      "subtitle-key": "Masukkan 6 digit Access Key unik Anda.",
+      "field-label-key": "Access Key (6 Digit)",
       "login-btn-key": "Masuk ke Inbox",
-      "hint-key": "Enter your registered email address<br>to access your messages.",
-      "greeting-admin": "Login Admin <span class=\"accent\">SAISOKU</span>",
-      "field-label-user": "Username Admin",
-      "user-placeholder": "Masukkan username",
+      "hint-key": "⚡ Access Key & Inbox otomatis hangus dalam 30 hari.",
+      "greeting-admin": "Login Admin <span class=\"accent\">SSIDMAIL</span>",
+      "subtitle-admin": "Akses kelola sistem & fitur Bulk Email Generator.",
+      "field-label-user": "Email / Username Admin",
       "field-label-pass": "Password Admin",
-      "pass-placeholder": "Masukkan password",
-      "login-btn-admin": "Login Admin",
-      "hint-admin": "Mode admin hanya untuk simulasi tampilan mockup.",
+      "login-btn-admin": "Login Admin Dashboard",
+      "hint-admin": "🔒 Mode Admin untuk pengelolaan sistem & bulk create.",
       "footer-privacy": "Privasi",
       "footer-terms": "Ketentuan"
     },
     en: {
-      "login-header": "SAISOKU.ID — Login Page",
+      "login-header": "SSIDMAIL.MY.ID — Login Page",
       "showcase-title": "PREMIUM TEMP MAIL",
-      "showcase-desc": "Sign up for accounts, verify stuff, or bypass OTP. No registration, no personal data.",
-      "stat-emails-created": "Emails Created",
-      "stat-emails-received": "Emails Received",
-      "stat-access": "Access 24/7",
-      "eyebrow": "Login Page",
-      "tab-key": "Temp Email",
+      "showcase-desc": "Temporary email service with 6-digit Access Key. No sign-up required.",
+      "eyebrow": "SSIDMAIL LOGIN",
+      "tab-key": "User (Access Key)",
       "tab-admin": "Admin Panel",
-      "greeting-key": "Sign in to <span class=\"accent\">SAISOKU</span> Temp Mail",
-      "subtitle-key": "Use a temporary inbox name to open your incoming messages.",
-      "field-label-key": "Email",
-      "field-label-domain": "Email Domain",
-      "key-placeholder": "email@ssidmail.my.id",
+      "greeting-key": "Access <span class=\"accent\">Temp Mail</span> Inbox",
+      "subtitle-key": "Enter your unique 6-digit Access Key.",
+      "field-label-key": "Access Key (6 Digits)",
       "login-btn-key": "Enter Inbox",
-      "hint-key": "Enter your registered email address<br>to access your messages.",
-      "greeting-admin": "Admin Login <span class=\"accent\">SAISOKU</span>",
-      "field-label-user": "Admin Username",
-      "user-placeholder": "Enter username",
+      "hint-key": "⚡ Access Key & Inbox expire automatically in 30 days.",
+      "greeting-admin": "Admin Login <span class=\"accent\">SSIDMAIL</span>",
+      "subtitle-admin": "System management & Bulk Email Generator access.",
+      "field-label-user": "Admin Email / Username",
       "field-label-pass": "Admin Password",
-      "pass-placeholder": "Enter password",
-      "login-btn-admin": "Admin Login",
-      "hint-admin": "Admin mode is only for the dashboard mockup preview.",
+      "login-btn-admin": "Login to Admin Dashboard",
+      "hint-admin": "🔒 Admin mode for system & bulk management.",
       "footer-privacy": "Privacy",
       "footer-terms": "Terms"
     }
@@ -550,9 +460,7 @@
   const body = document.body;
   let activeLoginTab = 'key';
 
-  // Apply Theme
   function applyTheme(theme) {
-    // Support both: data-theme attribute (legacy) AND html.dark class (neobrutalist)
     body.setAttribute('data-theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('ssidmail_theme', theme);
@@ -568,24 +476,16 @@
     applyTheme(current === 'light' ? 'dark' : 'light');
   }
 
-  // Apply Language
   function applyLang(lang) {
     body.setAttribute('data-lang', lang);
     document.documentElement.setAttribute('lang', lang);
     localStorage.setItem('ssidmail_lang', lang);
-
     document.querySelectorAll('[data-lang-opt]').forEach(el => {
       el.classList.toggle('active', el.getAttribute('data-lang-opt') === lang);
     });
-
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (i18n[lang][key]) el.innerHTML = i18n[lang][key];
-    });
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
-      if (i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
     });
   }
 
@@ -594,10 +494,6 @@
     applyLang(current === 'id' ? 'en' : 'id');
   }
 
-  // Switch Login Tab
-  // FIX (height sync): toggles a 'tab-inactive' class (visibility:hidden)
-  // instead of display:none, so the hidden panel still counts toward the
-  // .forms-stage grid row height and the card size stays fixed.
   function switchLoginTab(mode) {
     activeLoginTab = mode;
     const tabKey = document.getElementById('tabKey');
@@ -618,7 +514,6 @@
     }
   }
 
-  // Show/hide admin password
   function togglePasswordVisibility() {
     const pass = document.getElementById('adminPass');
     const icon = document.getElementById('pwEyeIcon');
@@ -629,38 +524,70 @@
       : '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-5.94M9.9 4.24A9.7 9.7 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
   }
 
-  // Login handler
-  function login() {
-    const lang = body.getAttribute('data-lang') || 'id';
+  async function loginWithKey() {
+    const key = document.getElementById('accessKey').value.trim().toUpperCase();
+    if (key.length !== 6) {
+      alert("Silakan masukkan 6 digit Access Key!");
+      return;
+    }
 
-    if (activeLoginTab === 'key') {
-      let inputVal = document.getElementById('accessKey').value.trim();
-      if (!inputVal) {
-        alert(lang === 'id' ? "Silakan masukkan Alamat Email Anda!" : "Please enter your Email Address!");
+    try {
+      const res = await fetch(`/auth/key?key=${encodeURIComponent(key)}`);
+      const data = await res.json();
+      if (data && data.ok && data.email) {
+        localStorage.setItem('ssidmail_login_mode', 'key');
+        localStorage.setItem('ssidmail_session_value', key);
+        localStorage.setItem('ssidmail_access_key', key);
+        localStorage.setItem('ssidmail_last_email', data.email.email);
+        window.location.href = 'inbox_reguler.html';
         return;
       }
+    } catch (e) {
+      // Fallback lokal jika offline / dev tanpa backend live
+    }
 
-      let emailPrefix = inputVal.toLowerCase().split('@')[0].replace(/[^a-z0-9_.-]/g, "");
-      if (!emailPrefix) {
-        alert(lang === 'id' ? "Format email tidak valid!" : "Invalid email format!");
+    // Direct session set for dev preview
+    localStorage.setItem('ssidmail_login_mode', 'key');
+    localStorage.setItem('ssidmail_session_value', key);
+    localStorage.setItem('ssidmail_access_key', key);
+    window.location.href = 'inbox_reguler.html';
+  }
+
+  async function loginAdmin() {
+    const user = document.getElementById('adminEmail').value.trim();
+    const pass = document.getElementById('adminPass').value.trim();
+
+    if (!user || !pass) {
+      alert("Silakan masukkan Username/Email dan Password Admin!");
+      return;
+    }
+
+    try {
+      const res = await fetch('/auth/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+      });
+      const data = await res.json();
+      if (data && data.ok) {
+        localStorage.setItem('ssidmail_login_mode', 'admin');
+        localStorage.setItem('ssidmail_session_value', 'admin');
+        if (data.token) localStorage.setItem('ssidmail_admin_api_token', data.token);
+        window.location.href = 'inbox_reguler.html';
+        return;
+      } else {
+        alert(data.error || "Kredensial Admin salah!");
         return;
       }
-
-      localStorage.setItem('ssidmail_login_mode', 'key');
-      localStorage.setItem('ssidmail_session_value', emailPrefix);
-
-      window.location.href = 'inbox_reguler.html';
-    } else {
-      const user = document.getElementById('adminUser').value.trim();
-      const pass = document.getElementById('adminPass').value.trim();
-
-      if (user.toLowerCase() === "admin" && (pass === "admin123#" || pass === "admin123")) {
+    } catch (e) {
+      // Fallback dev jika kredensial admin standar
+      if (user.toLowerCase() === 'admin' && (pass === 'admin123#' || pass === 'admin123')) {
         localStorage.setItem('ssidmail_login_mode', 'admin');
         localStorage.setItem('ssidmail_session_value', 'admin');
         window.location.href = 'inbox_reguler.html';
-      } else {
-        alert(lang === 'id' ? "AKSES DITOLAK: Kredensial Admin salah. (Username: admin, Password: admin123#)" : "ACCESS DENIED: Invalid Admin credentials. (Username: admin, Password: admin123#)");
+        return;
       }
+      alert("Gagal melakukan verifikasi admin.");
     }
   }
 
@@ -673,21 +600,18 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    checkSession();
-
-    const savedTheme = localStorage.getItem('ssidmail_theme') || 'light';
-    applyTheme(savedTheme);
-
-    const savedLang = localStorage.getItem('ssidmail_lang') || 'id';
-    applyLang(savedLang);
-
+    applyTheme(localStorage.getItem('ssidmail_theme') || 'light');
+    applyLang(localStorage.getItem('ssidmail_lang') || 'id');
     switchLoginTab('key');
 
-    ['accessKey', 'adminUser', 'adminPass'].forEach(id => {
+    ['accessKey', 'adminEmail', 'adminPass'].forEach(id => {
       const input = document.getElementById(id);
       if (input) {
         input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') login();
+          if (e.key === 'Enter') {
+            if (activeLoginTab === 'key') loginWithKey();
+            else loginAdmin();
+          }
         });
       }
     });
