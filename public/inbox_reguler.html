@@ -2171,8 +2171,8 @@
         }
       }
 
-      if (selectedMailIndex === null || selectedMailIndex >= mailCache.length) {
-        selectedMailIndex = 0;
+      if (selectedMailIndex !== null && selectedMailIndex >= mailCache.length) {
+        selectedMailIndex = null;
       }
 
       renderMailList();
@@ -2272,34 +2272,38 @@
     const lang = body.getAttribute('data-lang') || 'id';
 
     if (!mailCache || mailCache.length === 0 || selectedMailIndex === null || !mailCache[selectedMailIndex]) {
+      const isNoMail = !mailCache || mailCache.length === 0;
       reader.innerHTML = `
-        <div class="reader-actions-bar">
-          <button class="reader-action-btn" onclick="alert('No reply action in mockup')">
+        <div class="reader-actions-bar" style="opacity: 0.4; pointer-events: none;">
+          <button class="reader-action-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
             <span>Reply</span>
           </button>
-          <button class="reader-action-btn" onclick="alert('No forward action in mockup')">
+          <button class="reader-action-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 17 20 12 15 7"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></svg>
             <span>Forward</span>
           </button>
-          <button class="reader-action-btn btn-delete" onclick="alert('No delete action in mockup')">
+          <button class="reader-action-btn btn-delete">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             <span>Delete</span>
           </button>
         </div>
 
-        <div class="reader-sender-section">
-          <div class="sender-avatar">@</div>
+        <div class="reader-sender-section" style="opacity: 0.6;">
+          <div class="sender-avatar">✉️</div>
           <div class="sender-info-text">
-            <div class="sender-info-label">FROM</div>
-            <div class="sender-name">${i18n[lang]['no-emails'] || 'No messages yet'}</div>
-            <div class="sender-meta">Inbox on @ssidmail.my.id</div>
+            <div class="sender-info-label">SELECT AN EMAIL</div>
+            <div class="sender-name">${isNoMail ? 'Belum Ada Email Masuk' : 'Pilih Email di Sisi Kiri'}</div>
+            <div class="sender-meta">Klik email pada daftar sebelah kiri untuk membaca pesannya</div>
           </div>
         </div>
 
-        <div class="reader-body-card">
-          <h2 class="reader-body-subject">${i18n[lang]['no-emails'] || 'No messages yet'}</h2>
-          <p class="reader-body-text">Refresh the inbox after sending a verification email to this address.</p>
+        <div class="reader-body-card" style="display: flex; align-items: center; justify-content: center; text-align: center; color: var(--insight-muted); min-height: 280px;">
+          <div>
+            <svg style="width: 48px; height: 48px; opacity: 0.35; margin-bottom: 12px; color: var(--google-blue);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--insight-text); margin-bottom: 6px;">${isNoMail ? 'Belum Ada Pesan dalam Inbox' : 'Belum Ada Pesan yang Dipilih'}</h3>
+            <p style="font-size: 12.5px; max-width: 360px; margin: 0 auto; line-height: 1.5;">${isNoMail ? 'Kirim email verifikasi ke alamat ini lalu klik Refresh.' : 'Klik salah satu pesan dari daftar email di sebelah kiri untuk membaca isi pesannya.'}</p>
+          </div>
         </div>
       `;
       return;

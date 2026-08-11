@@ -47,7 +47,7 @@ const mockNetflixEmail: MailItem = {
 
 export default function MailPage() {
   const [mails, setMails] = useState<MailItem[]>([mockNetflixEmail]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -65,7 +65,6 @@ export default function MailPage() {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
           setMails(data);
-          setSelectedIndex(0);
         } else {
           setMails([]);
           setSelectedIndex(null);
@@ -157,28 +156,58 @@ export default function MailPage() {
           <div className="right-pane-reader">
             {!selectedMail ? (
               <>
-                <div className="reader-actions-bar">
-                  <button className="reader-action-btn" onClick={() => alert("No reply action")}>
+                <div className="reader-actions-bar" style={{ opacity: 0.4, pointerEvents: "none" }}>
+                  <button className="reader-action-btn">
                     <span>Reply</span>
                   </button>
-                  <button className="reader-action-btn" onClick={() => alert("No forward action")}>
+                  <button className="reader-action-btn">
                     <span>Forward</span>
                   </button>
-                  <button className="reader-action-btn btn-delete" onClick={() => alert("No delete action")}>
+                  <button className="reader-action-btn btn-delete">
                     <span>Delete</span>
                   </button>
                 </div>
-                <div className="reader-sender-section">
-                  <div className="sender-avatar">@</div>
+                <div className="reader-sender-section" style={{ opacity: 0.6 }}>
+                  <div className="sender-avatar">✉️</div>
                   <div className="sender-info-text">
-                    <div className="sender-info-label">FROM</div>
-                    <div className="sender-name">No messages yet</div>
-                    <div className="sender-meta">Inbox on @ssidmail.my.id</div>
+                    <div className="sender-info-label">SELECT AN EMAIL</div>
+                    <div className="sender-name">
+                      {mails.length === 0 ? "Belum Ada Email Masuk" : "Pilih Email di Sisi Kiri"}
+                    </div>
+                    <div className="sender-meta">Klik email pada daftar sebelah kiri untuk membaca pesannya</div>
                   </div>
                 </div>
-                <div className="reader-body-card">
-                  <h2 className="reader-body-subject">No messages yet</h2>
-                  <p className="reader-body-text">Refresh the inbox after sending a verification email to this address.</p>
+                <div
+                  className="reader-body-card"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    color: "var(--insight-muted)",
+                    minHeight: "280px"
+                  }}
+                >
+                  <div>
+                    <svg
+                      style={{ width: "48px", height: "48px", opacity: 0.35, marginBottom: "12px", color: "var(--google-blue)" }}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    >
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    <h3 style={{ fontSize: "15px", fontWeight: 700, color: "var(--insight-text)", marginBottom: "6px" }}>
+                      {mails.length === 0 ? "Belum Ada Pesan dalam Inbox" : "Belum Ada Pesan yang Dipilih"}
+                    </h3>
+                    <p style={{ fontSize: "12.5px", maxWidth: "360px", margin: "0 auto", lineHeight: 1.5 }}>
+                      {mails.length === 0
+                        ? "Kirim email verifikasi ke alamat ini lalu klik Refresh."
+                        : "Klik salah satu pesan dari daftar email di sebelah kiri untuk membaca isi pesannya."}
+                    </p>
+                  </div>
                 </div>
               </>
             ) : (
