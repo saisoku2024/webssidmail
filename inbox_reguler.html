@@ -1409,6 +1409,7 @@
                     <tr>
                       <th data-i18n="activity-no">No</th>
                       <th data-i18n="activity-email">Email</th>
+                      <th>Access Key</th>
                       <th>Status</th>
                       <th data-i18n="activity-message">Msg</th>
                       <th>Expires</th>
@@ -1417,7 +1418,7 @@
                   </thead>
                   <tbody id="activityTableBody">
                     <tr>
-                      <td colspan="6" class="activity-empty" data-i18n="activity-empty">No created email yet.</td>
+                      <td colspan="7" class="activity-empty" data-i18n="activity-empty">No created email yet.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1815,7 +1816,7 @@
       const lang = body.getAttribute('data-lang') || 'id';
       bodyEl.innerHTML = `
         <tr>
-          <td colspan="6" class="activity-empty">${i18n[lang]['activity-empty'] || 'No created email yet.'}</td>
+          <td colspan="7" class="activity-empty">${i18n[lang]['activity-empty'] || 'No created email yet.'}</td>
         </tr>
       `;
       return;
@@ -1838,10 +1839,17 @@
         expiresCell = `<span class="expires-cell ${isNear || isPast ? 'near-expiry' : ''}">${label}</span>`;
       }
 
+      const keyVal = row.access_key || row.accessKey || '──────';
+
       return `
       <tr>
         <td>${index + 1}</td>
         <td class="activity-email-cell">${escapeHtml(row.email)}</td>
+        <td>
+          <span style="font-family:'Geist Mono',monospace; font-weight:800; color:var(--brand-blue); background:rgba(66,133,244,0.12); padding:2px 6px; border:1px solid var(--brand-blue); font-size:12px; display:inline-block;">
+            ${escapeHtml(keyVal)}
+          </span>
+        </td>
         <td><span class="status-badge ${status}">${statusLabel}</span></td>
         <td>${escapeHtml(String(row.messages))}</td>
         <td>${expiresCell}</td>

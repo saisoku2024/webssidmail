@@ -32,6 +32,7 @@ export default function LogPage() {
         const remoteLogs: LogItem[] = (payload.emails || []).map((row: any) => ({
           id: String(row.id || row.email),
           email: row.email,
+          access_key: row.access_key || row.accessKey || null,
           sizeMb: Number(row.size_mb || 0).toFixed(2),
           messages: Number(row.message_count || 0),
           active: Boolean(row.active),
@@ -87,7 +88,7 @@ export default function LogPage() {
                 <div className="create-kicker">ACTIVITY LOG</div>
                 <h1 className="create-title">Created email log</h1>
                 <p className="create-desc">
-                  Track generated email addresses, message count, active status, and 30-day expiration TTL.
+                  Track generated email addresses, 6-digit access keys, message count, active status, and 30-day expiration TTL.
                 </p>
               </div>
               <div className="create-mini-stat">
@@ -105,6 +106,7 @@ export default function LogPage() {
                     <tr>
                       <th>No</th>
                       <th>Email</th>
+                      <th>Access Key</th>
                       <th>Status</th>
                       <th>Msg</th>
                       <th>Expires</th>
@@ -114,7 +116,7 @@ export default function LogPage() {
                   <tbody id="activityTableBody">
                     {logs.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="activity-empty">
+                        <td colSpan={7} className="activity-empty">
                           {loading ? "Memuat log email..." : "Belum ada email yang dibuat."}
                         </td>
                       </tr>
@@ -136,6 +138,11 @@ export default function LogPage() {
                             <tr key={row.id || index}>
                               <td>{index + 1}</td>
                               <td className="activity-email-cell">{row.email}</td>
+                              <td>
+                                <span style={{ fontFamily: "'Geist Mono', monospace", fontWeight: 800, color: "#4285F4", background: "rgba(66, 133, 244, 0.12)", padding: "2px 6px", border: "1px solid #4285F4", fontSize: 12, display: "inline-block" }}>
+                                  {row.access_key || "──────"}
+                                </span>
+                              </td>
                               <td>
                                 <span className={`status-badge ${status}`}>{statusLabel}</span>
                               </td>
@@ -166,6 +173,11 @@ export default function LogPage() {
                           <tr key={row.id || index}>
                             <td>{index + 1}</td>
                             <td className="activity-email-cell">{row.email}</td>
+                            <td>
+                              <span style={{ fontFamily: "'Geist Mono', monospace", fontWeight: 800, color: "#4285F4", background: "rgba(66, 133, 244, 0.12)", padding: "2px 6px", border: "1px solid #4285F4", fontSize: 12, display: "inline-block" }}>
+                                {row.access_key || "──────"}
+                              </span>
+                            </td>
                             <td>
                               <span className={`status-badge ${status}`}>{statusLabel}</span>
                             </td>

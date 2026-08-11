@@ -9,6 +9,7 @@ const DB_WORKER = "https://ssidmail-db-api.saisoku-id2020.workers.dev";
 export interface LogItem {
   id: string;
   email: string;
+  access_key?: string;
   sizeMb: string;
   messages: number;
   active: boolean;
