@@ -513,14 +513,14 @@
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     border-left: 3.5px solid transparent;
     border-radius: 0;
-    padding: 14px 16px;
+    padding: 10px 16px;
     margin-bottom: 0;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
   }
   html.dark .list-mail-item {
     border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -547,7 +547,7 @@
     gap: 8px;
   }
   .list-mail-sender {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--insight-text);
     white-space: nowrap;
@@ -556,28 +556,19 @@
     flex: 1;
   }
   .list-mail-time {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 600;
     color: var(--insight-muted);
     white-space: nowrap;
     flex-shrink: 0;
   }
   .list-mail-subject {
-    font-size: 12.5px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--google-blue);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .list-mail-preview {
-    font-size: 11.5px;
-    color: var(--insight-muted);
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
   /* Right Pane: Mail Reader */
@@ -2029,6 +2020,9 @@
       user = user + '@ssidmail.my.id';
       input.value = user;
     }
+    // Persist email yang dipakai ke localStorage dan Cloudflare
+    localStorage.setItem('ssidmail_last_email', user);
+    saveCreatedEmails([user]).catch(() => {});
 
     const inboxListCol = document.getElementById("inboxListColumn");
     const lang = body.getAttribute('data-lang') || 'id';
@@ -2104,7 +2098,6 @@
             <div class="list-mail-sender">Inbox</div>
           </div>
           <div class="list-mail-subject">${i18n[lang]['no-emails'] || 'No messages yet'}</div>
-          <div class="list-mail-preview">Refresh the inbox after sending a verification email to this address.</div>
         </div>
       `;
       return;
@@ -2118,8 +2111,13 @@
       let cleanSubject = mail.subject ? mail.subject.split(';')[0].trim() : "Notification";
       let cleanFrom = mail.from ? mail.from.split(';')[0].trim() : "Unknown Sender";
 
-      const emailMatch = cleanFrom.match(/<([^>]+)>/);
-      if (emailMatch) cleanFrom = emailMatch[1];
+      const nameMatch = cleanFrom.match(/^(.+?)\s*</);
+      if (nameMatch) {
+        cleanFrom = nameMatch[1].trim();
+      } else {
+        const emailMatch = cleanFrom.match(/<([^>]+)>/);
+        if (emailMatch) cleanFrom = emailMatch[1];
+      }
 
       let content = mail.content || "";
       let cleanBodyPreview = cleanText(content);
@@ -2136,11 +2134,10 @@
       html += `
         <div class="list-mail-item ${isActive}" onclick="selectMailItem(${i})">
           <div class="list-mail-top">
-            <div class="list-mail-sender">${cleanFrom}</div>
+            <div class="list-mail-sender">${escapeHtml(cleanFrom)}</div>
             ${displayDate ? `<div class="list-mail-time">${displayDate}</div>` : ''}
           </div>
-          <div class="list-mail-subject">${cleanSubject}</div>
-          <div class="list-mail-preview">${cleanBodyPreview.substring(0, 80)}...</div>
+          <div class="list-mail-subject">${escapeHtml(cleanSubject)}</div>
         </div>
       `;
     });
@@ -2326,9 +2323,12 @@
     const savedLang = localStorage.getItem('ssidmail_lang') || 'id';
     applyLang(savedLang);
 
-    // Initial setup based on session mode
+    // Initial setup: load email terakhir yang dipakai, lalu fallback ke session value
     const usernameInput = document.getElementById('username');
-    if (mode === 'key') {
+    const lastEmail = localStorage.getItem('ssidmail_last_email');
+    if (lastEmail) {
+      usernameInput.value = lastEmail;
+    } else if (mode === 'key') {
       usernameInput.value = value + '@ssidmail.my.id';
     } else {
       usernameInput.value = 'admin@ssidmail.my.id';
