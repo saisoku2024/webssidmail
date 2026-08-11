@@ -1232,8 +1232,11 @@
     <header class="topbar-dash">
       <div class="email-display-container">
         <div class="email-display-label" data-i18n="dashboard-subtitle">YOUR TEMPORARY EMAIL</div>
-        <div class="email-display-box">
+        <div class="email-display-box" style="display:flex; align-items:center; gap:8px;">
           <input id="username" type="text" placeholder="Ketik/edit email..." onkeydown="if(event.key==='Enter') loadInbox()" onchange="loadInbox()">
+          <div id="topbarKeyBadge" style="display:inline-flex; align-items:center; gap:6px; background:rgba(66,133,244,0.12); border:1.5px solid var(--brand-blue); padding:4px 8px; font-family:'Geist Mono',monospace; font-weight:800; font-size:12px; color:var(--brand-blue); white-space:nowrap;">
+            KEY: <span id="topbarKeyValue">──────</span>
+          </div>
         </div>
       </div>
       
@@ -1900,35 +1903,53 @@
       ? normalizePrefix(prefixInput.value, 'user')
       : (useRandom ? `temp_${randomSuffix(6)}` : 'temp');
     const email = `${base}@ssidmail.my.id`;
+    
+    let key = '';
+    const res = await saveCreatedEmails([email]);
+    if (res && res.length && res[0].access_key) {
+      key = res[0].access_key;
+    }
+    if (!key) {
+      const match = activityLogs.find(r => r.email.toLowerCase() === email.toLowerCase());
+      key = match?.access_key || localStorage.getItem('ssidmail_access_key') || randomSuffix(6).toUpperCase();
+    }
+    localStorage.setItem('ssidmail_access_key', key);
+    localStorage.setItem('ssidmail_last_email', email);
+
     const output = document.getElementById('singleEmailOutput');
     if (output) {
-      output.textContent = email;
+      output.innerHTML = `<span>${email}</span> <span style="display:inline-block; margin-left:8px; padding:2px 8px; background:rgba(66,133,244,0.15); border:1px solid var(--brand-blue); font-family:'Geist Mono',monospace; font-weight:800; font-size:12px; color:var(--brand-blue);">KEY: ${key}</span>`;
+      output.setAttribute('data-full-copy', `${email} | ${key}`);
       output.classList.remove('result-placeholder');
     }
-    await saveCreatedEmails([email]);
+
+    const topbarKey = document.getElementById('topbarKeyValue');
+    if (topbarKey) topbarKey.textContent = key;
+
     updateGeneratedCount(Math.max(generatedTotal, 1));
-    setCreateStatus('singleStatus', 'Email generated.');
-    return email;
+    setCreateStatus('singleStatus', `Email & Access Key Dibuat: ${email} | ${key}`);
+    return `${email} | ${key}`;
   }
 
   async function copySingleEmail() {
     const output = document.getElementById('singleEmailOutput');
-    let email = output?.textContent?.trim();
-    if (!email || email === 'No email generated yet') {
-      email = await generateSingleEmail();
+    let copyText = output?.getAttribute('data-full-copy') || output?.textContent?.trim();
+    if (!copyText || copyText === 'No email generated yet') {
+      copyText = await generateSingleEmail();
     }
-    navigator.clipboard.writeText(email);
-    setCreateStatus('singleStatus', 'Copied to clipboard.');
+    navigator.clipboard.writeText(copyText);
+    setCreateStatus('singleStatus', 'Teks ter-copy ke clipboard! (email | key)');
   }
 
   async function useSingleEmail() {
     const output = document.getElementById('singleEmailOutput');
-    let email = output?.textContent?.trim();
-    if (!email || email === 'No email generated yet') {
-      email = await generateSingleEmail();
+    let emailText = output?.getAttribute('data-full-copy') || output?.textContent?.trim();
+    if (!emailText || emailText === 'No email generated yet') {
+      emailText = await generateSingleEmail();
     }
+    const cleanEmail = emailText.split('|')[0].trim();
     const usernameInput = document.getElementById('username');
-    if (usernameInput) usernameInput.value = email;
+    if (usernameInput) usernameInput.value = cleanEmail;
     switchView('inbox');
     loadInbox();
   }
@@ -1946,17 +1967,29 @@
       return `${prefix}_${suffix}@ssidmail.my.id`;
     });
 
+    const res = await saveCreatedEmails(generatedBulkEmails);
+    let formattedLines = [];
+    if (Array.isArray(res) && res.length) {
+      formattedLines = res.map(row => row.copy_format || `${row.email} | ${row.access_key || randomSuffix(6).toUpperCase()}`);
+    } else {
+      formattedLines = generatedBulkEmails.map(e => `${e} | ${randomSuffix(6).toUpperCase()}`);
+    }
+
     const list = document.getElementById('bulkResultList');
-    if (list) list.value = generatedBulkEmails.join('\r\n');
-    await saveCreatedEmails(generatedBulkEmails);
+    if (list) list.value = formattedLines.join('\r\n');
     updateGeneratedCount(generatedBulkEmails.length);
-    setCreateStatus('bulkStatus', `${generatedBulkEmails.length} emails generated.`);
+    setCreateStatus('bulkStatus', `${generatedBulkEmails.length} Email & Access Key berhasil di-generate.`);
   }
 
   async function copyBulkEmails() {
-    if (!generatedBulkEmails.length) await generateBulkEmails();
-    navigator.clipboard.writeText(generatedBulkEmails.join('\r\n'));
-    setCreateStatus('bulkStatus', 'Bulk list copied.');
+    const list = document.getElementById('bulkResultList');
+    let text = list?.value?.trim();
+    if (!text) {
+      await generateBulkEmails();
+      text = list?.value?.trim();
+    }
+    navigator.clipboard.writeText(text);
+    setCreateStatus('bulkStatus', 'Daftar email & Access Key ter-copy!');
   }
 
   async function exportBulkToTXT() {
@@ -2097,7 +2130,10 @@
       user = user + '@ssidmail.my.id';
       input.value = user;
     }
-    navigator.clipboard.writeText(user);
+    const match = activityLogs.find(r => r.email.toLowerCase() === user.toLowerCase());
+    const key = match?.access_key || localStorage.getItem('ssidmail_access_key') || '';
+    const textToCopy = key ? `${user} | ${key}` : user;
+    navigator.clipboard.writeText(textToCopy);
   }
 
   async function loadInbox() {
@@ -2111,7 +2147,20 @@
     }
     // Persist email yang dipakai ke localStorage dan Cloudflare
     localStorage.setItem('ssidmail_last_email', user);
-    saveCreatedEmails([user]).catch(() => {});
+    
+    // Update topbar key badge jika ada
+    const match = activityLogs.find(r => r.email.toLowerCase() === user.toLowerCase());
+    const initialKey = match?.access_key || localStorage.getItem('ssidmail_access_key') || '──────';
+    const topbarKey = document.getElementById('topbarKeyValue');
+    if (topbarKey) topbarKey.textContent = initialKey;
+
+    saveCreatedEmails([user]).then(res => {
+      if (res && res.length && res[0].access_key) {
+        const topbarKeyEl = document.getElementById('topbarKeyValue');
+        if (topbarKeyEl) topbarKeyEl.textContent = res[0].access_key;
+        localStorage.setItem('ssidmail_access_key', res[0].access_key);
+      }
+    }).catch(() => {});
 
     const inboxListCol = document.getElementById("inboxListColumn");
     const lang = body.getAttribute('data-lang') || 'id';

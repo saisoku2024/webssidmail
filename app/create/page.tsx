@@ -23,35 +23,48 @@ export default function CreatePage() {
   const randomSuffix = (len = 5) => Math.random().toString(36).slice(2, 2 + len);
 
   const saveToWorkerAndLocal = async (emails: string[]) => {
-    // 1. Save to localStorage activity log
+    let returnedItems: { email: string; access_key?: string; copy_format?: string }[] = [];
+
+    // 1. Post to Cloudflare Worker
+    try {
+      const res = await fetch(`${DB_WORKER}/emails/bulk`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emails })
+      });
+      const data = await res.json();
+      if (data && Array.isArray(data.emails)) {
+        returnedItems = data.emails;
+      }
+    } catch (e) {}
+
+    // 2. Save to localStorage activity log
     try {
       const raw = localStorage.getItem("ssidmail_activity_logs");
       const existing = raw ? JSON.parse(raw) : [];
-      const newRecords = emails.map((e) => ({
-        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        email: e,
-        sizeMb: "0.00",
-        messages: 0,
-        active: true,
-        deleted: false,
-        status: "active",
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: new Date().toISOString(),
-        synced: true
-      }));
+      const newRecords = emails.map((e) => {
+        const item = returnedItems.find((r) => r.email === e);
+        const accessKey = item?.access_key || randomSuffix(6).toUpperCase();
+        return {
+          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          email: e,
+          access_key: accessKey,
+          sizeMb: "0.00",
+          messages: 0,
+          active: true,
+          deleted: false,
+          status: "active",
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          created_at: new Date().toISOString(),
+          synced: true
+        };
+      });
 
       const merged = [...newRecords, ...existing];
       localStorage.setItem("ssidmail_activity_logs", JSON.stringify(merged));
     } catch (e) {}
 
-    // 2. Post to Cloudflare Worker
-    try {
-      await fetch(`${DB_WORKER}/emails/bulk`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emails })
-      });
-    } catch (e) {}
+    return returnedItems;
   };
 
   const handleGenerateSingle = async () => {
@@ -60,12 +73,17 @@ export default function CreatePage() {
       : singleRandom ? `temp_${randomSuffix(6)}` : "temp";
 
     const email = `${base}@ssidmail.my.id`;
-    setSingleOutput(email);
-    setSingleStatus("Email generated.");
+    const res = await saveToWorkerAndLocal([email]);
+    const key = res[0]?.access_key || randomSuffix(6).toUpperCase();
+    const formatted = `${email} | Key: ${key}`;
+
+    setSingleOutput(formatted);
+    setSingleStatus(`Email & Access Key generated: ${email} | ${key}`);
     setGeneratedTotal((prev) => prev + 1);
 
-    await saveToWorkerAndLocal([email]);
-    return email;
+    localStorage.setItem("ssidmail_access_key", key);
+    localStorage.setItem("ssidmail_last_email", email);
+    return formatted;
   };
 
   const handleCopySingle = async () => {
@@ -74,15 +92,16 @@ export default function CreatePage() {
       email = await handleGenerateSingle();
     }
     navigator.clipboard.writeText(email);
-    setSingleStatus("Copied to clipboard.");
+    setSingleStatus("Copied email & Access Key to clipboard!");
   };
 
   const handleUseInboxSingle = async () => {
-    let email = singleOutput;
-    if (!email) {
-      email = await handleGenerateSingle();
+    let outputText = singleOutput;
+    if (!outputText) {
+      outputText = await handleGenerateSingle();
     }
-    localStorage.setItem("ssidmail_last_email", email);
+    const cleanEmail = outputText.split("|")[0].trim();
+    localStorage.setItem("ssidmail_last_email", cleanEmail);
     window.location.href = "/mail";
   };
 
@@ -97,11 +116,15 @@ export default function CreatePage() {
       return `${prefix}_${s}@ssidmail.my.id`;
     });
 
-    setBulkList(generated);
-    setGeneratedTotal(generated.length);
-    setBulkStatus(`${generated.length} emails generated.`);
+    const res = await saveToWorkerAndLocal(generated);
+    const formattedLines = generated.map((e) => {
+      const match = res.find((r) => r.email === e);
+      return match?.copy_format || `${e} | ${match?.access_key || randomSuffix(6).toUpperCase()}`;
+    });
 
-    await saveToWorkerAndLocal(generated);
+    setBulkList(formattedLines);
+    setGeneratedTotal(formattedLines.length);
+    setBulkStatus(`${formattedLines.length} emails & Access Keys generated.`);
   };
 
   const handleCopyBulk = async () => {
@@ -109,7 +132,7 @@ export default function CreatePage() {
       await handleGenerateBulk();
     }
     navigator.clipboard.writeText(bulkList.join("\r\n"));
-    setBulkStatus("Bulk list copied.");
+    setBulkStatus("Bulk list with Access Keys copied.");
   };
 
   const handleExportTXT = () => {
