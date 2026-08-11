@@ -42,18 +42,32 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchStats = async () => {
+    let apiCreated = 0;
+    let apiReceived = 0;
     try {
       const res = await fetch(`${DB_WORKER}/stats`);
       if (res.ok) {
         const data = await res.json();
-        setStats({
-          created: data.emails_created || 0,
-          received: data.messages_received || 0
-        });
+        apiCreated = data.emails_created || 0;
+        apiReceived = data.messages_received || 0;
       }
-    } catch (e) {
-      // Ignore
-    }
+    } catch (e) {}
+
+    let localLogsCount = 0;
+    let localMsgSum = 0;
+    try {
+      const raw = localStorage.getItem("ssidmail_activity_logs");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        localLogsCount = parsed.filter((r: any) => !r.deleted).length;
+        localMsgSum = parsed.filter((r: any) => !r.deleted).reduce((acc: number, r: any) => acc + (Number(r.messages) || 0), 0);
+      }
+    } catch (e) {}
+
+    setStats({
+      created: Math.max(apiCreated, localLogsCount),
+      received: Math.max(apiReceived, localMsgSum, 1)
+    });
   };
 
   const toggleTheme = () => {

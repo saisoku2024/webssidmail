@@ -1620,20 +1620,24 @@
     const receivedEl = document.getElementById('statEmailsReceived');
     if (!createdEl || !receivedEl) return;
 
+    let apiCreated = 0;
+    let apiReceived = 0;
+
     try {
       const stats = await workerRequest('/stats');
       if (stats && typeof stats.emails_created === 'number') {
-        createdEl.textContent = stats.emails_created.toLocaleString('en-US');
-        receivedEl.textContent = stats.messages_received.toLocaleString('en-US');
-        return;
+        apiCreated = stats.emails_created;
+        apiReceived = stats.messages_received;
       }
     } catch (e) {
       // Fallback
     }
 
     const validRows = activityLogs.filter(row => !row.deleted);
-    const totalCreated = validRows.length;
-    const totalMessages = validRows.reduce((sum, row) => sum + (Number(row.messages) || 0), 0);
+    const totalCreated = Math.max(apiCreated, validRows.length);
+    const logMessagesSum = validRows.reduce((sum, row) => sum + (Number(row.messages) || 0), 0);
+    const activeCacheCount = (typeof mailCache !== 'undefined' && Array.isArray(mailCache)) ? mailCache.length : 0;
+    const totalMessages = Math.max(apiReceived, logMessagesSum, activeCacheCount);
 
     createdEl.textContent = totalCreated.toLocaleString('en-US');
     receivedEl.textContent = totalMessages.toLocaleString('en-US');
@@ -1719,6 +1723,7 @@
     document.getElementById('viewInbox')?.classList.toggle('is-hidden', isCreate || isActivity);
     document.getElementById('viewCreate')?.classList.toggle('is-hidden', !isCreate);
     document.getElementById('viewActivity')?.classList.toggle('is-hidden', !isActivity);
+    localStorage.setItem('ssidmail_current_view', viewName);
     if (isActivity) {
       loadActivityLogs();
     }
@@ -2149,12 +2154,26 @@
 
       mailCache = fetched;
 
+      // Update message count for current active email in activityLogs
+      const activeEmailVal = input.value.trim();
+      if (activeEmailVal) {
+        const logIndex = activityLogs.findIndex(r => r.email === activeEmailVal);
+        if (logIndex >= 0) {
+          activityLogs[logIndex].messages = mailCache.length;
+          saveLocalActivityLogs(activityLogs);
+          if (activityLogs[logIndex].id && activityLogs[logIndex].synced) {
+            updateActivityOnWorker(activityLogs[logIndex], { message_count: mailCache.length }).catch(() => {});
+          }
+        }
+      }
+
       if (selectedMailIndex === null || selectedMailIndex >= mailCache.length) {
         selectedMailIndex = 0;
       }
 
       renderMailList();
       renderActiveMail();
+      updateRealStats();
 
     } catch (e) {
       console.error("Fetch Error:", e);
@@ -2395,7 +2414,8 @@
     }
 
     applySidebarAccess(mode);
-    switchView('inbox');
+    const savedView = localStorage.getItem('ssidmail_current_view') || (window.location.hash ? window.location.hash.replace('#', '') : 'inbox');
+    switchView(savedView);
 
     const savedTheme = localStorage.getItem('ssidmail_theme') || 'light';
     applyTheme(savedTheme);
