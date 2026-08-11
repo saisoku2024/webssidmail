@@ -6,3 +6,7 @@ compatibility_date = "2024-09-23"
 binding = "DB"
 database_name = "ssidmail"
 database_id = "cb513821-505a-4f82-8e97-3a7643602f30"
+
+# Cron: jalankan expire job setiap hari jam 00:00 UTC
+[triggers]
+crons = ["0 0 * * *"]

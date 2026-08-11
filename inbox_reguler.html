@@ -997,6 +997,38 @@
     color: var(--insight-text);
   }
 
+  /* ---------- STATUS BADGE ---------- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 0;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .status-badge.active {
+    background: rgba(52, 168, 83, 0.12);
+    color: var(--google-green);
+    border: 1.5px solid var(--google-green);
+  }
+  .status-badge.recycled {
+    background: rgba(234, 67, 53, 0.10);
+    color: var(--google-red);
+    border: 1.5px solid var(--google-red);
+  }
+  .expires-cell {
+    font-size: 11.5px;
+    color: var(--insight-muted);
+    font-family: 'Geist Mono', monospace;
+  }
+  .expires-cell.near-expiry {
+    color: var(--google-red);
+    font-weight: 700;
+  }
+
   .activity-empty {
     padding: 48px 20px;
     text-align: center;
@@ -1374,9 +1406,9 @@
                     <tr>
                       <th data-i18n="activity-no">No</th>
                       <th data-i18n="activity-email">Email</th>
-                      <th data-i18n="activity-size">Jumlah MB</th>
-                      <th data-i18n="activity-message">Jmlh Message</th>
-                      <th data-i18n="activity-status">Active</th>
+                      <th>Status</th>
+                      <th data-i18n="activity-message">Msg</th>
+                      <th>Expires</th>
                       <th data-i18n="activity-action">Action</th>
                     </tr>
                   </thead>
@@ -1560,6 +1592,7 @@
     const email = row.email || row.address || row.mail || '';
     const messageCount = Number(row.messages ?? row.message_count ?? row.jumlah_message ?? 0);
     const sizeMb = Number(row.sizeMb ?? row.size_mb ?? row.mb ?? 0);
+    const status = row.status || (row.active ? 'active' : 'recycled');
 
     return {
       id: String(row.id || email),
@@ -1568,6 +1601,9 @@
       messages: Number.isFinite(messageCount) ? messageCount : 0,
       active: Boolean(row.active ?? row.is_active ?? true),
       deleted: Boolean(row.deleted ?? row.is_deleted ?? false),
+      status,
+      expires_at: row.expires_at || row.expiresAt || null,
+      created_at: row.created_at || row.createdAt || null,
       synced: true
     };
   }
@@ -1605,7 +1641,8 @@
 
   async function loadActivityLogs() {
     try {
-      const payload = await workerRequest('/emails');
+      // include_recycled=1 agar email expired juga muncul di log
+      const payload = await workerRequest('/emails?include_recycled=1');
       activityLogs = normalizeActivityPayload(payload);
       renderActivityTable();
     } catch (error) {
@@ -1752,22 +1789,41 @@
       return;
     }
 
-    bodyEl.innerHTML = rows.map((row, index) => `
+    const now = new Date();
+    bodyEl.innerHTML = rows.map((row, index) => {
+      const status = row.status || (row.active ? 'active' : 'recycled');
+      const statusLabel = status === 'active' ? 'Active' : 'Recycled';
+
+      let expiresCell = '—';
+      if (row.expires_at) {
+        const expDate = new Date(row.expires_at);
+        const diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+        const isNear = diffDays <= 7 && diffDays >= 0;
+        const isPast = diffDays < 0;
+        const label = isPast
+          ? `Expired`
+          : `${diffDays}d left`;
+        expiresCell = `<span class="expires-cell ${isNear || isPast ? 'near-expiry' : ''}">${label}</span>`;
+      }
+
+      return `
       <tr>
         <td>${index + 1}</td>
         <td class="activity-email-cell">${escapeHtml(row.email)}</td>
-        <td>${escapeHtml(row.sizeMb)} MB</td>
-        <td>${escapeHtml(row.messages)}</td>
-        <td>
-          <button class="activity-toggle ${row.active ? 'is-active' : ''}" onclick="toggleActivityActive('${row.id}')" title="Toggle active"></button>
-        </td>
+        <td><span class="status-badge ${status}">${statusLabel}</span></td>
+        <td>${escapeHtml(String(row.messages))}</td>
+        <td>${expiresCell}</td>
         <td>
           <div class="activity-actions">
-            <button class="activity-delete" onclick="deleteActivityRow('${row.id}')">Deleted</button>
+            ${status === 'active'
+              ? `<button class="activity-delete" onclick="deleteActivityRow('${row.id}')">Delete</button>`
+              : `<button class="activity-delete" style="opacity:0.5" disabled>Recycled</button>`
+            }
           </div>
         </td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
   }
 
   async function toggleActivityActive(id) {
